@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<product_file>
+<product method='basic' name='89V-Legacy' testonly='no'>
+    <basic_args>
+        <source name='gmi'>
+            <var>tb89v</var>
+        </source>
+        <img>
+            <equation>tb89v</equation>
+            <range>
+                <min_value>180</min_value>
+                <max_value>280</max_value>
+                <units>K</units>
+            </range>
+        </img>
+        <day_night>both</day_night>
+        <cmap>tropix_no_white</cmap>
+        <interpolation_radius_of_influence>7500</interpolation_radius_of_influence>
+        <colorbar>
+            <cmap>tropix_no_white</cmap>
+            <ticks>180 190 200 210 220 230 240 250 260 270 280</ticks>
+            <title>89 GHz V-Pol Brightness Temperature (K)</title>
+        </colorbar>
+        <coastcolor>0 0 0</coastcolor>
+        <gridcolor>0 0 0</gridcolor>
+    </basic_args>
+</product>
+</product_file>
+

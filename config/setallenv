@@ -1,0 +1,11 @@
+# For operational paths, set OpsPATH and PATH
+# Ops paths are just for convenience - so 
+# individual users can see what the operational paths are locally.
+function setallenv {
+    export Ops$1=$2
+    if [ -z ${GEOIPS_OPERATIONAL_USER+x} ]; then
+        export $1=${GEOIPS_OUTDIRS}$2
+    else
+        export $1=$2
+    fi
+} 

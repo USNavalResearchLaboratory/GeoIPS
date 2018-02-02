@@ -1,0 +1,11 @@
+# Make sure .gitignore doesn't show up when doing git status.
+# so no one inadvertently checks it in.
+uicwd=$PWD
+cd $GEOIPS
+gitall update-index --assume-unchanged .gitignore
+cd $uicwd
+# To put it back the way it was:
+#   \git update-index --no-assume-unchanged .gitignore
+# To list all files that have been ignored:
+#   git ignored (set in ~/.gitconfig below)
+

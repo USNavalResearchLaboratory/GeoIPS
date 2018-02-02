@@ -1,0 +1,49 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE colorbar_list SYSTEM "colorbars.dtd">
+
+<colorbar_list xmlns:py="http://codespeak.net/lxml/objectify/pytype">
+    <colorbar name="testcb">
+        <!-- 
+            min and max vals can be any values, 
+            start and end vals in transitions below must fill the entire range.
+                The first specified start_val MUST equal min_val
+                The last specified end_val MUST equal max_val
+        -->
+        <min_val>0</min_val>
+        <max_val>100</max_val>
+        <transition>
+            <!-- 
+                start_color and end_color can be any matplotlib supported color value.
+                http://matplotlib.org/api/colors_api.html
+                Test using color full or abbreviated names: 
+                    pink = (1,.75,.8)
+                    r = red = (1,0,0)
+            -->
+            <start_color>pink</start_color>
+            <end_color>r</end_color>
+            <start_val>0</start_val>
+            <end_val>20</end_val>
+        </transition>
+        <transition>
+            <!-- 
+                Test colors using tuples
+                    (0,.5,0) =~ Green
+                or RGB hex specification
+                    #0000FF = Blue
+            -->
+            <start_color>(0,.5,0)</start_color>
+            <end_color>#0000FF</end_color>
+            <start_val>20</start_val>
+            <end_val>30</end_val>
+        </transition>
+        <transition>
+            <!-- 
+                Test colors using html color names
+            -->
+            <start_color>burlywood</start_color>
+            <end_color>chartreuse</end_color>
+            <start_val>30</start_val>
+            <end_val>100</end_val>
+        </transition>
+    </colorbar> 
+</colorbar_list>

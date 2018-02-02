@@ -1,0 +1,137 @@
+# Remember you CAN NOT echo anything from bashrc/cshrc or scp will fail!!
+
+# Author:
+#    Naval Research Laboratory, Marine Meteorology Division
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the NRLMMD License included with this program.  If you did not
+# receive the license, see http://www.nrlmry.navy.mil/geoips for more
+# information.
+#
+# This program is distributed WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# included license for more details.
+
+
+##############################################################################
+# Remember you CAN NOT echo anything from bashrc/cshrc or scp will fail!!
+##############################################################################
+
+##############################################################################
+# The only required environment variable - tells it where to put
+# intermediate files, etc.
+##############################################################################
+export GEOIPS_OUTDIRS=~/geoips_outdirs
+
+
+##############################################################################
+# This will actually default to the location of the code you are running
+# if not set.
+##############################################################################
+# export GEOIPS=~/geoips
+
+##############################################################################
+# Include additional GeoIPS repos, will find additional sectorfiles and 
+# productfiles from these repos 
+##############################################################################
+# geoips_mine=~/geoips_mine
+# geoips_yours=~/geoips_yours
+# export EXTERNAL_GEOIPS=$geoips_mine:$geoips_yours
+
+
+##############################################################################
+### Set explicit paths to sectorfiles or productfiles
+##############################################################################
+# export EXTERNAL_SECTORFILEPATH=/path/to/sectorfiles:/other/path/to/sectorfiles
+# export EXTERNAL_PRODUCTFILEPATH=
+# export EXTERNAL_STATIC_SECTORFILEPATH=$GEOIPS_FNMOC/sectorfiles/beryl
+
+
+#############################################################################
+### Can set SCRATCH, LOCALSCRATCH, and SHAREDSCRATCH for efficiency - defaults
+### to $GEOIPS_OUTDIRS if not set in environment
+#############################################################################
+# export SCRATCH=$GEOIPS_OUTDIRS/scratch
+# export LOCALSCRATCH=$GEOIPS_OUTDIRS/scratch
+# export SHAREDSCRATCH=$GEOIPS_OUTDIRS/scratch
+
+
+##############################################################################
+# geoalgs/src/Makefile will try to find LOCALFORTRANLIB and INC.
+# If it fails, you can set them here...
+##############################################################################
+#export LOCALFORTRANLIB=/share/apps/lib
+#export LOCALFORTRANINC=/share/apps/include
+# Used in build if needed.
+# export FORTRANLIBS="-lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz"
+
+
+##############################################################################
+# Set XRIT_DECOMPRESS_PATH to the location of the XRIT decompression software if 
+# installed for MSG reader.
+# See http://www.eumetsat.int/website/home/Data/DataDelivery/SupportSoftwareandTools/index.html
+# for Public Wavelet Transform Decompression Library Software - requires license.
+##############################################################################
+# export XRIT_DECOMPRESS_PATH=
+
+
+
+##############################################################################
+# Used for git
+##############################################################################
+# export USEREMAIL=None
+# export USERFULLNAME="User $USER"
+
+
+##############################################################################
+# Set GEOIPS_OPERATIONAL_USER to force GeoIPS to skip sectors marked 
+# not operational. Also, if GEOIPS_OPERATIONAL_USER is NOT set, products
+# will not be written to web output locations.
+##############################################################################
+#export GEOIPS_OPERATIONAL_USER=$USER
+
+
+
+
+
+
+##############################################################################
+### Everything after this point are optional convenience functions.  Must set 
+### CURRENT_CONFIGPATH before sourcing.
+##############################################################################
+# if [ -L $BASH_SOURCE ]; then
+#     linkpath=`readlink $BASH_SOURCE`
+#     CURRENT_CONFIGPATH=`dirname $linkpath`
+# else
+#     CURRENT_CONFIGPATH=`dirname $BASH_SOURCE`
+# fi
+
+
+
+
+
+##############################################################################
+### Convenience function  to Allow for specifying system paths on 
+### more than one line (so we could see what changed when doing a diff..)
+### a diff)
+##############################################################################
+# source $CURRENT_CONFIGPATH/arraytoenv
+
+##############################################################################
+### Convenience function to color your command prompt differently for
+### operational and user accounts (branchorops = branch, operations, admin)
+##############################################################################
+# source $CURRENT_CONFIGPATH/color_prompt
+
+
+##############################################################################
+### Convenience function that runs git in all available repos 
+### 	GEOIPS+EXTERNAL_GEOIPS
+##############################################################################
+# source $CURRENT_CONFIGPATH/gitall
+
+
+##############################################################################
+### Convenience function that runs gitconfig commands
+##############################################################################
+# source $CURRENT_CONFIGPATH/gitconfigs

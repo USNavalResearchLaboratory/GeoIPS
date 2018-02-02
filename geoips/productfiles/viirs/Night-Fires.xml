@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<product_file>
+<product method='external' name='Night-Fires'>
+    <external_args>
+        <source name='viirs'>
+            <var>SVM13BT</var>
+            <var>SVM15BT</var>
+            <gvar>SunZenith</gvar>
+        </source>
+        <day_night>night</day_night>
+        <coastcolor>0 180 0 255</coastcolor>
+        <gridcolor>0 180 0 255</gridcolor>
+    </external_args>
+</product>
+</product_file>

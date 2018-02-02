@@ -1,0 +1,48 @@
+
+function setpaths {
+
+    # Only set these ONCE ever (don't unset). 
+    # And AFTER running local config (so module loads are reflected here)
+    if [ ! $ORIG_PATH ]; then
+        export ORIG_PATH=$PATH
+    fi  
+    if [[ ! $ORIG_PYTHONPATH ]]; then
+        export ORIG_PYTHONPATH=$PYTHONPATH
+    fi  
+    if [[ ! $ORIG_LD_LIBRARY_PATH ]]; then
+        export ORIG_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+    fi  
+
+    path_parts=$1
+    ld_library_path_parts=$2
+    python_path_parts=$3
+    # If any users use their own pathparse / ld_library_path_parts, need to 
+    # combine the lists. 
+    if [[ ! $BASE_PATH ]]; then
+        if [[ $STANDALONE_GEOIPS ]]; then
+            export BASE_PATH=$ORIG_PATH:$STANDALONE_GEOIPS:$EXTERNAL_GEOIPS
+        else
+            export BASE_PATH=$ORIG_PATH:$GEOIPS:$EXTERNAL_GEOIPS
+        fi
+    fi
+    if [[ ! $BASE_PYTHONPATH ]]; then
+        if [[ $STANDALONE_GEOIPS ]]; then
+            export BASE_PYTHONPATH=$ORIG_PYTHONPATH:$STANDALONE_GEOIPS:$EXTERNAL_GEOIPS
+        else
+            export BASE_PYTHONPATH=$ORIG_PYTHONPATH:$GEOIPS:$EXTERNAL_GEOIPS
+        fi
+    fi  
+    if [[ ! $BASE_LD_LIBRARY_PATH ]]; then
+        export BASE_LD_LIBRARY_PATH=$ORIG_LD_LIBRARY_PATH
+    fi  
+        
+    export PATH=$BASE_PATH:`arraytoenv path_parts[@]`
+    export LD_LIBRARY_PATH=$BASE_LD_LIBRARY_PATH:`arraytoenv ld_library_path_parts[@]`
+    export PYTHONPATH=`arraytoenv python_path_parts[@]`:$BASE_PYTHONPATH
+
+    unset BASE_PATH
+    unset BASE_PYTHONPATH
+    unset BASE_LD_LIBRARY_PATH
+
+}
+

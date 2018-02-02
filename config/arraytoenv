@@ -1,0 +1,19 @@
+##############################################################################
+### Convenience function  to Allow for specifying system paths on 
+### more than one line (so we could see what changed when doing a diff..)
+### a diff)
+##############################################################################
+function arraytoenv {
+  declare -a arr=("${!1}")
+  outstr=''
+  for elem in ${arr[@]}; do
+    if [[ ! -z $elem ]]; then
+        outstr=${outstr}:$elem
+    fi
+  done
+  while [[ ${outstr[@]:0:1} == : ]]; do
+      outstr=${outstr:1}
+  done
+  # NEED THIS ECHO! That is what is returned.
+  echo $outstr
+}

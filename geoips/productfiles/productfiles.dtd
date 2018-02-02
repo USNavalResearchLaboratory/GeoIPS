@@ -1,0 +1,165 @@
+<!--
+# Author:
+#    Naval Research Laboratory, Marine Meteorology Division
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the NRLMMD License included with this program.  If you did not
+# receive the license, see http://www.nrlmry.navy.mil/geoips for more
+# information.
+#
+# This program is distributed WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# included license for more details.
+-->
+<!ELEMENT product_file          (product+)>
+<!ELEMENT product               (multisource_args?, contour_args?, windbarbs_args?,basic_args?, external_args?, footprints_args?, rgb_args?)>
+<!-- multisource product type is special. Order matters for productlayer
+        Specify order in in productlayer attribute. Smallest number
+            for order is on the top, largest number is on the bottom.
+        One or more sourcelayer
+     Also specify hour range to match (must be integer value), default to 2h when not specified
+     Also specify whether to match one (default) or all files in range (matchall = 'yes' to match all)  -->
+<!ELEMENT multisource_args         (productlayer+, min_cover?, colorbar*,legend_text?,  coastcolor?, gridcolor?)>
+<!ELEMENT productlayer          (possiblesource+)>
+
+
+<!ELEMENT contour_args          (source+, dataset?, img1?, img2?, img3?, img4?, img5?, img6?, img7?,img8?, day_night,min_cover?, interpmethod?, cmap, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?,
+                                 colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT basic_args            (source+, dataset?, img, day_night,min_cover?, interpmethod?, cmap, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?,
+                                 colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT windbarbs_args        (source+, dataset?, img, img1, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,
+                                 colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT footprints_args       (source+, dataset?, speed, direction, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,
+                                 colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT external_args         (source+, dataset?, datasets?, day_night?,min_cover?,interpmethod?, interpolation_radius_of_influence?, colorbar*,legend_text?, max_day_zen_ang?,
+                                 coastcolor?, gridcolor?, best_possible_pixel_height?,best_possible_pixel_width?)>
+<!ELEMENT rgb_args              (source+, dataset?, red, grn, blu, day_night,min_cover?,interpmethod?, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?, coastcolor?,
+                                 gridcolor?,best_possible_pixel_height?,best_possible_pixel_width?)>
+<!ELEMENT legend_text           (below_colorbars?,above_colorbars?,below_title?)>
+<!ELEMENT below_colorbars       (#PCDATA)>
+<!ELEMENT above_colorbars       (#PCDATA)>
+<!ELEMENT below_title           (#PCDATA)>
+<!ELEMENT interpolation_radius_of_influence (#PCDATA)>
+<!ELEMENT interpmethod          (#PCDATA)>
+
+<!ELEMENT source                (var+, gvar*)>
+<!ELEMENT datasets              (dataset+)>
+<!ELEMENT var                   (#PCDATA)>
+
+<!-- Used to specify possible sources for a specific product layer in multisource products-->
+<!ELEMENT possiblesource        (#PCDATA)>
+
+<!-- I think gvar is deprecated (set zenith='yes' on specific variable to use SunZenith, Lat/Lon use is assumed)
+        but it still exists in some productfiles, so leave for now -->
+<!ELEMENT gvar                  (#PCDATA)>
+<!ELEMENT dataset               (#PCDATA)>
+<!ELEMENT equation              (#PCDATA)>
+
+<!ELEMENT range                 (min_value, max_value, outbounds?,min_outbounds?,max_outbounds?,normalize?,inverse?, units)>
+<!-- Equation range paramaters are executed in this order, if specified:
+    inverse 
+    min_value
+    max_value
+    normalize
+min_outbounds/max_outbounds is used in apply_minimum_value, apply_maximum_value, and normalize. Options are:
+If outbounds is set, it's value is used for both min_outbounds and max_outbounds (if they are not set)
+    'crop' DEFAULT (set in geoimg/geoimg.py.apply_data_range, productfile/xml.py.outbounds
+    'mask'
+    'retain'
+
+
+    units is currently UNUSED. Has not been implemented
+-->
+<!ELEMENT min_value             (#PCDATA)>
+<!ELEMENT max_value             (#PCDATA)>
+<!ELEMENT outbounds             (#PCDATA)>
+<!ELEMENT min_outbounds         (#PCDATA)>
+<!ELEMENT max_outbounds         (#PCDATA)>
+<!ELEMENT units                 (#PCDATA)>
+<!ELEMENT normalize             (#PCDATA)>
+<!ELEMENT inverse               (#PCDATA)>
+
+
+<!ELEMENT beamwidth             (#PCDATA)>
+<!ELEMENT day_night             (#PCDATA)>
+<!ELEMENT min_cover             (#PCDATA)>
+<!ELEMENT colorbar              (cmap, ticks, ticklabels?, title?)>
+<!ELEMENT cmap                  (#PCDATA)>
+<!ELEMENT ticks                 (#PCDATA)>
+<!ELEMENT ticklabels            (#PCDATA)>
+<!ELEMENT title                 (#PCDATA)>
+<!ELEMENT coastcolor            (#PCDATA)>
+<!ELEMENT gridcolor             (#PCDATA)>
+<!ELEMENT max_day_zen_ang       (#PCDATA)>
+<!ELEMENT min_ngt_zen_ang       (#PCDATA)>
+<!ELEMENT img                   (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT img1                  (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT img2                  (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT img3                  (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT img4                  (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT img5                  (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT img6                  (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT img7                  (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT img8                  (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT speed                 (equation+, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT direction             (equation+, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT red                   (source?,equation+, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT grn                   (source?,equation+, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT blu                   (source?,equation+, range, gamma1?, gamma2?, best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT best_possible_pixel_height    (#PCDATA)>
+<!ELEMENT best_possible_pixel_width     (#PCDATA)>
+<!ELEMENT color                (#PCDATA)>
+<!ELEMENT level                (#PCDATA)>
+<!ELEMENT gamma1                (#PCDATA)>
+<!ELEMENT gamma2                (#PCDATA)>
+<!ATTLIST product method        CDATA #REQUIRED>
+<!ATTLIST product plotmethod    CDATA #IMPLIED>
+<!-- display_name is how the product name is displayed in titles, legends, etc. Defaults to "name" if not specified.
+     name is the short name for the product - used in filenames, driver calls, internal to code to reference products, etc
+-->
+<!ATTLIST product name          CDATA #IMPLIED>
+<!ATTLIST product display_name          CDATA "False">
+<!ATTLIST productlayer name          CDATA #IMPLIED>
+<!ATTLIST productlayer runonreceipt      CDATA "no">
+<!ATTLIST productlayer matchall      CDATA "no">
+<!ATTLIST productlayer hour_range      CDATA "2">
+<!-- Smallest number for order is on the top, largest number is on the bottom.-->
+<!ATTLIST productlayer order    CDATA #REQUIRED>
+<!ATTLIST product testonly      CDATA "no">
+<!ATTLIST source name           CDATA #REQUIRED>
+
+<!-- normalize/min/max/units/outbounds deprecated for var attlist
+    zenith still used to specify solar zenith correction for specific variables
+        possibly this should be specified at the equation level?
+    eq_name used for ExternalImg types, to specify something? may or may not 
+        actually be used at this point ?
+-->
+<!ATTLIST var zenith            CDATA "no">
+<!ATTLIST var eq_name           CDATA #IMPLIED>
+
+<!-- eq_name used when specifying multiple equations, so you can reference 
+        prior equations in new calculations.
+-->
+<!ATTLIST equation eq_name      CDATA ''>
+<!ATTLIST img cmap              CDATA ''>
+<!ATTLIST speed cmap            CDATA ''>
+<!ATTLIST direction cmap        CDATA ''>
+

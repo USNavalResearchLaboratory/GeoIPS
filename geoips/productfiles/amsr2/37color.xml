@@ -1,0 +1,60 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<product_file>
+<product method='rgb' name='37color' testonly='no'>
+    <rgb_args>
+        <source name='amsr2'>
+            <var>tb36h</var>
+            <var>tb36v</var>
+        </source>
+        <red>
+            <equation eq_name='pct'>(2.181*tb36v)-(1.181*tb36h)</equation>
+            <range>
+                <min_value>260.0</min_value>
+                <max_value>280.0</max_value>
+                <outbounds>crop</outbounds>
+                <normalize>yes</normalize>
+                <inverse>yes</inverse>
+                <units>K</units>
+            </range>
+            <gamma1>1.0</gamma1>
+        </red>
+        <grn>
+            <equation eq_name='bt'>tb36v</equation>
+            <equation eq_name='norm'>(bt - 180.0)/(300.0 - 180.0)</equation>
+            <range>
+                <min_value>0.0</min_value>
+                <max_value>1.0</max_value>
+                <outbounds>crop</outbounds>
+                <normalize>yes</normalize>
+                <inverse>no</inverse>
+                <units>K</units>
+            </range>
+            <gamma1>1.0</gamma1>
+        </grn>
+        <blu>
+            <equation eq_name='bt'>tb36h</equation>
+            <equation eq_name='norm'>(bt - 160.0)/(300.0 - 160.0)</equation>
+            <range>
+                <min_value>0.0</min_value>
+                <max_value>1.0</max_value>
+                <outbounds>crop</outbounds>
+                <normalize>yes</normalize>
+                <inverse>no</inverse>
+                <units>K</units>
+            </range>
+            <gamma1>1.0</gamma1>
+        </blu>
+        <day_night>both</day_night>
+        <coastcolor>255 180 0 180</coastcolor>
+        <gridcolor>255 180 0 150</gridcolor>
+    </rgb_args>
+</product>
+</product_file>
+

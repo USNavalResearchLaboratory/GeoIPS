@@ -1,0 +1,133 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE sector_file SYSTEM "../sectorfiles.dtd">
+<!--
+    Notes:
+        See sectorfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<sector_file xmlns:py="http://codespeak.net/lxml/objectify/pytype">
+<!-- CONUS SECTORS -->
+  <sector name="Cali" active="yes" composite="no">
+    <destinations />
+    <name>
+      <continent>NorthAmerica</continent>
+      <country>CONUS</country>
+      <area>West</area>
+      <subarea/>
+      <state>California</state>
+      <city>x</city>
+    </name>
+    <area_info>
+      <center_lat>36.0N</center_lat>
+      <center_lon>121.0W</center_lon>
+      <num_lines>1300</num_lines>
+      <num_samples>1700</num_samples>
+      <pixel_width>0.75</pixel_width>
+      <pixel_height>0.75</pixel_height>
+      <projection>stere</projection>
+    </area_info>
+    <plot_info>
+      <grid_size>5</grid_size>
+      <min_cover>0.01</min_cover>
+      <char_size>12</char_size>
+      <map_resolution>intermediate</map_resolution>
+    </plot_info>
+    <source name="amsr2">
+      <product name="89H"/>
+      <product name="89V"/>
+      <product name="37color"/>
+    </source>
+    <source name="gmi">
+      <product name="37color"/>
+      <product name="89H"/>
+      <product name="89V"/>
+    </source>
+    <source name="gvar">
+      <product name="Visible"/>
+      <product name="Infrared"/>
+    </source>
+    <source name="modis">
+      <product name="Day-Fires"/>
+      <product name="Fire-Product"/>
+      <product name="Infrared"/>
+      <product name="Night-Fires"/>
+      <product name="Vapor"/>
+      <product name="Visible"/>
+    </source>
+    <source name="multisource">
+      <product name="89H-Over-IR"/>
+    </source>
+    <source name="viirs">
+      <product name="Day-Fires" testonly="yes"/>
+      <product name="Infrared"/>
+      <product name="Natural-Color"/>
+      <product name="Near-Constant-Contrast"/>
+      <product name="Night-Fires"/>
+      <product name="Night-Vis-IR"/>
+      <product name="Night-Visible"/>
+      <product name="Visible"/>
+    </source>
+  </sector>
+  <sector name="JapanComposite" active="yes" composite="no">
+    <destinations />
+    <name>
+      <continent>Asia</continent>
+      <country>Japan</country>
+      <area>x</area>
+      <subarea>x</subarea>
+      <state>x</state>
+      <city>x</city>
+    </name>
+    <area_info>
+      <center_lat>39.5N</center_lat>
+      <center_lon>139.5E</center_lon>
+      <num_lines>1825</num_lines>
+      <num_samples>1500</num_samples>
+      <pixel_width>1.0</pixel_width>
+      <pixel_height>1.0</pixel_height>
+      <projection>stere</projection>
+    </area_info>
+    <plot_info>
+      <grid_size>5</grid_size>
+      <min_cover>0.01</min_cover>
+      <char_size>12</char_size>
+      <map_resolution>intermediate</map_resolution>
+    </plot_info>
+    <source name="ahi">
+      <product name="Infrared"/>
+      <product name="Natural-Color"/>
+      <product name="Visible"/>
+    </source>
+    <source name="amsr2">
+      <product name="37color"/>
+      <product name="89H"/>
+      <product name="89V"/>
+    </source>
+    <source name="gmi">
+      <product name="37color"/>
+      <product name="89H"/>
+      <product name="89V"/>
+    </source>
+    <source name="modis">
+      <product name="Day-Fires"/>
+      <product name="Fire-Product"/>
+      <product name="Infrared"/>
+      <product name="Night-Fires"/>
+      <product name="Vapor"/>
+      <product name="Visible"/>
+    </source>
+    <source name="multisource">
+      <product name="89H-Over-IR"/>
+    </source>
+    <source name="viirs">
+      <product name="Day-Fires" testonly="yes"/>
+      <product name="Infrared"/>
+      <product name="Natural-Color"/>
+      <product name="Near-Constant-Contrast"/>
+      <product name="Night-Fires"/>
+      <product name="Night-Vis-IR"/>
+      <product name="Night-Visible"/>
+      <product name="Visible"/>
+    </source>
+  </sector>
+</sector_file>

@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+        Arunas 20140407 changed celcius to celsius
+-->
+<product_file>
+<product method='basic' name='Fire-Product' testonly='yes'>
+    <basic_args>
+        <source name='modis'>
+            <var>fire_mask</var>
+        </source>
+        <img>
+            <equation>fire_mask</equation>
+            <range>
+                <min_value>7</min_value>
+                <max_value>9</max_value>
+                <units>celsius</units>
+            </range>
+        </img>
+        <day_night>both</day_night>
+        <min_cover>0</min_cover>
+        <cmap>fire_product</cmap>
+        <coastcolor>160 82 45</coastcolor>
+        <gridcolor>160 82 45</gridcolor>
+    </basic_args>
+</product>
+</product_file>

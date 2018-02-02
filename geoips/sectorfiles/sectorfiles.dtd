@@ -1,0 +1,286 @@
+<!--
+# Author:
+#    Naval Research Laboratory, Marine Meteorology Division
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the NRLMMD License included with this program.  If you did not
+# receive the license, see http://www.nrlmry.navy.mil/geoips for more
+# information.
+#
+# This program is distributed WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# included license for more details.
+-->
+<!ELEMENT sector_file      (sector+)>
+<!ELEMENT sector_list      (sector+)>
+
+<!ELEMENT sector           (destinations,source_info?,pyrocb_info?,atmosriver_info?,tc_info?,volcano_info?,public_link?,private_link?,name,area_info,plot_info,plot_objects?,source+)>
+<!ELEMENT destinations     (#PCDATA)>
+<!ELEMENT public_link      (#PCDATA)>
+<!ELEMENT private_link     (#PCDATA)>
+
+<!ELEMENT source_info      (sourceflattextfile,sourceline,sourcetemplate,sourcedynamicxmlpath?)>
+
+<!ELEMENT tc_info          (pressure,wind_speed,clat,clon,dtg,storm_num,storm_name)>
+<!ELEMENT volcano_info     (summit_elevation,plume_height,wind_speed,wind_dir,clat,clon)>
+<!ELEMENT pyrocb_info      (min_lat,max_lat,min_lon,max_lon,box_resolution_km)>
+<!ELEMENT atmosriver_info  (min_lat,max_lat,min_lon,max_lon,box_resolution_km)>
+<!ELEMENT min_lat          (#PCDATA)>
+<!ELEMENT max_lat          (#PCDATA)>
+<!ELEMENT min_lon          (#PCDATA)>
+<!ELEMENT max_lon          (#PCDATA)>
+
+<!ELEMENT sourceflattextfile (#PCDATA)>
+<!ELEMENT sourceline         (#PCDATA)>
+<!ELEMENT sourcetemplate     (#PCDATA)>
+<!ELEMENT sourcedynamicxmlpath     (#PCDATA)>
+<!ELEMENT pressure        (#PCDATA)>
+<!ELEMENT dtg              (#PCDATA)>
+<!ELEMENT storm_num        (#PCDATA)>
+<!ELEMENT storm_name       (#PCDATA)>
+<!ELEMENT box_resolution_km (#PCDATA)>
+<!ELEMENT summit_elevation (#PCDATA)>
+<!ELEMENT plume_height     (#PCDATA)>
+<!ELEMENT wind_speed       (#PCDATA)>
+<!ELEMENT wind_dir         (#PCDATA)>
+<!ELEMENT clat             (#PCDATA)>
+<!ELEMENT clon             (#PCDATA)>
+
+<!ELEMENT name                  (continent,country,area,subarea,state,city)>
+<!ELEMENT continent             (#PCDATA)>
+<!ELEMENT country               (#PCDATA)>
+<!ELEMENT area                  (#PCDATA)>
+<!ELEMENT subarea               (#PCDATA)>
+<!ELEMENT state                 (#PCDATA)>
+<!ELEMENT city                  (#PCDATA)>
+
+<!--
+    Specifications for area_info:
+
+    intermediate_data_output    defaults to False   (in process.py, must be True or False)
+-->
+
+<!ELEMENT area_info           (source?,center_lat?,center_lon?,min_lat?,max_lat?,min_lon?,max_lon?,num_lines?,num_samples?,pixel_width?,pixel_height?,projection,intermediate_data_output?)>
+<!ELEMENT projection            (#PCDATA)>
+<!ELEMENT intermediate_data_output (#PCDATA)>
+<!ELEMENT center_lat            (#PCDATA)>
+<!ELEMENT center_lon            (#PCDATA)>
+<!ELEMENT num_lines             (#PCDATA)>
+<!ELEMENT num_samples           (#PCDATA)>
+<!ELEMENT pixel_width           (#PCDATA)>
+<!ELEMENT pixel_height          (#PCDATA)>
+
+<!--
+    grid_size           REQUIRED                    Usually 5
+    grid_lon_size       defaults to grid_size       (in geoimg.py)
+    grid_linewidth      defaults to 1               (in geoimg.py)
+    grid_lon_linewidth  defaults to grid_thickness  (in geoimg.py)
+    grid_dashes         defaults to [4,2]           (in geoimg.py, [4,2] means 4 pixels on, 2 pixels off)
+    grid_lon_dashes     defaults to grid_dashes     (in geoimg.py) 
+    top_latlon_label    defaults to True            (in geoimg.py, must be True or False)
+    bottom_latlon_label defaults to True            (in geoimg.py, must be True or False)
+    left_latlon_label   defaults to True            (in geoimg.py, must be True or False)
+    right_latlon_label  defaults to True            (in geoimg.py, must be True or False)
+    min_cover           REQUIRED                    should be 0.01, because things get merged, should provide default...
+    min_total_cover     defaults to 40              (in sectorfile/xml.py)
+    char_size           REQUIRED                    usually 12, should provide default...
+    map_resolution      REQUIRED                    usually intermediate, should provide default...
+    coastlines_linewidth defaults to 2              (in geoimg.py)
+    countries_linewidth defaults to 1               (in geoimg.py)
+    states_linewidth    defaults to 0.5             (in geoimg.py)
+    rivers_linewidth    defaults to 0               (in geoimg.py)
+
+    MUST FOLLOW CORRECT ORDER or DTD check will fail.
+-->
+<!ELEMENT plot_info             (grid_lines?,grid_size,grid_lon_size?,grid_linewidth?,grid_lon_linewidth?,grid_dashes?,grid_lon_dashes?,top_latlon_label?,bottom_latlon_label?,left_latlon_label?,right_latlon_label?,min_cover,min_total_cover?,char_size,map_resolution,coastlines_linewidth?,countries_linewidth?,states_linewidth?,rivers_linewidth?)>
+<!ELEMENT grid_lines            (#PCDATA)>
+<!ELEMENT grid_size             (#PCDATA)>
+<!ELEMENT grid_lon_size         (#PCDATA)>
+<!ELEMENT grid_linewidth        (#PCDATA)>
+<!ELEMENT grid_lon_linewidth    (#PCDATA)>
+<!ELEMENT grid_dashes           (#PCDATA)>
+<!ELEMENT grid_lon_dashes       (#PCDATA)>
+<!--
+     Will add in grid_crosshairs options when ready
+
+<!ELEMENT grid_crosshairs_lat_spacing             (#PCDATA)>
+<!ELEMENT grid_crosshairs_lon_spacing             (#PCDATA)>
+-->
+<!ELEMENT top_latlon_label      (#PCDATA)>
+<!ELEMENT bottom_latlon_label   (#PCDATA)>
+<!ELEMENT left_latlon_label     (#PCDATA)>
+<!ELEMENT right_latlon_label    (#PCDATA)>
+<!ELEMENT min_cover             (#PCDATA)>
+<!ELEMENT min_total_cover       (#PCDATA)>
+<!ELEMENT char_size             (#PCDATA)>
+<!ELEMENT map_resolution        (#PCDATA)>
+<!ELEMENT coastlines_linewidth  (#PCDATA)>
+<!ELEMENT countries_linewidth   (#PCDATA)>
+<!ELEMENT states_linewidth      (#PCDATA)>
+<!ELEMENT rivers_linewidth      (#PCDATA)>
+
+<!ELEMENT plot_objects          (circle*)>
+<!ELEMENT point                 (center_lat, center_lon, size, color)>
+<!ELEMENT circle                (center_lat, center_lon, radius, color)>
+<!ELEMENT size                  (#PCDATA)>
+<!ELEMENT radius                (#PCDATA)>
+<!ELEMENT color                 (#PCDATA)>
+
+<!ELEMENT source                (master_info_override?,plot_info_override?,product+)>
+<!ELEMENT master_info_override  (center_lat?,center_lon?,num_lines?,num_samples?,pixel_width?,pixel_height?)>
+<!ELEMENT plot_info_override    (projection?,grid_size?,min_cover?,min_total_cover?,char_size?)>
+<!ELEMENT product               (master_info_override?,plot_info_override?)>
+
+<!ATTLIST sector_file xmlns:py CDATA #REQUIRED>
+<!ATTLIST sector_list xmlns:py CDATA #REQUIRED>
+<!ATTLIST sector dynamic_datetime CDATA "">
+<!ATTLIST sector dynamic_endtime CDATA "">
+<!ATTLIST sector dynamic CDATA "no">
+<!ATTLIST sector name CDATA #REQUIRED>
+<!ATTLIST sector sector_name_display CDATA "False">
+<!ATTLIST sector active CDATA "no">
+<!ATTLIST sector operational CDATA "yes">
+<!ATTLIST sector testonly CDATA "no">
+<!ATTLIST sector download CDATA "no">
+<!ATTLIST sector composite CDATA "no">
+<!ATTLIST sector stitched CDATA "no">
+<!ATTLIST destinations tc CDATA "no">
+<!ATTLIST destinations atcf CDATA "no">
+<!ATTLIST destinations metoctiff CDATA "no">
+<!ATTLIST destinations test CDATA "no">
+<!ATTLIST destinations private CDATA "no">
+<!ATTLIST destinations public CDATA "no">
+<!ATTLIST destinations pyrocb CDATA "no">
+<!ATTLIST destinations atmosriver CDATA "no">
+<!ATTLIST destinations tropical CDATA "no">
+<!ATTLIST destinations datanrl CDATA "no">
+<!ATTLIST destinations archive CDATA "no">
+<!ATTLIST source name CDATA #REQUIRED>
+<!ATTLIST source source_name_display CDATA "False">
+<!ATTLIST source platform_name_display CDATA "False">
+<!ATTLIST source testonly CDATA "no">
+<!ATTLIST product name CDATA #REQUIRED>
+<!ATTLIST product testonly CDATA "no">
+
+
+<!--
+Notes:
+Each SECTOR element defines another sector for which to produce products and
+    contains each of the following:  
+    
+    ATTRIBUTES:
+        name        -> A short name for the sector (string) 
+        active      -> A flag to turn a sector on and off (string)
+                       Allowable values: "yes", "no" DEFAULT "no"
+        operational -> A flag to turn a sector on and off for OPERATIONAL USER (string)
+                       Allowable values: "yes", "no" DEFAULT "yes"
+        public      -> A flag to determine whether this image should be sent to public websites (string)
+                       Allowable values: "yes", "no"
+        private     -> A flag to determine whether this image should be sent to CAC enabled webpages (string)
+                       Allowable values: "yes", "no"
+        pyrocb      -> A flag to determine whether this image should be sent to PyroCB webpage (string)
+                       Allowable values: "yes", "no"
+        atmosriver  -> A flag to determine whether this image should be sent to Atmospheric River webpage (string)
+                       Allowable values: "yes", "no"
+        tropical    -> A flag to determine whether this image shoudl be sent to tropical webpages (string)
+                       Allowable values: "yes", "no"
+        datanrl     -> A flag to determine whether this data shoudl be sent to NRL (string)
+                       Allowable values: "yes", "no"
+
+    ELEMENTS:
+    
+        NAME
+        -> Contains elements to create a long name for a sector.  Any unused children should
+        be left empty.  These children will be used for building file and directory names for
+        products
+            CONTINENT   -> Name of the continent (eg NorthAmerica) (string)
+            CONTRY      -> Name of the country (eg UnitedStates) (string)
+            AREA        -> Name for the area of the country or continent (eg, West) (string)
+            SUBAREA     -> Name for a sub-area of the AREA (eg, West) (Central)
+            STATE       -> Name of any state like area the sector focuses on (eg, California) (string)
+            CITY        -> Name of any city the sector focuses on (eg, Monterey) (string)
+            
+        MASTER_INFO
+        -> Description of the sector domain for production of a TeraScan 
+        master file and for plotting of any products (see also MASTER_INFO_OVERRIDE):
+            CENTER_LAT      -> The center latitude of the domain in either of the following formats:
+                1) A string of the form NNN.ND where N is a number and D is a cardinal direction
+                    identifier (NSEW).
+                2) A float
+            CENTER_LON      -> The center longitude of the domtain
+            NUM_LINES       -> Number of lines in the resulting image (vertical size in number of pixels)
+            NUM_SAMPLES     -> Number of samples in the resulting image (horizontal size in number of pixels)
+            PIXEL_WIDTH     -> Width of each pixel in kilometers
+            PIXEL_HEIGHT    -> Height of each picle in kilometers
+
+        PLOT_INFO 
+        -> Information on what is required on any plots for this sector (See also PLOT_INFO_OVERRIDE):
+            PROJECTION      -> Name of a matplotlib projection which may be any of the following:
+                Value       Description
+                aeqd        Azimuthal Equidistant
+                poly        Polyconic
+                gnom        Gnomonic
+                moll        Mollweide
+                tmerc       Transverse Mercator
+                nplaea      North-Polar Lambert Azimuthal
+                gall        Gall Stereographic Cylindrical
+                mill        Miller Cylindrical
+                merc        Mercator
+                stere       Stereographic
+                npstere     North-Polar Stereographic
+                hammer      Hammer
+                geos        Geostationary
+                nsper       Near-Sided Perspective
+                vandg       van der Grinten
+                laea        Lambert Azimuthal Equal Area
+                mbtfpq      McBryde-Thomas Flat-Polar Quartic
+                sinu        Sinusoidal
+                spstere     South-Polar Stereographic
+                lcc         Lambert Conformal
+                npaeqd      North-Polar Azimuthal Equidistant
+                eqdc        Equidistant Conic
+                cyl         Cylindrical Equidistant
+                omerc       Oblique Mercator
+                aea         Albers Equal Area
+                spaeqd      South-Polar Azimuthal Equidistant
+                ortho       Orthographic
+                cass        Cassini-Soldner
+                splaea      South-Polar Lambert Azimuthal
+                robin       Robinson
+            GRID_SIZE -> Number of degrees between lat/lon grid lines
+            MIN_COVER -> Minimum coverage for a given sector for all products
+            CHAR_SIZE -> Size of plot text in pixels
+            MAP_RESOLUTION  -> Resolution of coastlines, borders, etc. (string)
+                Valid values are: crude, low, intermediate, high, full
+                The first letter of any of these values is also valid
+                For details: http://matplotlib.sourceforge.net/basemap/doc/html/api/basemap_api.html
+        
+        SATELLITE 
+        -> One per satellite.  Contains information naming which sensor/satellite we want
+        to produce products from for this sector and which products we want to produce from that
+        sensor/satellite.
+            SATNAME -> Name for any satelltes/sensors that we are interested in for this sector
+            PRODUCT -> Contains information on how to produce a single produce for the previous sensor
+                PRODUCT_NAME -> Name of a single pre-defined product that we want to produce.  Information
+                    on how to produce this specific product is contained in ./productfiles/SATNAME.xml.
+                MASTER_INFO_OVERRIDE    -> See MASTER_INFO_OVERRIDE below
+                PLOT_INFO_OVERRIDE      -> See PLOT_INFO_OVERRIDE below
+            MASTER_INFO_OVERRIDE    -> See MASTER_INFO_OVERRIDE below
+            PLOT_INFO_OVERRIDE      -> See PLOT_INFO_OVERRIDE below
+
+        MASTER_INFO_OVERRIDE 
+        -> NOT YET IMPLIMENTED IN GENERIC PROCESSING CODE.
+        -> May be used in either the SATELLITE or PRODUCT elements to override
+        any settings from the main MASTER_INFO for a given sector.  Any or all elements from
+        MASTER_INFO may be present.  If used in a SATELLITE element, will override MASTER_INFO
+        for all products produced from that SATELLITE in that SECTOR.  If used in a PRODUCT
+        element will only override that one PRODUCT for that one SATELLITE for that one SECTOR. 
+
+        PLOT_INFO_OVERRIDE 
+        -> NOT YET IMPLIMENTED IN GENERIC PROCESSING CODE.
+        -> May be used in either the SATELLITE or PRODUCT elements to override
+        any settings from the main PLOT_INFO for a given sector.  Any or all elements from
+        PLOT_INFO may be present.  If used in a SATELLITE element, will override PLOT_INFO
+        for all products produced from that SATELLTE in that SECTOR.  If used in a PRODUCT
+        element will only override that one PRODUCT for that one SATELLITE for that one SECTOR.
+-->

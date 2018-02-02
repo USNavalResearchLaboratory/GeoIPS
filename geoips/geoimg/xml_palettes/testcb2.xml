@@ -1,0 +1,28 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE colorbar_list SYSTEM "colorbars.dtd">
+
+<colorbar_list xmlns:py="http://codespeak.net/lxml/objectify/pytype">
+    <colorbar name="testcb2">
+        <min_val>0</min_val>
+        <max_val>100</max_val>
+        <transition>
+            <start_color>pink</start_color>
+            <end_color>red</end_color>
+            <start_val>0</start_val>
+            <end_val>20</end_val>
+        </transition>
+        <transition>
+            <start_color>green</start_color>
+            <end_color>blue</end_color>
+            <start_val>20</start_val>
+            <end_val>30</end_val>
+        </transition>
+        <transition>
+            <start_color>orange</start_color>
+            <end_color>red</end_color>
+            <start_val>30</start_val>
+            <end_val>100</end_val>
+        </transition>
+    </colorbar> 
+</colorbar_list>
+

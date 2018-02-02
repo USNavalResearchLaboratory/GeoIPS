@@ -1,0 +1,31 @@
+TODO:
+
+Clean up init and clean systems
+The initialization is pretty opaque and likely very difficult to figure out
+Note that there are several variables in there that should likely be turned into functions
+Additionally, it would be nice to move much of the init stuff to the top level
+
+When building multiple times, multiple entries for each package will show up in docs
+Need to fix this.  Simply deleting the geoalgs_modules.txt file will not work, though.
+Will need to figure out how to dynamically figure out what is already there.
+May want to set up a function that looks for module level .rst files then adds them all to
+geoalgs_modules.txt each time make is called.
+
+Note that it is difficult to deal with extra files that need to be cleaned.
+For example, config.f90 and the init files.  Should work on this.
+
+Currently the module level .rst files are not getting cleaned from docs/source properly
+Should fix this, but it is not breaking anything
+
+There are a lot of things that are not currently working when make is called multiple times
+without a make clean in between.  Really need to fix these issues:
+    imports in __init__ files
+    module level documentation
+    adding modules to geoalgs_modules.txt
+Take a look at how this is handled in fires/module.mk.  This may work.
+May want to make implicit rules for these situations.
+
+Cleaning the fires module needs to be handled better.  Currently this is hardwired in
+the top level make file.  Note that this was done to avoid creating a symlink which is
+supposed to be avoided in makefiles.  Additionally, make does not appear to recognize
+symlinks as completed targets, even when they exist.
