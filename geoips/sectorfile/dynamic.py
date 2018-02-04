@@ -977,7 +977,7 @@ def write_single_dynamic_xml_file(sector, force_update=False):
             and os.stat(dynamic_sectorfile.name).st_uid == os.getuid() \
             and os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH') not in sector.source_info.sourcetemplate:
             dynamic_templatefname = \
-                sector.source_info.sourcetemplate.replace(os.getenv('GEOIPS_TEMPLATE_REPLACE',os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH')))
+                sector.source_info.sourcetemplate.replace(os.getenv('GEOIPS_TEMPLATE_REPLACE'),os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH'))
         elif not os.path.exists(sector.source_info.sourcetemplate):
             bname = os.path.basename(sector.source_info.sourcetemplate)
             for tpath in plugins.paths['TEMPLATEPATHS']:
