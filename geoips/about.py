@@ -32,6 +32,7 @@ __requires__ = [ 'h5py', # Anaconda
                  # 'pyhdf',
                  'netCDF4', # Anaconda - netcdf4
                  'pyresample',
+                 'memory_profiler',
                  'numpy', # Anaconda
                  'scipy', # Anaconda
                  'Pillow', # Anaconda - pillow
@@ -39,4 +40,5 @@ __requires__ = [ 'h5py', # Anaconda
                  'lxml', # Anaconda
                  'ephem', # Anaconda
                  'basemap', # Anaconda
+                 'numexpr',
                ]
