@@ -137,10 +137,14 @@ def create_imagery(data_file, sector, productlist, outdir,
         #   GeoImg instantiation, should be fine. Might want to address the fact that we don't
         #   want to fully register / process to check coverage, but for now we'll leave it the
         #   way it is.
+        # Okay, seriously, we have to quit using blank except statements everywhere.  We've got
+        #   to fix the code so this isn't needed.  It makes debugging completely impossible!
+        #   Please please please stop it!
         try:
             currcovg = img.coverage()
-        except:
+        except Exception as err:
             log.exception('Failed creating image for '+curr_product.name+', SKIPPING')
+            log.exception(err.message)
             return None
         if currcovg > 0.0:
             log.info('\n\n\n\n        Running GeoImg.produce_imagery for TEMPORARY SINGLE GRANULE image... \n')
