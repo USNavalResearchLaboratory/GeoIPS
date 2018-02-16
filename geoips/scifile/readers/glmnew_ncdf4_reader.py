@@ -1,1 +1,0 @@
-/users/laflash/satnrl/geoips_nrl/geoips/scifile/readers/glmnew_ncdf4_reader.py
