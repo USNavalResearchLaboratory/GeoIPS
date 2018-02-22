@@ -375,7 +375,7 @@ class ISSSatInfo(SatInfo):
 
 class L2RETRIEVALSatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['clavrx']
+        self.sensornames = ['clavrx', 'clavrx-abi', 'clavrx-ahi']
 
 class M2ASatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -1913,6 +1913,8 @@ SensorInfo_classes = {
         'ascat':  ASCATSensorInfo,
         'atms':  ATMSSensorInfo,
         'clavrx':  CLAVRXSensorInfo,
+        'clavrx-abi':  CLAVRXSensorInfo,
+        'clavrx-ahi':  CLAVRXSensorInfo,
         'modis': MODISSensorInfo,
         'gmi':  GMISensorInfo,
         'glm':  GLMSensorInfo,
