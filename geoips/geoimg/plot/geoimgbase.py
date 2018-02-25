@@ -483,10 +483,14 @@ class GeoImgBase(object):
             log.info('In intermediate data file read_image')
             return df
 
-    def find_matching_sat_files(self, source, matchall, prodname, hour_range):
+    def find_matching_sat_files(self, source, matchall, prodname, hour_range, sat=None):
         matching_sat_files = []
         # Check all satellites that have the sensor "source"
-        for sat in all_sats_for_sensor(source):
+        if sat:
+            allsats=[sat]
+        else:
+            allsats = all_sats_for_sensor(source)
+        for sat in allsats:
             # productname is the name of the product for the current layer
             # (not the multisource product).
             if matchall:
@@ -539,7 +543,11 @@ class GeoImgBase(object):
         return best_file
 
     def plot_matching_files(self, matching_sat_files, plotted_self=False):
+        log.info('')
+        log.info('')
+        log.info('Plotting matching images...')
         for best_file in matching_sat_files:
+            log.info('')
             log.info('Plotting existing image '+best_file.name)
             layer_img = self.read_image(best_file.name)
             if plotted_self:
@@ -563,18 +571,26 @@ class GeoImgBase(object):
         if self.sector.isstitched:
             log.info('    Stitching products')
             matching_sat_files = []
+            all_sat_files = []
             for (sourcename, proddict) in self.sector.sources.products_dict.items():
+                log.info('')
+                log.info('')
                 # products_dict looks like ('abi', {'Infrared': {'testonly': 'no'}})
                 # If the current product is in products_dict for current
-                # source, continue
-                if sourcename != self.datafile.source_name and self.product.name in proddict.keys():
-                    log.info('    Checking {0} for {1}'.format(
-                        sourcename, self.product.name))
-                    all_sat_files = self.find_matching_sat_files(
-                        source=sourcename,
-                        matchall=False,
-                        prodname=self.product.name,
-                        hour_range=1)
+                # source/sat, continue
+                for sat in all_sats_for_sensor(sourcename):
+                    if sat != self.datafile.platform_name\
+                            and sourcename != self.datafile.source_name\
+                            and self.product.name in proddict.keys():
+                        log.info('')
+                        log.info('    Checking {0} {1} for {2}'.format(
+                            sourcename, sat, self.product.name))
+                        all_sat_files = self.find_matching_sat_files(
+                            source=sourcename,
+                            matchall=False,
+                            prodname=self.product.name,
+                            hour_range=1,
+                            sat=sat)
 
                     if not all_sat_files:
                         log.info('        Found no matching files for {0} {1}'
