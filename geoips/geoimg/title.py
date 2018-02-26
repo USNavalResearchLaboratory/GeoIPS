@@ -18,6 +18,11 @@ import logging
 from datetime import datetime
 from datetime import timedelta
 
+try:
+    from IPython import embed as shell
+except:
+    print 'Failed import IPython in geoimg/plot/rgbimg.py. If you need it, install it.'
+
 log = logging.getLogger(__name__)
 
 COPYRIGHT = os.getenv('GEOIPS_COPYRIGHT')
@@ -336,6 +341,20 @@ class Title(object):
         tau = None
         currdate = datafile.start_datetime.strftime('%Y%m%d')
         currtime = datafile.start_datetime.strftime('%H%M%S')
-        return Title(satellite=datafile.platform_name_display, sensor=datafile.source_name_display,
+
+        # Default to display names in datafile
+        sourcename = datafile.source_name_display
+        platformname = datafile.platform_name_display
+
+        # If display names in sectorfile doesn't match, use those
+        sect_sourcename = sector.sources.sources_dict[datafile.source_name]['source_name_display']
+        sect_platformname = sector.sources.sources_dict[datafile.source_name]['platform_name_display']
+
+        if sect_sourcename != sourcename:
+            sourcename = sect_sourcename
+        if sect_platformname != platformname:
+            platformname = sect_platformname
+
+        return Title(satellite=platformname, sensor=sourcename,
                      product=product.product_name_display, date=currdate, start_time=currtime,
                      end_time=currtime, tau=tau, extra_lines=extra_lines)

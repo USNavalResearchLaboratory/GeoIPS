@@ -305,6 +305,11 @@ class GOESESatInfo(SatInfo):
         self.orig_file_satname = 'g13'
         self.geostationary = True
 
+class StitchedSatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        self.sensornames = ['stitched']
+        self.geoips_satname = 'stitched'
+        self.geostationary = True
 
 class GOES16SatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -1691,6 +1696,13 @@ class SSMISSensorInfo(SensorInfo):
         self.interpolation_radius_of_influence = 15000
         #self.data_types = {}
 
+class StitchedSensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        self.swath_width_km = 12000
+        self.interpolation_radius_of_influence = 10000
+        self.mins_per_file = 10
+
+
 
 class TMISensorInfo(SensorInfo):
     def _set_sensor_atts(self):
@@ -1904,6 +1916,8 @@ class WINDSATSensorInfo(SensorInfo):
 
 
 SensorInfo_classes = {
+        # Needed to allow for stitched directory
+        'stitched':  StitchedSensorInfo,
         'abi':  ABISensorInfo,
         'ahi':  AHISensorInfo,
         'amsr2':  AMSR2SensorInfo,
@@ -1948,6 +1962,8 @@ SensorInfo_classes = {
 
 
 SatInfo_classes = {
+        # Needed to allow for stitched directory
+        'stitched':  StitchedSatInfo,
         'npp': NPPSatInfo,
         'aqua': AQUASatInfo,
         'coriolis': CORIOLISSatInfo,
