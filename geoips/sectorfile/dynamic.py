@@ -677,9 +677,9 @@ def set_atcf_sector(fields, dynamic_templatefname, finalstormname, tcyear, sfnam
     else:   
         newname = basin+stormnum+stormname
 
-    stormnum= fields['stormnum'].replace('_','').replace('.','')
-    stormname = fields['stormname'].replace('_','').replace('.','')
-    newname = newname.replace('_','').replace('.','')
+    stormnum= fields['stormnum'].replace('_','').replace('.','').replace('-','')
+    stormname = fields['stormname'].replace('_','').replace('.','').replace('-','')
+    newname = newname.replace('_','').replace('.','').replace('-','')
     # This ends up being tc2016io01one
     sector.name = 'tc'+str(tcyear)+newname
 
@@ -913,7 +913,7 @@ def parse_tc(line,dynamic_templatefname,sfname):
     
     stormnum= stormnum.replace('_','').replace('.','')
     stormname = stormname.replace('_','').replace('.','')
-    newname = newname.replace('_','').replace('.','')
+    newname = newname.replace('_','').replace('.','').replace('-','')
     sector.name = 'tc'+str(year)+newname
 
     sector.area_info.center_lat = clat
