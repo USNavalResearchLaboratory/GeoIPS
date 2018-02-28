@@ -400,7 +400,7 @@ def qsub(command,
 
         getbox_cmd = 'hostname -s'
         if gpaths['GEOIPS_SCRIPTS'] and os.path.exists(gpaths['GEOIPS_SCRIPTS']):
-            getbox_cmd = 'source '+gpaths['GEOIPS_SCRIPTS']+'/getbox.sh'
+            getbox_cmd = gpaths['GEOIPS_SCRIPTS']+'/getbox.sh'
 
         job_cmd = command+' '+' '.join(cmdargs)
 
