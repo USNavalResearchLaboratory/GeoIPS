@@ -2543,7 +2543,8 @@ class SeviriHRITFileName(StandardDataFileName):
         # self.satname is from filename, self.sensorinfo is current attempt at matching format
         # Need to make sure both filename and sensorinfo match
         # MSG1 is Meteosat-8, which is currently meteoIO
-        # MSG3 is Meteosat-10, which is currently meteoEU
+        # MSG3 is Meteosat-10, which used to be meteoEU
+        # MSG4 is Meteosat-11, which is currently meteoEU
         if self.satname == 'MSG1__'  and self.sensorinfo.satname == 'meteoIO':
             return True
         elif (self.satname == 'MSG3__' or self.satname == 'MSG4__') and self.sensorinfo.satname == 'meteoEU':
