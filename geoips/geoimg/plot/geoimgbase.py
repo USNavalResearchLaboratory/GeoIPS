@@ -658,7 +658,12 @@ class GeoImgBase(object):
                     possiblesources = layer[1].possiblesources.keys()
                     if self.sector.isstitched:
                         possiblesources += ['stitched']
-                    if self.datafile.source_name_product not in possiblesources:
+                    # This is performing overlays - if the current layer from the multisource product file is NOT the
+                    # current in memory image (ie, the multisource layer productname != current product name and 
+                    # multisource layer possiblesources does not include the current datafile's source), then go 
+                    # find the appropriate temporary image/datafile and plot it.  If it is the current in memory 
+                    # image, just plot it.
+                    if layer[0] != orig_productname or self.datafile.source_name_product not in possiblesources:
                         for source in layer[1].possiblesources:
                             log.info('    Checking '+source+' for '+layer[0]+' hour_range: '+str(layer[1].hour_range)+' matchall: '+str(layer[1].matchall))
                             matching_sat_files += self.find_matching_sat_files(
@@ -685,7 +690,8 @@ class GeoImgBase(object):
                                                  plotted_self=plotted_self)
                     # If this layer is the current image that we have in memory, just plot it.
                     else:
-                        log.info('Plotting current in-memory image')
+                        log.info('Plotting current in-memory image for layer '+layer[0]+' with possible sources '+
+                                str(possiblesources))
                         plotted_self = True
 
                 if self.coverage() < self.sector.min_total_cover:
