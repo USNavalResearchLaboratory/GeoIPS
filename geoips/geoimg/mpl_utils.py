@@ -295,7 +295,7 @@ def invert_data_range(data, min_val, max_val):
     return data, min_val, max_val
 
 def apply_minimum_value(data, min_val, outbounds):
-    log.info('Applying minimum value of %r' % min_val)
+    log.info('Applying minimum value of %r to data with min %f' % (min_val, data.min()))
 
     #Determine if mask is currently hardened
     hardmask = data.hardmask
@@ -319,7 +319,7 @@ def apply_minimum_value(data, min_val, outbounds):
     return data
 
 def apply_maximum_value(data, max_val, outbounds):
-    log.info('Applying maximum value of %r' % max_val)
+    log.info('Applying maximum value of %r to data with max %f' % (max_val, data.max()))
 
     #Determine if mask is currently hardened
     hardmask = data.hardmask
