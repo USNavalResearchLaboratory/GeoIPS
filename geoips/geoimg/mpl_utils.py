@@ -407,7 +407,8 @@ def create_color_gun(datafile, gun):
             temp_data[var_name] = datafile.variables[var_name]
             if source_name.variables[var_name].zenith_correct and 'SunZenith' in datafile.geolocation_variables.keys():
                 log.info('Applying Solar Zenith Correction to variable '+var_name)
-                temp_data[var_name] = temp_data[var_name] / np.cos(np.deg2rad(datafile.geolocation_variables['SunZenith']))
+                origmask = temp_data[var_name].mask
+                temp_data[var_name] = np.ma.masked_array((temp_data[var_name] / np.cos(np.deg2rad(datafile.geolocation_variables['SunZenith']))).data, origmask)
     for source_name, source_gvars in geolocation_variables.items():
         for gvar_name in source_gvars:
             temp_data[gvar_name] = datafile.geolocation_variables[gvar_name]
@@ -440,9 +441,13 @@ def create_color_gun(datafile, gun):
     gun_data = apply_data_range(gun_data, gun.min, gun.max, gun.min_outbounds, gun.max_outbounds, gun.normalize, gun.inverse)
     #Apply gamma corrections
     if gun.gamma is not None:
+        # Preserve mask
+        origmask = gun_data.mask
         for ind, gamma in enumerate(gun.gamma):
             log.info('Using %r as gamma correction for #%r for %s gun.' % (gamma, ind+1, gun.name))
-            gun_data = gun_data**(1.0/float(gamma))
+            # This one actually didn't seem to lose the mask,
+            # but I'm explicitly preserving it anyway, just in case...
+            gun_data = np.ma.masked_array((gun_data**(1.0/float(gamma))).data, origmask)
 
     return gun_data
 
