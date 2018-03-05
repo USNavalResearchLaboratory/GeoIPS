@@ -403,8 +403,7 @@ def qsub(command,
             getbox_cmd = gpaths['GEOIPS_SCRIPTS']+'/getbox.sh'
 
         if gpaths['GEOIPS_RCFILE']:
-            job_cmd = 'bash --rcfile '+gpaths['GEOIPS_RCFILE']+' -ci "'+command+'
-                    '+' '.join(cmdargs)+'"'
+            job_cmd = 'bash --rcfile '+gpaths['GEOIPS_RCFILE']+' -ci "'+command+' '+' '.join(cmdargs)+'"'
         else:
             job_cmd = command+' '+' '.join(cmdargs)
 
