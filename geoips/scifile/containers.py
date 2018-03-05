@@ -12,11 +12,10 @@
 
 # 20160126 MLS  Pulled all special cases for geostationary out (try to sector at least...)
 #               Removed all no mask area definitions (don't need with false corners SwathDefinition)
-#               Renamed dataset.area_definition to dataset.data_box_definition (area def specifically 
+#               Renamed dataset.area_definition to dataset.data_box_definition (area def specifically
 #                   for regions of interest in pyresample lingo)
 
 # Python Standard Libraries
-import os
 import logging
 import math
 from operator import mul
@@ -25,9 +24,7 @@ from datetime import datetime
 
 
 # Installed Libraries
-#from memory_profiler import profile
 import numpy as np
-from lxml import objectify
 from numpy.ma import MaskedArray
 from pyresample import kd_tree
 from pyresample.geometry import GridDefinition
@@ -40,28 +37,39 @@ from .scifileexceptions import SciFileError
 from .empty import Empty
 from .geometry.boxdefinitions import SwathDefinition
 from .geometry.boxdefinitions import PlanarPolygonDefinition
-#from .pyresample.geometry import SwathDefinition
-#from .geometry.falsecornersdefinition import FalseCornersDefinition
-
-#from utils.memusg import print_mem_usage
 
 
 __all__ = ['_empty_finfo', '_empty_dsinfo', '_empty_varinfo',
-        'BaseContainer', 'DataSetContainer', 'VariableContainer',
-        'DataSet', 'Variable']
+           'BaseContainer', 'DataSetContainer', 'VariableContainer',
+           'DataSet', 'Variable']
 
 log = logging.getLogger(__name__)
 
-#finfo contains data that will be stored at the file level
-_empty_finfo = {'source_name':None, 'platform_name':None, 'start_datetime':None, 'end_datetime':None,
-        'filename_datetime':None,'runfulldir':None,
-        'moon_phase_angle':None, 'dataprovider':None, 'registered':None}
-#dsinfo contains all data that will be stored at the file level plus data to be stored at the datset level
+# finfo contains data that will be stored at the file level
+_empty_finfo = {'source_name': None,
+                'platform_name': None,
+                'start_datetime': None,
+                'end_datetime': None,
+                'filename_datetime': None,
+                'runfulldir': None,
+                'moon_phase_angle': None,
+                'dataprovider': None,
+                'registered': None}
+
+# dsinfo contains all data that will be stored at the file level plus data to be stored at the datset level
 _empty_dsinfo = _empty_finfo.copy()
-_empty_dsinfo.update({'shape':None, 'tau':None, 'footprint_width':None, 'footprint_height':None})
-#dsinfo contains all data that will be stored at the dataset level plus data to be stored at the variable level
+_empty_dsinfo.update({'shape': None,
+                      'tau': None,
+                      'footprint_width': None,
+                      'footprint_height': None})
+
+# dsinfo contains all data that will be stored at the dataset level plus data to be stored at the
+# variable level
 _empty_varinfo = _empty_dsinfo.copy()
-_empty_varinfo.update({'badval':None, '_nomask':None, 'transform_coeff':None})
+_empty_varinfo.update({'badval': None,
+                       '_nomask': None,
+                       'transform_coeff': None})
+
 
 class BaseContainer(object):
     '''
@@ -71,49 +79,64 @@ class BaseContainer(object):
     def __init__(self, obj):
         self._obj = weakref.ref(obj)
         self._contents = {}
+
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self._contents)
+
     def __getitem__(self, key):
         return self._contents[key]
+
     def __len__(self):
         return len(self._contents)
+
     def __contains__(self, k):
         return k in self._contents
+
     @property
     def obj(self):
         return self._obj()
-    def delete_item(self,itemname):
+
+    def delete_item(self, itemname):
         del(self._contents[itemname])
+
     def get(self, k, d=None):
         return self._contents.get(k, d)
+
     def has_key(self, k):
-        return self._contents.has_key(k)
+        return k in self._contents
+
     def items(self):
         return self._contents.items()
+
     def iteritems(self):
         return self._contents.iteritems()
+
     def iterkeys(self):
         return self._contents.iterkeys()
+
     def itervalues(self):
         return self._contents.itervalues()
+
     def keys(self):
         return self._contents.keys()
+
     def values(self):
         return self._contents.values()
+
     def append(self, key, val):
         '''
         Append a new key/value pair.  Error on overlapping keys.
         '''
-        #print 'BaseContainer append'
-        if self._contents.has_key(key):
+        if key in self._contents:
             raise KeyError("%s already contains the key '%s'" % (self.obj.__class__, key))
         self._force_append(key, val)
+
     def _force_append(self, key, val):
         '''
         Add a new key/value pair.  Overwrite on overlapping keys.
         '''
-        #print 'BaseContainer force_append'
         self._contents[key] = val
+
     def update(self, other):
         '''
         Update from the passed BaseContainer instance.  Error on overlapping keys.
@@ -122,11 +145,13 @@ class BaseContainer(object):
             raise TypeError("Expected %s got %s." % (BaseContainer, type(other)))
         for key in other._contents.keys():
             self.append(key, other._contents[key])
+
     def _force_update(self, other):
         '''
         Update from the passed BaseContainer instance.  Overwrite on overlapping keys.
         '''
         self._contents.update(other._contents)
+
 
 class VariableContainer(BaseContainer):
     '''
@@ -142,30 +167,29 @@ class VariableContainer(BaseContainer):
                     self.append(var)
             except AttributeError:
                 ValueError('Keyword "variables" must be a dictionary.')
+
     def append(self, var):
         '''
         Add a new variable to the container.
         This will fail if a variable with the same name already exists.
         '''
-        #print 'VariableContainer append'
-        if self._contents.has_key(var.name):
+        if var.name in self._contents:
             raise ValueError("%s already contains variable named '%s'" % (self.obj.__class__, var.name))
         self._force_append(var)
+
     def _force_append(self, var):
         '''
         Set a variable regardless of whether it already exists or not.
         This should generally be avoided.
         '''
-        #print 'VariableContainer _force_append: '+var.name
         if not isinstance(var, Variable):
             raise TypeError("Expected %s got %s." % (Variable, type(var)))
-        #This only connects the Variable with the DataSet
-        #Should make a connection between the SciFile instance and the Variable later
-        #print 'VariableContainer end_datetime: '+str(var.end_datetime)+' '+var.name
-        #print 'VariableContainer self.end_datetime: '+str(self.end_datetime)+' '+self.name
+        # This only connects the Variable with the DataSet
+        # Should make a connection between the SciFile instance and the Variable later
         if isinstance(self.obj, DataSet):
             var.dataset = self.obj
         self._contents[var.name] = var
+
     def _force_update(self, other):
         '''
         Update from the passed VariableContainer instance regardless of overlapping variable names.
@@ -174,11 +198,12 @@ class VariableContainer(BaseContainer):
         if not isinstance(other, VariableContainer):
             raise TypeError("Expected %s got %s." % (VariableContainer, type(other)))
         self._contents.update(other._contents)
-        #This only connects the Variable with the DataSet
-        #Should make a connection between the SciFile instance and the Variable later
+        # This only connects the Variable with the DataSet
+        # Should make a connection between the SciFile instance and the Variable later
         if isinstance(self.obj, DataSet):
             for var in self._contents.values():
                 var.dataset = self.obj
+
 
 class DataSetContainer(BaseContainer):
     '''
@@ -195,7 +220,7 @@ class DataSetContainer(BaseContainer):
             except AttributeError:
                 ValueError('Keyword "datasets" must be a dictionary.')
 
-    def delete_dataset(self,dsname):
+    def delete_dataset(self, dsname):
         self.delete_item(dsname)
 
     def append(self, ds, _do_similar=False, copy=False):
@@ -203,20 +228,14 @@ class DataSetContainer(BaseContainer):
         Add a new dataset to the container.
         This will fail if a dataset with the same name already exists.
         '''
-        #print 'In DataSetContainer append'
         if not isinstance(ds, DataSet):
             raise TypeError("Expected %s got %s." % (DataSet, type(ds)))
-        if self._contents.has_key(ds.name):
-            #print ds.name
+        if ds.name in self._contents:
             ds.merge(self._contents[ds.name], _do_similar=_do_similar, copy=copy)
-            #try:
-            #    ds.merge(self._contents[ds.name], _do_similar=_do_similar)
-            #except ValueError, resp:
-            #    raise ValueError(str(resp)+"Cannot append non-similar DataSet named '%s'" % ds.name)
-        #Save this for later.  Will likely want to do this here too
-        #Save this for later.  Will likely want to do this here too
-        #ds._optinfo['dataset'] = self.obj
+        # Save this for later.  Will likely want to do this here too
+        # ds._optinfo['dataset'] = self.obj
         self._force_append(ds)
+
     def update(self, other, _do_similar=False, copy=False):
         '''
         Merge two DataSetContainers together to form a single instance.
@@ -224,20 +243,20 @@ class DataSetContainer(BaseContainer):
         '''
         for ds in other.values():
             self.append(ds, _do_similar=_do_similar, copy=copy)
+
     def _force_append(self, ds):
         '''
         Set a dataset regardless of whether it already exists or not.
         This should generally be avoided.
         '''
-        #print 'In DataSetContainer _force_append'
         if not isinstance(ds, DataSet):
             raise TypeError("Expected %s got %s." % (DataSet, type(ds)))
-        #Save this for later.  Will likely want to do this here too
-        #Save this for later.  Will likely want to do this here too
-        #ds._optinfo['dataset'] = self.obj
+        # Save this for later.  Will likely want to do this here too
+        # ds._optinfo['dataset'] = self.obj
         self._contents[ds.name] = ds
-        #This only connects the DataSet with the SciFile
+        # This only connects the DataSet with the SciFile
         ds.scifile = self.obj
+
     def _force_update(self, other):
         '''
         Upate from teh passed DataSetContainer instance regardless of the overlapping variable names.
@@ -246,13 +265,14 @@ class DataSetContainer(BaseContainer):
         if not isinstance(other, DataSetContainer):
             raise TypeError("Expected %s got %s." % (DataSetContainer, type(other)))
         self._contents.update(other._contents)
-        #This only connects the DataSet with the SciFile
+        # This only connects the DataSet with the SciFile
         for ds in self._contents.values():
             ds.scifile = self.obj
 
+
 class DataSet(object):
     def __new__(cls, name, variables=[], geolocation_variables=[],
-            scifile=None, copy=True, _dsinfo={}, **kwargs):
+                scifile=None, copy=True, _dsinfo={}, **kwargs):
         '''
         A class that describes a SciFile DataSet.
 
@@ -273,67 +293,68 @@ class DataSet(object):
         obj.name = name
         obj.variables = VariableContainer(obj)
         obj.geolocation_variables = VariableContainer(obj)
-        #_dsinfo is shared between a DataSet and all of its contained Variables
-        #The _dsinfo dictionary holds all Variable attribute values that should
-        #   be the same between all Variables in a DataSet.
-        #Note that this is the SAME INSTANCE and not just similar dictionaries
-        #   so, an update to one Variable within a DataSet is an update to all.
-        #Typically the values in here should never actually change except
-        #   to go from `None` to something non-`None`.
+        # _dsinfo is shared between a DataSet and all of its contained Variables
+        # The _dsinfo dictionary holds all Variable attribute values that should
+        #    be the same between all Variables in a DataSet.
+        # Note that this is the SAME INSTANCE and not just similar dictionaries
+        #    so, an update to one Variable within a DataSet is an update to all.
+        # Typically the values in here should never actually change except
+        #    to go from `None` to something non-`None`.
         if len(_dsinfo) == 0:
             obj._dsinfo = _empty_dsinfo.copy()
         else:
             obj._dsinfo = _dsinfo.copy()
-        #_finfo is shared between a DataSet and the SciFile instance that it is
-        #   contained in.  This is a subset of _dsinfo and holds all of the
-        #   DataSet attribute values that should be shared between all `DataSet`s
-        #   contained in a SciFile instance.
-        #Note that this is the SAME INSTANCE across an entire SciFile and not
-        #   just similar dictionaries so, an update to one DataSet within a
-        #   SciFile is an update to all and to all subsequent Variables.
-        #Typically the values in here should never actually change except
-        #   to go from `None` to something non-`None`.
+        # _finfo is shared between a DataSet and the SciFile instance that it is
+        #    contained in.  This is a subset of _dsinfo and holds all of the
+        #    DataSet attribute values that should be shared between all `DataSet`s
+        #    contained in a SciFile instance.
+        # Note that this is the SAME INSTANCE across an entire SciFile and not
+        #    just similar dictionaries so, an update to one DataSet within a
+        #    SciFile is an update to all and to all subsequent Variables.
+        # Typically the values in here should never actually change except
+        #    to go from `None` to something non-`None`.
         obj._dsinfo = _empty_dsinfo.copy()
         for key, val in _dsinfo.items():
-            if obj._dsinfo.has_key(key):
+            if key in obj._dsinfo:
                 obj._dsinfo[key] = val
             else:
                 raise SciFileError('Unrecognized dataset attribute in _dsinfo: %s' % key)
         obj._finfo = _empty_finfo.copy()
         for key, val in _dsinfo.items():
-            if obj._finfo.has_key(key):
+            if key in obj._finfo:
                 obj._finfo[key] = val
 
         return obj
 
     def __init__(self, name, variables=[], geolocation_variables=[], copy=True, **kwargs):
-        #We run into some problems when someone passes a single variable instance
-        #   rather than a list of Variable instances.
-        #This is a crummy looking check, but it works.  If the `shape` attribute is there
-        #   then we do not have a list and should fail
+        # We run into some problems when someone passes a single variable instance
+        #    rather than a list of Variable instances.
+        # This is a crummy looking check, but it works.  If the `shape` attribute is there
+        #    then we do not have a list and should fail
         if len(variables) > 0 and (hasattr(variables, '_dsinfo') or not hasattr(variables[0], '_dsinfo')):
             raise ValueError('Keyword `variables` must be a list of Variable instances.')
         for variable in variables:
             self.add_variable(variable, copy=copy)
-        if len(geolocation_variables) > 0 and (hasattr(geolocation_variables, '_dsinfo') or not hasattr(geolocation_variables[0], '_dsinfo')):
+        if len(geolocation_variables) > 0 and (hasattr(geolocation_variables, '_dsinfo') or not
+                                               hasattr(geolocation_variables[0], '_dsinfo')):
             raise ValueError('Keyword `variables` must be a list of Variable instances.')
         for variable in geolocation_variables:
             self.add_geolocation_variable(variable, copy=copy)
 
     def __getitem__(self, index):
-        #Create a new DataSet object
+        # Create a new DataSet object
         new = self.__class__(self.name)
 
-        #Initialize containers
+        # Initialize containers
         new.variables = VariableContainer(self)
         new.geolocation_variables = VariableContainer(self)
         new.gvars_to_create = []
 
-        #Loop over variables
+        # Loop over variables
         for varname in self.variables.keys():
             new.variables.append(self.variables[varname][index])
 
-        #Loop over geolocation variables
+        # Loop over geolocation variables
         for gvarname in self.geolocation_variables.keys():
             new.geolocation_variables.append(self.geolocation_variables[gvarname][index])
 
@@ -348,15 +369,14 @@ class DataSet(object):
             return False
         return True
 
-
     def __ne__(self, other):
         return not self == other
 
-    # MLS 20160203 in an effort to save memory and stop 
+    # MLS 20160203 in an effort to save memory and stop
     #   storing subset of data separately from full datafile,
     #   begin testing full datafile on existence of variables
     #   as a first test of whether we should run.
-    def has_any_vars(self,required_vars):
+    def has_any_vars(self, required_vars):
         dataset_vars = set(self.variables.keys())
         required_vars = set(required_vars)
         # If there are any vars in common between the two,
@@ -365,14 +385,14 @@ class DataSet(object):
             return True
         return False
 
-    # MLS 20160203 in an effort to save memory and stop 
+    # MLS 20160203 in an effort to save memory and stop
     #   storing subset of data separately from full datafile,
     #   begin testing full datafile on existence of variables
     #   as a first test of whether we should continue running.
-    def has_all_vars(self,required_vars):
+    def has_all_vars(self, required_vars):
         dataset_vars = set(self.variables.keys())
         required_vars = set(required_vars)
-        # If all vars in required_vars are in  
+        # If all vars in required_vars are in
         # dataset vars, return True.
         # return True
         if required_vars.issubset(dataset_vars):
@@ -384,18 +404,16 @@ class DataSet(object):
         Compare the DataSet instance with either a DataSet or Variable instance to determine similarity.
         Similarity is determined by whether the properties of `self` equal those of `other`.
         '''
-        #If self has no variables, then just assume similar
-        #   no data means we can't compare.
+        # If self has no variables, then just assume similar
+        #    no data means we can't compare.
         if hasattr(self, 'variables') and hasattr(self, 'geolocation_variables'):
             if len(self.variables) == 0 or len(self.geolocation_variables) == 0:
                 return True
-        #Will loop over all of these attributes and make sure they are either equal or
-        #   not set in one or both.
+        # Will loop over all of these attributes and make sure they are either equal or
+        #    not set in one or both.
         for attr in self._dsinfo.keys():
             selfattr = getattr(self, attr)
             otherattr = getattr(other, attr)
-            #print 'Dataset other: '+other.name+' '+str(attr)+' '+str(getattr(other,attr))
-            #print 'Dataset self: '+self.name+' '+str(attr)+' '+str(getattr(self,attr))
             if selfattr is not None and otherattr is not None and selfattr != otherattr:
                 return False
         return True
@@ -419,7 +437,7 @@ class DataSet(object):
         +-----------------------+-------------------+-----------------------------------------------------------+
         '''
         name = name if name is not None else self.name
-        #Allow variables to be a VariableContainer
+        # Allow variables to be a VariableContainer
         try:
             variables = variables.values()
         except AttributeError:
@@ -429,7 +447,7 @@ class DataSet(object):
         except AttributeError:
             pass
         newobj = self.__class__(name, variables=variables, geolocation_variables=geolocation_variables,
-                _dsinfo=self._dsinfo, _finfo=self._finfo)
+                                _dsinfo=self._dsinfo, _finfo=self._finfo)
         return newobj
 
     def add_variable(self, data, name=None, copy=True, _force=False):
@@ -458,7 +476,7 @@ class DataSet(object):
                 name = data.name
             except AttributeError:
                 raise ValueError('Input data must either be a Variable instance or name keyword must be provided.')
-        #NOTE:  When adding a new variable in this method, we should try to create a clean variable
+        # NOTE:  When adding a new variable in this method, we should try to create a clean variable
         #       with no additional references in order to avoid backward propagation of changes.
         if copy:
             data = data._create_similar(data, name=name)
@@ -493,7 +511,7 @@ class DataSet(object):
                 name = data.name
             except AttributeError:
                 raise ValueError('Input data must either be a Variable instance or name keyword must be provided.')
-        #NOTE:  When adding a new variable in this method, we should try to create a clean variable
+        # NOTE:  When adding a new variable in this method, we should try to create a clean variable
         #       with no additional references in order to avoid backward propagation of changes.
         if copy:
             data = data._create_similar(data, name=name)
@@ -534,15 +552,16 @@ class DataSet(object):
             try:
                 new.variables.append(self.variables[varname].copy())
             except KeyError:
-                #JES: I'm not sure if I like this solution.  I understand the point, though...
-                #raise KeyError('No such variable %s in dataset %s' % (varname, self.name))
-                log.warning('No such variable %s in dataset %s.  Will not be included in subset.' % (varname, self.name))
+                # JES: I'm not sure if I like this solution.  I understand the point, though...
+                # raise KeyError('No such variable %s in dataset %s' % (varname, self.name))
+                log.warning('No such variable %s in dataset %s.  Will not be included in subset.' %
+                            (varname, self.name))
                 continue
 
         if len(geolocation_variables) == 0:
             geolocation_variables = self.geolocation_variables.keys()
         for geovarname in geolocation_variables:
-            #Don't error for missing geolocation variables
+            # Don't error for missing geolocation variables
             try:
                 new.geolocation_variables.append(self.geolocation_variables[geovarname].copy())
             except KeyError:
@@ -553,37 +572,37 @@ class DataSet(object):
             return new
 
     def write(self, df, variables=None, geolocation_variables=None):
-        #Create a group for this dataset
+        # Create a group for this dataset
         ds_group = df.create_group(self.name)
 
-        #Add attributes to the group
+        # Add attributes to the group
         for attr in self._dsinfo.keys():
             if attr not in self._finfo.keys():
                 val = getattr(self, attr)
                 if val is not None:
-                    #datetime objects must be handled specially on write and read
+                    # datetime objects must be handled specially on write and read
                     if attr in ['start_datetime', 'end_datetime']:
                         ds_group.attrs[attr] = val.strftime('%Y%m%d%H%M%S.%f')
                     else:
                         ds_group.attrs[attr] = val
 
-        #Read all of the data for this dataset
+        # Read all of the data for this dataset
         self.readall()
 
-        #Loop over geolocation variables and call their write method
+        # Loop over geolocation variables and call their write method
         gvar_group = ds_group.create_group('geolocation')
         for gvarname in self.geolocation_variables.keys():
             if not geolocation_variables or (geolocation_variables and gvarname in geolocation_variables):
                 self.geolocation_variables[gvarname].write(gvar_group)
 
-        #Loop over variables and call their write method
+        # Loop over variables and call their write method
         var_group = ds_group.create_group('variables')
         for varname in self.variables.keys():
             if not variables or (variables and varname in variables):
                 self.variables[varname].write(var_group)
 
-    #@property
-    #def _userblock(self):
+    # @property
+    # def _userblock(self):
     #    if not hasattr(self, '_userblock_'):
     #        self._userblock_ = objectify.Element('dataset', attrib={'name':self.name})
 
@@ -613,20 +632,20 @@ class DataSet(object):
         if not hasattr(self, '_mask'):
             self._mask = np.ma.nomask
         return self._mask
+
     def _set_mask_inplace(self, mask):
-        #If we don't have a mask yet, we will need to distribute the mask to the variables
+        # If we don't have a mask yet, we will need to distribute the mask to the variables
         if self._mask.ndim == 0:
             self._mask = mask
             for var in self.variables.values():
                 var._mask = mask
             for var in self.geolocation_variables.values():
                 var._mask = mask
-        #If we already have a mask, change its values in place
+        # If we already have a mask, change its values in place
         else:
             self._mask[...] = mask
 
-
-    #def __get_merged_mask(self):
+    # def __get_merged_mask(self):
     #    '''
     #    Combines all masks from the contained variables and geolocation variables
     #    using a logical or, then sets all of the masks from the contained
@@ -664,7 +683,7 @@ class DataSet(object):
     #    for var in self.variables.values(): var._mask = self._mask
     #    #for gvar in self.geolocation_variables.values(): gvar._mask = self._mask
 
-    #def set_merged_mask(self, mask, replace=False):
+    # def set_merged_mask(self, mask, replace=False):
     #    '''
     #    Set the mask for the DataSet and all contained variables and geolocation variables.
 
@@ -681,11 +700,11 @@ class DataSet(object):
     #    for var in self.variables.values(): var._mask = self._mask
     #    for gvar in self.geolocation_variables.values(): gvar._mask = self._mask
 
-    #@property
-    #def mask(self):
+    # @property
+    # def mask(self):
     #    return self._mask
 
-    #def get_mask(self):
+    # def get_mask(self):
     #    '''
     #    Combines all masks from the contained variables and geolocation variables
     #    using a logical or.  Also
@@ -701,10 +720,12 @@ class DataSet(object):
             return self._dsinfo[propname]
         except KeyError:
             return noval
+
     def _dsinfo_prop_setter(self, propname, val):
         self._dsinfo[propname] = val
         if propname in self._finfo:
             self._finfo[propname] = val
+
     def _dsinfo_prop_deleter(self, propname):
         try:
             self._dsinfo[propname] = None
@@ -716,9 +737,11 @@ class DataSet(object):
     @property
     def runfulldir(self):
         return self._dsinfo_prop_getter('runfulldir')
+
     @runfulldir.setter
     def runfulldir(self, val):
         self._dsinfo_prop_setter('runfulldir', val)
+
     @runfulldir.deleter
     def runfulldir(self):
         self._dsinfo_prop_deleter('runfulldir')
@@ -726,9 +749,11 @@ class DataSet(object):
     @property
     def dataprovider(self):
         return self._dsinfo_prop_getter('dataprovider')
+
     @dataprovider.setter
     def dataprovider(self, val):
         self._dsinfo_prop_setter('dataprovider', val)
+
     @dataprovider.deleter
     def dataprovider(self):
         self._dsinfo_prop_deleter('dataprovider')
@@ -736,9 +761,11 @@ class DataSet(object):
     @property
     def source_name(self):
         return self._dsinfo_prop_getter('source_name')
+
     @source_name.setter
     def source_name(self, val):
         self._dsinfo_prop_setter('source_name', val)
+
     @source_name.deleter
     def source_name(self):
         self._dsinfo_prop_deleter('source_name')
@@ -746,9 +773,11 @@ class DataSet(object):
     @property
     def platform_name(self):
         return self._dsinfo_prop_getter('platform_name')
+
     @platform_name.setter
     def platform_name(self, val):
         self._dsinfo_prop_setter('platform_name', val)
+
     @platform_name.deleter
     def platform_name(self):
         self._dsinfo_prop_deleter('platform_name')
@@ -756,9 +785,11 @@ class DataSet(object):
     @property
     def sensor_name(self):
         return self._dsinfo_prop_getter('source_name')
+
     @sensor_name.setter
     def sensor_name(self, val):
         self._dsinfo_prop_setter('source_name', val)
+
     @sensor_name.deleter
     def sensor_name(self):
         self._dsinfo_prop_deleter('source_name')
@@ -766,10 +797,11 @@ class DataSet(object):
     @property
     def shape(self):
         return self._dsinfo_prop_getter('shape')
-        
+
     @shape.setter
     def shape(self, val):
         self._dsinfo_prop_setter('shape', val)
+
     @shape.deleter
     def shape(self):
         self._dsinfo_prop_deleter('shape')
@@ -783,14 +815,17 @@ class DataSet(object):
 
     @property
     def mid_datetime(self):
-        return self._dsinfo_prop_getter('start_datetime')+(self._dsinfo_prop_getter('end_datetime')-self._dsinfo_prop_getter('start_datetime'))/2
+        return self._dsinfo_prop_getter('start_datetime') + (self._dsinfo_prop_getter('end_datetime') -
+                                                             self._dsinfo_prop_getter('start_datetime')) / 2
 
     @property
     def start_datetime(self):
         return self._dsinfo_prop_getter('start_datetime')
+
     @start_datetime.setter
     def start_datetime(self, val):
         self._dsinfo_prop_setter('start_datetime', val)
+
     @start_datetime.deleter
     def start_datetime(self):
         self._dsinfo_prop_deleter('start_datetime')
@@ -798,9 +833,11 @@ class DataSet(object):
     @property
     def filename_datetime(self):
         return self._dsinfo_prop_getter('filename_datetime')
+
     @filename_datetime.setter
     def filename_datetime(self, val):
         self._dsinfo_prop_setter('filename_datetime', val)
+
     @filename_datetime.deleter
     def filename_datetime(self):
         self._dsinfo_prop_deleter('filename_datetime')
@@ -811,9 +848,11 @@ class DataSet(object):
         if _end_dt is None:
             _end_dt = self._dsinfo_prop_getter('start_datetime')
         return _end_dt
+
     @end_datetime.setter
     def end_datetime(self, val):
         self._dsinfo_prop_setter('end_datetime', val)
+
     @end_datetime.deleter
     def end_datetime(self):
         self._dsinfo_prop_deleter('end_datetime')
@@ -821,9 +860,11 @@ class DataSet(object):
     @property
     def tau(self):
         return self._dsinfo_prop_getter('tau')
+
     @tau.setter
     def tau(self, val):
         self._dsinfo_prop_setter('tau', val)
+
     @tau.deleter
     def tau(self):
         self._dsinfo_prop_deleter('tau')
@@ -831,9 +872,11 @@ class DataSet(object):
     @property
     def footprint_height(self):
         return self._dsinfo_prop_getter('footprint_height')
+
     @footprint_height.setter
     def footprint_height(self, val):
         self._dsinfo_prop_setter('footprint_height', val)
+
     @footprint_height.deleter
     def footprint_height(self):
         self._dsinfo_prop_deleter('footprint_height')
@@ -841,9 +884,11 @@ class DataSet(object):
     @property
     def footprint_width(self):
         return self._dsinfo_prop_getter('footprint_width')
+
     @footprint_width.setter
     def footprint_width(self, val):
         self._dsinfo_prop_setter('footprint_width', val)
+
     @footprint_width.deleter
     def footprint_width(self):
         self._dsinfo_prop_deleter('footprint_width')
@@ -851,9 +896,11 @@ class DataSet(object):
     @property
     def moon_phase_angle(self):
         return self._dsinfo_prop_getter('moon_phase_angle')
+
     @moon_phase_angle.setter
     def moon_phase_angle(self, val):
         self._dsinfo_prop_setter('moon_phase_angle', val)
+
     @moon_phase_angle.deleter
     def moon_phase_angle(self):
         self._dsinfo_prop_deleter('moon_phase_angle')
@@ -861,9 +908,11 @@ class DataSet(object):
     @property
     def registered(self):
         return self._dsinfo_prop_getter('registered')
+
     @registered.setter
     def registered(self, val):
         self._dsinfo_prop_setter('registered', val)
+
     @registered.deleter
     def registered(self):
         self._dsinfo_prop_deleter('registered')
@@ -887,37 +936,37 @@ class DataSet(object):
     @property
     def data_box_definition(self):
         if not hasattr(self, '_data_box_definition'):
-            ##Need a third variable to create a mask
-            #var = self.variables[self.variables.keys()[0]]
-            #if var.empty is True:
+            # #Need a third variable to create a mask
+            # var = self.variables[self.variables.keys()[0]]
+            # if var.empty is True:
             #    var = var.read()
-            #If the variable has not yet been read, then read it
+            # If the variable has not yet been read, then read it
             if self.geolocation_variables['Longitude'].empty is True:
                 self.geolocation_variables._force_append(self.geolocation_variables['Longitude'].read())
-            #If the variable has not yet been read, then read it
+            # If the variable has not yet been read, then read it
             if self.geolocation_variables['Latitude'].empty is True:
                 self.geolocation_variables._force_append(self.geolocation_variables['Latitude'].read())
-            #mask = self.geolocation_variables['Longitude'].mask | self.geolocation_variables['Latitude'].mask | var.mask
-            #self.geolocation_variables['Longitude'].mask = mask
-            #self.geolocation_variables['Latitude'].mask = mask
+            # mask = self.geolocation_variables['Longitude'].mask | self.geolocation_variables['Latitude'].mask | var.mask
+            # self.geolocation_variables['Longitude'].mask = mask
+            # self.geolocation_variables['Latitude'].mask = mask
             # Jeremy had added this in his branch for some reason.  It was breaking things
-            # (lat/lon out of range I think). so I commented it out. Probably should check 
+            # (lat/lon out of range I think). so I commented it out. Probably should check
             # with Jeremy.
-            #self._data_box_definition = geometry.SwathDefinition(lons=self.geolocation_variables['Longitude'].filled(1.00000000e30),
+            # self._data_box_definition = geometry.SwathDefinition(lons=self.geolocation_variables['Longitude'].filled(1.00000000e30),
             #                                                 lats=self.geolocation_variables['Latitude'].filled(1.00000000e30))
-            #if self.geostationary:
+            # if self.geostationary:
             #    self._data_box_definition = GeostationaryDefinition(
             #            lons=np.ma.array(self.geolocation_variables['Longitude'], subok=False),
             #            lats=np.ma.array(self.geolocation_variables['Latitude'], subok=False))
-            #else:
+            # else:
             #    self._data_box_definition = geometry.SwathDefinition(
             #            lons=np.ma.array(self.geolocation_variables['Longitude'], subok=False),
             #            lats=np.ma.array(self.geolocation_variables['Latitude'], subok=False))
             # This should be the generalized definition for data on a sphere
-            #self._data_box_definition = FalseCornersDefinition(
+            # self._data_box_definition = FalseCornersDefinition(
 
             # MLS 20160223 For now, ahi is the only dataset that uses the planar definition.
-            #   everything else is swath based. Eventually if we have more exceptions for 
+            #   everything else is swath based. Eventually if we have more exceptions for
             #   box definition types, we may want to put this in utils/satellite_info.py
             if self.sensor_name == 'abi':
                 self._data_box_definition = GridDefinition(
@@ -943,14 +992,14 @@ class DataSet(object):
 
         Note:: This will clear all properties.
         '''
-        #print 'DataSet merge'
-        #Check for equality
+        # print 'DataSet merge'
+        # Check for equality
         if _do_similar is False:
             if self != other:
                 raise ValueError('DataSets not equal.  Cannot merge.')
         if not self.similar(other):
             raise ValueError('DataSets not similar.  Cannot merge.')
-        #Merge containers
+        # Merge containers
         self_vars = set(self.variables.keys())
         other_vars = set(other.variables.keys())
         if len(self_vars.intersection(other_vars)) != 0:
@@ -959,50 +1008,54 @@ class DataSet(object):
             for varname in other.variables.keys():
                 self.add_variable(other.variables[varname], copy=copy)
         for gvarname in other.geolocation_variables.keys():
-            #Make sure geolocation variables of the same name are similar
+            # Make sure geolocation variables of the same name are similar
             if gvarname in self.geolocation_variables.keys():
                 sgvar = self.geolocation_variables[gvarname]
                 ogvar = self.geolocation_variables[gvarname]
                 failed_test = 'Incompatible geolocation variables found in merge.'
-                if sgvar.shape != ogvar.shape: raise ValueError(failed_test)
-                #It should not be required to use .data here.  This is due to a numpy bug.
-                if sgvar.data.mean() != ogvar.data.mean(): raise ValueError(failed_test)
-                if sgvar.min() != ogvar.min(): raise ValueError(failed_test)
-                if sgvar.start_datetime != ogvar.start_datetime: raise ValueError(failed_test)
-                if sgvar.filename_datetime != ogvar.filename_datetime: raise ValueError(failed_test)
-                if sgvar.end_datetime != ogvar.end_datetime: raise ValueError(failed_test)
+                if sgvar.shape != ogvar.shape:
+                    raise ValueError(failed_test)
+                # It should not be required to use .data here.  This is due to a numpy bug.
+                if sgvar.data.mean() != ogvar.data.mean():
+                    raise ValueError(failed_test)
+                if sgvar.min() != ogvar.min():
+                    raise ValueError(failed_test)
+                if sgvar.start_datetime != ogvar.start_datetime:
+                    raise ValueError(failed_test)
+                if sgvar.filename_datetime != ogvar.filename_datetime:
+                    raise ValueError(failed_test)
+                if sgvar.end_datetime != ogvar.end_datetime:
+                    raise ValueError(failed_test)
             else:
-                #print 'DataSet merge before appending to geolocation_variables'
+                # print 'DataSet merge before appending to geolocation_variables'
                 self.geolocation_variables.append(other.geolocation_variables[gvarname])
 
-        #Clear properties
-        #Normally would clear source and shape, but they got checked in the equality
+        # Clear properties
+        # Normally would clear source and shape, but they got checked in the equality
         #   no need to recompute them...
         if hasattr(self, '_data_box_definition'):
             del self._data_box_definition
         if hasattr(self, '_userblock_'):
             del self._userblock_
 
-    #def overlaps(self, ad):
+    # def overlaps(self, ad):
     #    '''Given an area definition, determines whether the data overlaps the defined area.'''
     #    return self._overlaps_area_definition.overlaps(ad)
     def overlaps(self, ad):
         '''Given an area definition, determines whether the data overlaps the defined area.'''
-        #NOTE::  This is a modified version of pyresample.geometry.overlaps
-        #        This version will automatically attempt to deal with bad 
+        # NOTE::  This is a modified version of pyresample.geometry.overlaps
+        #        This version will automatically attempt to deal with bad
         #        values at the corners of datasets
-        #print 'CONTAINERS2 overlaps - calling pyresample overlaps - which '+\
+        # print 'CONTAINERS2 overlaps - calling pyresample overlaps - which '+\
         #        'first tests each sector point against data corners. '+\
         #        ' then tests each data point against sector corners.'
-        #shell()
         retval = self.data_box_definition.overlaps(ad)
-        #print '    retval from pyresample overlaps: '+str(retval)
+        # print '    retval from pyresample overlaps: '+str(retval)
         # I think this is handled in pyresample overlaps
-        #for corn in ad.corners:
+        # for corn in ad.corners:
         #    if self.data_box_definition.__contains__(corn):
         #        retval = True
         return retval
-
 
     def overlap_rate(self, ad):
         '''Given an area definition, determines what percentage of teh data overlaps the defined area.'''
@@ -1027,17 +1080,17 @@ class DataSet(object):
         intersection = self.data_box_definition.intersection(ad)
         lats = self.geolocation_variables['Latitude']
         lons = self.geolocation_variables['Longitude']
-        x_delta = (ad.area_extent[2]-ad.area_extent[0])/ad.x_size
-        y_delta = (ad.area_extent[2]-ad.area_extent[0])/ad.y_size
-        # area_definition.intersection sometimes returns values > pi (180) 
+
+        # area_definition.intersection sometimes returns values > pi (180)
         # this does not work out so well for the > < lat/lons in intersect_corners
         # so move them back down to -180<lon<180
         for corner in intersection:
             if corner.lon > math.pi:
-                corner.lon -= 2*math.pi
+                corner.lon -= 2 * math.pi
             elif corner.lon < -math.pi:
-                corner.lon += 2*math.pi
-        #This needs to be done based on sensor resolution rather than arbitrarily set
+                corner.lon += 2 * math.pi
+
+        # This needs to be done based on sensor resolution rather than arbitrarily set
         #   Should be sensor resolution(km)/(111km/deg)
         #   This refers to the number 0.00337
         # I'm guessing the .00337 referenced above was what 0.1 used to be... That was too restrictive
@@ -1069,23 +1122,23 @@ class DataSet(object):
             log.exception(str(resp)+' Too many corners found.')
             raise ValueError(str(resp)+' Too many corners found.')
 
-        #Instantiate new DataSet object
+        # Instantiate new DataSet object
         obj = self.__class__.__new__(self.__class__, self.name)
-        #obj._dataprovider = self.dataprovider
-        #obj._platform_name = self.platform_name
-        #obj._sensor_name = self.sensor_name
-        #print('sector DataSet platform_name: '+self.platform_name)
+        # obj._dataprovider = self.dataprovider
+        # obj._platform_name = self.platform_name
+        # obj._sensor_name = self.sensor_name
+        # print('sector DataSet platform_name: '+self.platform_name)
 
-        #Loop over geolocation variables, extract the correct data
+        # Loop over geolocation variables, extract the correct data
         for gvarname in self.geolocation_variables.keys():
-            #gvar = self.geolocation_variables[gvarname].sector((min_x, min_y, max_x, max_y))
+            # gvar = self.geolocation_variables[gvarname].sector((min_x, min_y, max_x, max_y))
             gvar = self.geolocation_variables[gvarname][min_x:max_x+1, min_y:max_y+1]
             obj.geolocation_variables.append(gvar)
-        #Loop over data variables, extract the correct data
+        # Loop over data variables, extract the correct data
         for varname in self.variables.keys():
             # If we pass a list of variables, limit to those variables.
             if not required_vars or varname in required_vars:
-                #var = self.variables[varname].sector((min_x, min_y, max_x, max_y))
+                # var = self.variables[varname].sector((min_x, min_y, max_x, max_y))
                 var = self.variables[varname][min_x:max_x+1, min_y:max_y+1]
                 obj.variables.append(var)
 
@@ -1098,112 +1151,112 @@ class DataSet(object):
     #       in memory (to avoid in-memory duplicates), 
     #       but only register what we need. required_vars=None
     #       means ALL variables.
-    #@profile
+    # @profile
     def register(self, ad, interp_method='nearest',required_vars=None,roi=None):
         '''Given an area definition will register all variables to the defined area.'''
         if not interp_method:
             interp_method = 'nearest'
-        #Initialize containers
+        # Initialize containers
         if not required_vars:
             required_vars = self.variables.keys()
         varnames = []
         gvarnames = []
         arrays = []
 
-        #print_mem_usage('cont2beforeappend',True)
-        #Gather all variables
+        # print_mem_usage('cont2beforeappend',True)
+        # Gather all variables
         for varname in required_vars:
             # If there are multiple datasets, each var won't be in each dataset.
             # only append from the appropriate dataset...
             if self.has_any_vars([varname]):
                 varnames.append(varname)
                 arrays.append(self.variables[varname])
-        #Gather all geolocation variables
+        # Gather all geolocation variables
         for gvarname in self.geolocation_variables.keys():
             gvarnames.append(gvarname)
             gvar = self.geolocation_variables[gvarname]
-            #if gvarname in ['Latitude', 'Longitude']:
+            # if gvarname in ['Latitude', 'Longitude']:
             #    gvar = self.geolocation_variables[gvarname]
             #    gvar = gvar._create_similar(gvar, gvar.name)
             #    gvar._mask = np.ma.nomask
-            #else:
+            # else:
             #    gvar = self.geolocation_variables[gvarname]
             arrays.append(gvar)
-        #print_mem_usage('cont2afterappend',True)
+        # print_mem_usage('cont2afterappend',True)
 
-        #Stack all data into single array
+        # Stack all data into single array
         # MLS 20160203 Memory jump after dstack.
         #       wondering if we can do something
         #       to avoid the duplication here (arrays
         #       and joined are the same thing...)
-        #print_mem_usage('cont2beforedstack',True)
+        # print_mem_usage('cont2beforedstack',True)
         joined = np.ma.dstack(arrays)
-        #print_mem_usage('cont2afterdstack',True)
-        #joined._optinfo['empty'] = False
+        # print_mem_usage('cont2afterdstack',True)
+        # joined._optinfo['empty'] = False
 
-        #Below is an attempt at forcing pyresample to quit interpolating the edge pixels.
-        #This attempt adds an outer layer of masked data the entire way around the array.
-        #pyresample should recognize the masked data and not attempt to interpolate past the masked values.
-        #This attempt failed because the data dimensions do not match those supplied to create
+        # Below is an attempt at forcing pyresample to quit interpolating the edge pixels.
+        # This attempt adds an outer layer of masked data the entire way around the array.
+        # pyresample should recognize the masked data and not attempt to interpolate past the masked values.
+        # This attempt failed because the data dimensions do not match those supplied to create
         #   self.data_box_definition.
-        #At this point, I believe there are three solutions:
+        # At this point, I believe there are three solutions:
         #   1) Use something other than pyresample
         #   2) Fix pyresample so it recognizes the edge of the data
         #   3) Recalculate the data_box_definition using the expanded lats and lons in the joined array
-        #Option 1 sounds hard.  Option 2 also sounds hard.  Option 3 sounds inefficient.
+        # Option 1 sounds hard.  Option 2 also sounds hard.  Option 3 sounds inefficient.
 
-        ##Create new area definition using expanded lats and lons
-        #locs = np.ma.dstack([self.geolocation_variables['Longitude'], self.geolocation_variables['Latitude']])
+        # #Create new area definition using expanded lats and lons
+        # locs = np.ma.dstack([self.geolocation_variables['Longitude'], self.geolocation_variables['Latitude']])
 
-        #new_slab = np.zeros_like(locs[0,:,:])
-        #new_slab = new_slab.reshape(1, new_slab.shape[0], new_slab.shape[1])
-        ##Left
-        #new_slab[...] = locs[0,:,:]+(locs[0,:,:]-locs[1,:,:])
-        #locs = np.ma.vstack((new_slab, locs))
-        ##Right
-        #new_slab[...] = locs[-1,:,:]+(locs[-1,:,:]-locs[-2,:,:])
-        #locs = np.ma.vstack((locs, new_slab))
+        # new_slab = np.zeros_like(locs[0,:,:])
+        # new_slab = new_slab.reshape(1, new_slab.shape[0], new_slab.shape[1])
+        # #Left
+        # new_slab[...] = locs[0,:,:]+(locs[0,:,:]-locs[1,:,:])
+        # locs = np.ma.vstack((new_slab, locs))
+        # #Right
+        # new_slab[...] = locs[-1,:,:]+(locs[-1,:,:]-locs[-2,:,:])
+        # locs = np.ma.vstack((locs, new_slab))
 
-        ##Top
-        #new_slab = np.zeros_like(locs[:,0,:])
-        #new_slab[...] = locs[:,0,:]+(locs[:,0,:]-locs[:,1,:])
-        #new_slab = new_slab.reshape(new_slab.shape[0], 1, new_slab.shape[1])
-        #locs = np.ma.hstack((new_slab, locs))
-        ##Bottom
-        #new_slab = np.zeros_like(locs[:,0,:])
-        #new_slab[...] = locs[:,-1,:]+(locs[:,-1,:]-locs[:,-2,:])
-        #new_slab = new_slab.reshape(new_slab.shape[0], 1, new_slab.shape[1])
-        #locs = np.ma.hstack((locs, new_slab))
-        #data_ad = geometry.SwathDefinition(lons=locs[...,0], lats=locs[...,1])
+        # #Top
+        # new_slab = np.zeros_like(locs[:,0,:])
+        # new_slab[...] = locs[:,0,:]+(locs[:,0,:]-locs[:,1,:])
+        # new_slab = new_slab.reshape(new_slab.shape[0], 1, new_slab.shape[1])
+        # locs = np.ma.hstack((new_slab, locs))
+        # #Bottom
+        # new_slab = np.zeros_like(locs[:,0,:])
+        # new_slab[...] = locs[:,-1,:]+(locs[:,-1,:]-locs[:,-2,:])
+        # new_slab = new_slab.reshape(new_slab.shape[0], 1, new_slab.shape[1])
+        # locs = np.ma.hstack((locs, new_slab))
+        # data_ad = geometry.SwathDefinition(lons=locs[...,0], lats=locs[...,1])
 
-        #masked_slab = np.ma.expand_dims(np.zeros_like(joined[0,:,:]), 0)
-        #masked_slab.mask[...] = True
-        #joined = np.ma.vstack((joined, masked_slab))
-        #joined = np.ma.vstack((masked_slab, joined))
-        #masked_slab = np.ma.expand_dims(np.zeros_like(joined[:,0,:]), 1)
-        #masked_slab.mask[...] = True
-        #joined = np.ma.hstack((joined, masked_slab))
-        #joined = np.ma.hstack((masked_slab, joined))
+        # masked_slab = np.ma.expand_dims(np.zeros_like(joined[0,:,:]), 0)
+        # masked_slab.mask[...] = True
+        # joined = np.ma.vstack((joined, masked_slab))
+        # joined = np.ma.vstack((masked_slab, joined))
+        # masked_slab = np.ma.expand_dims(np.zeros_like(joined[:,0,:]), 1)
+        # masked_slab.mask[...] = True
+        # joined = np.ma.hstack((joined, masked_slab))
+        # joined = np.ma.hstack((masked_slab, joined))
 
-        #mask = joined.mask
-        #if mask is np.ma.nomask:
+        # mask = joined.mask
+        # if mask is np.ma.nomask:
         #    mask = np.ma.getmaskarray(joined)
-        #mask[0,:,:] = True
-        ##mask[1,:,:] = True
-        #mask[-1,:,:] = True
-        ##mask[-2,:,:] = True
-        #mask[:,0,:] = True
-        ##mask[:,1,:] = True
-        #mask[:,-1,:] = True
-        ##mask[:,-2,:] = True
-        #joined._mask = mask
+        # mask[0,:,:] = True
+        # #mask[1,:,:] = True
+        # mask[-1,:,:] = True
+        # #mask[-2,:,:] = True
+        # mask[:,0,:] = True
+        # #mask[:,1,:] = True
+        # mask[:,-1,:] = True
+        # #mask[:,-2,:] = True
+        # joined._mask = mask
 
-        #Run registration
-        #joined = kd_tree.resample_nearest(data_ad,
+        # Run registration
+        # joined = kd_tree.resample_nearest(data_ad,
         #                                  joined, ad, radius_of_influence=5000,
         #                                  fill_value=None)
 
-        #This should be attached to the scifile instance.  Probably should move sensor_info.py into scifile
+        # This should be attached to the scifile instance.  Probably should move sensor_info.py into scifile
         if not roi:
             if 'interpolation_radius_of_influence' in self.scifile.metadata.keys():
                 roi = self.scifile.metadata['interpolation_radius_of_influence']
@@ -1226,13 +1279,12 @@ class DataSet(object):
             if ad.pixel_size_x > roi or ad.pixel_size_y > roi:
                 log.info('        Using sector radius of influence: '+str(ad.pixel_size_x)+' or '+str(ad.pixel_size_y)+', not sensor/product: '+str(roi))
                 roi = ad.pixel_size_x if ad.pixel_size_x > ad.pixel_size_y else ad.pixel_size_y
-        #print_mem_usage('cont2beforeresample',True)
+        # print_mem_usage('cont2beforeresample',True)
         # MLS 20160203 huge memory usage during resample, but comes back down
         #       to pre-dstack levels immediately after (can be >2x during)
         if interp_method == 'nearest':
-            #shell()
             joined = kd_tree.resample_nearest(self.data_box_definition,
-                                          #joined, ad, radius_of_influence=sensor_info.interpolation_radius_of_influence,
+                                          # joined, ad, radius_of_influence=sensor_info.interpolation_radius_of_influence,
                                           joined, ad, radius_of_influence=roi,
                                           fill_value=None)
 
@@ -1254,8 +1306,7 @@ class DataSet(object):
             # Loop over all the arrays in joined - all data and lat/lons
             for ii in range(N):
                 dataj = joined[:,:,ii]
-                #interp = scipy.interpolate.interp2d(data_lats, data_lons, dataj.T)
-                # shell()
+                # interp = scipy.interpolate.interp2d(data_lats, data_lons, dataj.T)
                 # Allow for lat/lon or lon/lat data
                 try:
                     interp = scipy.interpolate.RectBivariateSpline(data_lons, data_lats, dataj, kx=1, ky=1)
@@ -1263,18 +1314,16 @@ class DataSet(object):
                     interp = scipy.interpolate.RectBivariateSpline(data_lons, data_lats, dataj.T, kx=1, ky=1)
                 joined_new[:,:,ii]= interp(sector_lons, sector_lats, grid=False)
 
-                #RectBivariateSpline.__call__ DID NOT like the 1D arrays used in the
-                #regrid process
-                #interp(sector_lons,sector_lats,grid=False)
+                # RectBivariateSpline.__call__ DID NOT like the 1D arrays used in the
+                # regrid process
+                # interp(sector_lons,sector_lats,grid=False)
             joined = joined_new
-            #scipy.interpolate.RectBivariateSpline(Longi, Lati,dataj.transpose() )
+            # scipy.interpolate.RectBivariateSpline(Longi, Lati,dataj.transpose() )
 
         elif interp_method == 'zoom':
-            #shell()
             joined = scipy.ndimage.zoom(joined,2)
 
         elif interp_method == 'filter':
-            #shell()
             joined = scipy.ndimage.spline_filter(joined)
 
         elif interp_method == 'interp2d':
@@ -1287,7 +1336,6 @@ class DataSet(object):
             sector_lons = ad.get_lonlats()[0]
             sector_lats = ad.get_lonlats()[1]
             joined_new = np.ma.zeros((sector_lons.shape[0], sector_lats.shape[1],N))
-            #shell()
             # Loop over all the arrays in joined - all data and lat/lons
             for ii in range(N):
                 dataj = joined[:,:,ii]
@@ -1300,8 +1348,8 @@ class DataSet(object):
 
             joined = joined_new
 
-        #Map Coordinates require a specific coordinate system
-        #elif interp_method == 'mapcoord':
+        # Map Coordinates require a specific coordinate system
+        # elif interp_method == 'mapcoord':
         #    lati = self.geolocation_variables['Latitude']
         #    longi = self.geolocation_variables['Longitude']
 
@@ -1311,11 +1359,10 @@ class DataSet(object):
         #    sector_lons = ad.get_lonlats()[0]
         #    sector_lats = ad.get_lonlats()[1]
         #    points = (sector_lats,sector_lons)
-        #    shell()
         #    joined = scipy.ndimage.map_coordinates(joined,ad.get_lonlats())
 
-        #Regular Grid needs a 3d cartesian grid in order to work.
-        #elif interp_method == 'regulargrid':
+        # Regular Grid needs a 3d cartesian grid in order to work.
+        # elif interp_method == 'regulargrid':
         #    lati = self.geolocation_variables['Latitude']
         #    longi = self.geolocation_variables['Longitude']
 
@@ -1325,12 +1372,10 @@ class DataSet(object):
         #    sector_lons = ad.get_lonlats()[0]
         #    sector_lats = ad.get_lonlats()[1]
         #    joined_new = np.ma.zeros((sector_lons.shape[0], sector_lats.shape[1],N))
-        #    #shell()
         #    # Loop over all the arrays in joined - all data and lat/lons
         #    for ii in range(N):
         #        dataj = joined[:,:,ii]
         #        #interp = scipy.interpolate.interp2d(data_lats, data_lons, dataj.T)
-        #        # shell()
         #        # Allow for lat/lon or lon/lat data
         #        try:
         #            interp = scipy.interpolate.RegularGridInterpolator((data_lons, data_lats), dataj)
@@ -1340,14 +1385,14 @@ class DataSet(object):
 
         #    joined = joined_new
 
-        #print_mem_usage('cont2afterresample',True)
-        #Instantiate new DataSet object
+        # print_mem_usage('cont2afterresample',True)
+        # Instantiate new DataSet object
         obj = self.__class__.__new__(self.__class__, self.name)
-        #obj.date_format = self.date_format
-        #obj.time_format = self.time_format
+        # obj.date_format = self.date_format
+        # obj.time_format = self.time_format
 
-        #print_mem_usage('cont2beforecreatesimilar',True)
-        #Loop over variables and reset their data attributes with the correct data
+        # print_mem_usage('cont2beforecreatesimilar',True)
+        # Loop over variables and reset their data attributes with the correct data
         for varind in range(len(varnames)):
             varname = varnames[varind]
             var = arrays[varind]._create_similar(joined[:,:,varind])
@@ -1355,8 +1400,8 @@ class DataSet(object):
                 raise ValueError("Variable logic incorrect in register.  Expected %s and got %s." % (varname, var.name))
             obj.variables.append(var)
 
-        #Loop over geolocation variables and reset their data attributes with the correct data
-        #Careful with the indecies here.  They are tricky
+        # Loop over geolocation variables and reset their data attributes with the correct data
+        # Careful with the indecies here.  They are tricky
         for varind in range(len(varnames), len(varnames)+len(gvarnames)):
             gvarind = varind - len(varnames)
             gvarname = gvarnames[gvarind]
@@ -1364,9 +1409,9 @@ class DataSet(object):
             if gvarname != gvar.name:
                 raise ValueError("Variable logic incorrect in register.  Expected %s and got %s." % (gvarname, gvar.name))
             obj.geolocation_variables.append(gvar)
-        #print_mem_usage('cont2aftercreatesimilar',True)
+        # print_mem_usage('cont2aftercreatesimilar',True)
 
-        #Set the area definition to the registeration area definition
+        # Set the area definition to the registeration area definition
         obj._data_box_definition = ad
         obj.registered = True
 
@@ -1374,12 +1419,12 @@ class DataSet(object):
 
     def has_night(self, min_zenith=90):
         '''Return True if the DataSet contains locations where SunZenith is less than min_zenith.'''
-        #Read SunZenith without reading the rest of the variables to save time here
-        #Replace SunZenith variable in self.geolocation_variables
+        # Read SunZenith without reading the rest of the variables to save time here
+        # Replace SunZenith variable in self.geolocation_variables
         if self.geolocation_variables['SunZenith'].empty:
             self.geolocation_variables._force_append(self.geolocation_variables['SunZenith'].read())
 
-        #Determine if the DataSet contains daytime data
+        # Determine if the DataSet contains daytime data
         if np.ma.any(self.geolocation_variables['SunZenith'] > min_zenith):
             return True
         else:
@@ -1387,21 +1432,21 @@ class DataSet(object):
 
     def mask_night(self, min_zenith=90):
         '''Mask all variables in the DataSet where SunZenith is less than min_zenith.'''
-        #Read SunZenith without reading the rest of the variables to save time here
-        #Replace SunZenith variable in self.geolocation_variables
+        # Read SunZenith without reading the rest of the variables to save time here
+        # Replace SunZenith variable in self.geolocation_variables
         if self.geolocation_variables['SunZenith'].empty:
             self.geolocation_variables._force_append(self.geolocation_variables['SunZenith'].read())
-        #Determine where night and create DataSet level mask
+        # Determine where night and create DataSet level mask
         self._set_mask_inplace(np.ma.make_mask(self.geolocation_variables['SunZenith'] > min_zenith))
 
     def has_day(self, max_zenith=90):
         '''Return True if the DataSet contains locations where SunZenith is greater than max_zenith.'''
-        #Read SunZenith without reading the rest of the variables to save time here
-        #Replace SunZenith variable in self.geolocation_variables
+        # Read SunZenith without reading the rest of the variables to save time here
+        # Replace SunZenith variable in self.geolocation_variables
         if self.geolocation_variables['SunZenith'].empty:
             self.geolocation_variables._force_append(self.geolocation_variables['SunZenith'].read())
 
-        #Determine if the DataSet contains daytime data
+        # Determine if the DataSet contains daytime data
         if np.ma.any(self.geolocation_variables['SunZenith'] < max_zenith):
             return True
         else:
@@ -1409,11 +1454,11 @@ class DataSet(object):
 
     def mask_day(self, max_zenith=90):
         '''Mask all variables in the DataSet where SunZenith is greater than max_zenith.'''
-        #Read SunZenith without reading the rest of the variables to save time here
-        #Replace SunZenith variable in self.geolocation_variables
+        # Read SunZenith without reading the rest of the variables to save time here
+        # Replace SunZenith variable in self.geolocation_variables
         if self.geolocation_variables['SunZenith'].empty:
             self.geolocation_variables._force_append(self.geolocation_variables['SunZenith'].read())
-        #Determine where day and create DataSet level mask
+        # Determine where day and create DataSet level mask
         self._set_mask_inplace(np.ma.make_mask(self.geolocation_variables['SunZenith'] < max_zenith))
 
     @property
@@ -1422,12 +1467,12 @@ class DataSet(object):
     @scifile.setter
     def scifile(self, val):
         if val is None:
-            #Attempt to avoid leakage
+            # Attempt to avoid leakage
             self._finfo = self._finfo.copy()
             self._scifile = None
         else:
             if val.similar(self):
-                #Merge _finfo together for the scifile and the dataset
+                # Merge _finfo together for the scifile and the dataset
                 for key in val._finfo.keys():
                     if val._finfo[key] is None and self._finfo[key] is not None:
                         val._finfo[key] = self._finfo[key]
@@ -1442,7 +1487,6 @@ class DataSet(object):
                         print '  dataset.scifile var:  '+' '+str(attr)+' '+str(getattr(val.variables[var],attr))+' '+var
                     for gvar in val.geolocation_variables.keys():
                         print '  Variable.dataset gvar:  '+' '+str(attr)+' '+str(getattr(val.geolocation_variables[gvar],attr))+' '+gvar
-                #shell()
                 raise SciFileError('Cannot set `scifile` attribute on DataSet.  Not similar.')
 
     @property
@@ -1450,7 +1494,7 @@ class DataSet(object):
         return self.dataset.name
 
 
-#_empty_dsinfo = {'name': Empty, 'units':Empty, 'badval':Empty, 'storage_dtype':Empty,
+# _empty_dsinfo = {'name': Empty, 'units':Empty, 'badval':Empty, 'storage_dtype':Empty,
 #                   'scale':Empty, 'offset':Empty, 'start_date':Empty, 'end_date':Empty,
 #                   'start_time':Empty, 'end_time':Empty, 'empty':Empty, 'xml_element':Empty,
 #                   'footprint_height':None,'footprint_width':None,'moon_phase_angle':None,
@@ -1464,37 +1508,37 @@ class Variable(MaskedArray):
     def __new__(cls, name, data=None, reader=None, shape=None, dtype=None, dataset=None, _varinfo={},
             _nomask=False, **kwargs):
 
-        #Break keywords out of kwargs
-        #Once we've figured out all of the keywords, we should put them in the signature
-        #dtype = kwargs['dtype'] if kwargs.has_key('dtype') else None
+        # Break keywords out of kwargs
+        # Once we've figured out all of the keywords, we should put them in the signature
+        # dtype = kwargs['dtype'] if kwargs.has_key('dtype') else None
         hard_mask = kwargs['hard_mask'] if kwargs.has_key('dtype') else True
-        #date_format = kwargs['date_format'] if kwargs.has_key('date_format') else '%Y%m%d'
-        #time_format = kwargs['time_format'] if kwargs.has_key('time_format') else '%H%M%S'
+        # date_format = kwargs['date_format'] if kwargs.has_key('date_format') else '%Y%m%d'
+        # time_format = kwargs['time_format'] if kwargs.has_key('time_format') else '%H%M%S'
 
-        #Variable.size and Variable.shape will be overridden below
+        # Variable.size and Variable.shape will be overridden below
         #   and will make use of Variable._dat_shape and Variable._dat_size only when
         #   the Variable.data is not Empty.
-        #When Variable.data is Empty, we must have other methods for obtaining shape
+        # When Variable.data is Empty, we must have other methods for obtaining shape
         #   and size.  See the shape and size properties below.
-        #If you are confused about this, please see how numpy.ma.MaskedArray.shape
+        # If you are confused about this, please see how numpy.ma.MaskedArray.shape
         #   and numpy.ma.MaskedArray.size work.  Understanding those will help here.
         cls._dat_shape = MaskedArray.shape
         cls._dat_size = MaskedArray.size
         cls._dat_dtype = MaskedArray.dtype
 
-        #Instantiate the object using MaskedArray's __new__
+        # Instantiate the object using MaskedArray's __new__
         obj = super(Variable, cls).__new__(cls, data=data, dtype=np.dtype(dtype), hard_mask=hard_mask)
 
-        #If we explicitly passed data, warn that it will supercede any reader, shape, and dtype keyword
+        # If we explicitly passed data, warn that it will supercede any reader, shape, and dtype keyword
         if data is not None:
             if (reader is not None) or (shape is not None) or (dtype is not None):
                 log.warning('Recieved explicit data for Variable instance.  '+
                             '`reader`, `shape`, and `dtype` keywords will be ignored.'
                            )
-        #If we did not explicity pass data, then check for a reader, shape, and dtype.
-        #If any of these keywords were not set, then error.
+        # If we did not explicity pass data, then check for a reader, shape, and dtype.
+        # If any of these keywords were not set, then error.
         else:
-            #if reader is None:
+            # if reader is None:
             #    raise SciFileError('Either an explicit data array must be supplied or '+
             #            'a function must be supplied to the reader keyword.'
             #            )
@@ -1502,17 +1546,17 @@ class Variable(MaskedArray):
                 raise SciFileError('If the `reader` keyword is supplied to Variable '+
                         'the `shape` and `dtype` keywords must also be supplied.'
                         )
-            #These attributes are used in the `Variable.read` method, the `Variable.shape`
+            # These attributes are used in the `Variable.read` method, the `Variable.shape`
             #   property, and the `Variable.dtype` property, respectively.
-            #They are used when data has not yet been read from the data file to provide
+            # They are used when data has not yet been read from the data file to provide
             #   data information as required.
             else:
                 obj._given_reader = reader
                 obj._given_shape = shape
                 obj._given_dtype = dtype
 
-        #If we don't have data yet, then set empty to True.
-        #The real data are always stored in obj._data if we have real data.
+        # If we don't have data yet, then set empty to True.
+        # The real data are always stored in obj._data if we have real data.
         if not obj._data.shape:
             obj._optinfo['empty'] = True
         else:
@@ -1522,7 +1566,7 @@ class Variable(MaskedArray):
         obj._optinfo['badval'] = kwargs['badval'] if kwargs.has_key('badval') else None
 
 
-        #Set up _dsinfo and _mask
+        # Set up _dsinfo and _mask
         # MLS If we passed _nomask, don't try to set the mask.
         # beware of issues with this down the line - we put this 
         # in when the RSCAT reader was failing when passing _nomask=True
@@ -1537,17 +1581,17 @@ class Variable(MaskedArray):
             else:
                 # Just don't include non-required variables, don't fail
                 pass
-                #raise SciFileError('Unrecognized variable attribute in _varinfo: %s' % key)
+                # raise SciFileError('Unrecognized variable attribute in _varinfo: %s' % key)
         obj._dsinfo = _empty_dsinfo.copy()
         for key, val in _varinfo.items():
             if obj._dsinfo.has_key(key):
                 obj._dsinfo[key] = val
 
-        #The mask is shared between variables by default.  Setting this forces a variable to
+        # The mask is shared between variables by default.  Setting this forces a variable to
         #   ALWAYS return np.ma.nomask regardless.
-        #Useful to avoid masking geolocation variables
-        #May be better to just find a better way to handle things in register.
-        #register requires unmasked lats and lons
+        # Useful to avoid masking geolocation variables
+        # May be better to just find a better way to handle things in register.
+        # register requires unmasked lats and lons
         if _nomask or (_varinfo.has_key('nomask') and _varinfo['nomask']):
             obj._varinfo['_nomask'] = True
         else:
@@ -1555,7 +1599,7 @@ class Variable(MaskedArray):
 
         return obj
 
-    #def __init__(self, name, **kwargs):
+    # def __init__(self, name, **kwargs):
     #    super(Variable, self).__init__(**kwargs)
 
     def __array_finalize__(self, obj):
@@ -1565,15 +1609,15 @@ class Variable(MaskedArray):
         '''
         Copies some attributes of obj to self.
         '''
-        #Make sure we maintain our class
+        # Make sure we maintain our class
         if obj is not None and isinstance(obj, np.ndarray):
             _baseclass = type(obj)
         else:
             _baseclass = np.ndarray
 
-        #We need to copy the _optinfo to avoid backward propagation
-        #_basedict is deprecated according to numpy discussion as of 2008
-        #It is kept around for backwards compatability
+        # We need to copy the _optinfo to avoid backward propagation
+        # _basedict is deprecated according to numpy discussion as of 2008
+        # It is kept around for backwards compatability
         _optinfo = {}
         _optinfo.update(getattr(obj, '_optinfo', {}))
         _optinfo.update(getattr(obj, '_basedict', {}))
@@ -1582,10 +1626,10 @@ class Variable(MaskedArray):
         if not isinstance(obj, MaskedArray):
             _optinfo.update(getattr(obj, '__dict__', {}))
 
-        #We need to copy _attrinfo to avoid backward propagation
-        #Unlike _optinfo, _attrinfo is not used in the parent MaskedArray
+        # We need to copy _attrinfo to avoid backward propagation
+        # Unlike _optinfo, _attrinfo is not used in the parent MaskedArray
         #   and is unique to Variable objects.
-        #This allows for easier copying without polluting the MaskedArray infrastructure
+        # This allows for easier copying without polluting the MaskedArray infrastructure
         _varinfo = {}
         _varinfo.update(getattr(obj, '_varinfo', {}))
         _dsinfo = {}
@@ -1614,21 +1658,21 @@ class Variable(MaskedArray):
             if attr not in self._dsinfo.keys() and attr not in self._finfo.keys():
                 val = getattr(self, attr)
                 if val is not None:
-                    #datetime objects must be handled specially on write and read
+                    # datetime objects must be handled specially on write and read
                     if isinstance(val, datetime):
                         varobj.attrs[attr] = val.strftime('%Y%m%d%H%M%S.%f')
                     else:
                         varobj.attrs[attr] = val
 
-    #@property
-    #def _userblock(self):
+    # @property
+    # def _userblock(self):
     #    varelem = objectify.Element('var', attrib={'name':self.name})
     #    varpath = os.path.join('/', self.dataset.name, self.name)
     #    dataelem = objectify.SubElement(varelem, 'data')
     #    dataelem._setText(varpath)
 
-        ##Removed for now: scale, offset, units, storage_dtype, footprint_height, footprint_width
-        #for tag in ['source_name', 'platform_name', 'start_datetime','filename_datetime','end_datetime', 'badval',
+        # #Removed for now: scale, offset, units, storage_dtype, footprint_height, footprint_width
+        # for tag in ['source_name', 'platform_name', 'start_datetime','filename_datetime','end_datetime', 'badval',
         #            'moon_phase_angle']:
         #    if getattr(self, tag) is not None:
         #        attrelem = objectify.SubElement(varelem, tag)
@@ -1637,7 +1681,7 @@ class Variable(MaskedArray):
     #    return varelem
 
     # MLS 20160203 Haven't profiled this yet.
-    #@profile
+    # @profile
     def _create_similar(self, data=None, name=None):
         '''
         Create a new instance of the class where all initial values are the same
@@ -1646,10 +1690,10 @@ class Variable(MaskedArray):
         '''
         if not isinstance(data, np.ma.MaskedArray):
             data = np.ma.array(data)
-        #The way name is handled here makes me think that name should not be in _optinfo.
+        # The way name is handled here makes me think that name should not be in _optinfo.
         name = name if name is not None else self.name
         newobj = self.__class__(name, data=data)
-        #Something is funny with how shape is stored.  We've gotta do this to get the correct shape.
+        # Something is funny with how shape is stored.  We've gotta do this to get the correct shape.
         shape = newobj.shape
         newobj._update_from(self)
         newobj._varinfo['shape'] = shape
@@ -1659,16 +1703,16 @@ class Variable(MaskedArray):
         return newobj
 
 
-    #################################################################
+    # ################################################################
     #
     # Data and data manipulation functions and properties
     #
-    #################################################################
+    # ################################################################
     def __getitem__(self, index):
-        #The _empty attribute indicates whether we have read data into the array yet.
-        #If _empty is True, then we have not yet read data and need to do so
+        # The _empty attribute indicates whether we have read data into the array yet.
+        # If _empty is True, then we have not yet read data and need to do so
         #   since __getitem__ acts on the data.
-        #Reading the data will always return a new object.
+        # Reading the data will always return a new object.
         if self.empty is True:
             return self._create_similar(data=self._given_reader(index))
         else:
@@ -1687,25 +1731,25 @@ class Variable(MaskedArray):
         Similarity is determined when the contents of _dsinfo in `self` is equal to the same in `other`.
         Values that are either set to `Empty` or `None` in either or both objects will be ignored.
         '''
-        #If other appears to be a DataSet and it has no variables, then just assume similar
+        # If other appears to be a DataSet and it has no variables, then just assume similar
         #   no data means we can't compare.
         if hasattr(other, 'variables') and hasattr(other, 'geolocation_variables'):
             if len(other.variables) == 0 or len(other.geolocation_variables) == 0:
                 return True
-        #Will loop over all of these attributes and make sure they are either equal or
+        # Will loop over all of these attributes and make sure they are either equal or
         #   not set in one or both
-        #print 'other.name: '+other.name
+        # print 'other.name: '+other.name
         for attr in self._dsinfo.keys():
-            #print 'Variable other: '+other.name+' '+str(attr)+' '+str(getattr(other,attr))
-            #print 'Variable self: '+self.name+' '+str(attr)+' '+str(getattr(self,attr))
+            # print 'Variable other: '+other.name+' '+str(attr)+' '+str(getattr(other,attr))
+            # print 'Variable self: '+self.name+' '+str(attr)+' '+str(getattr(self,attr))
             selfattr = getattr(self, attr)
             otherattr = getattr(other, attr)
             if selfattr is not None and otherattr is not None and selfattr != otherattr:
                 return False
-        #print 'shouldnt return False'
+        # print 'shouldnt return False'
         return True
 
-    #################################################################
+    # ################################################################
     #
     # Mask manipulation functions and properties
     #
@@ -1716,10 +1760,10 @@ class Variable(MaskedArray):
     #   Variables from the same DataSet, we store a temporary mask in _stored_mask
     #   and allow the mask to accumulate until the data are read.
     #
-    #################################################################
+    # ################################################################
     @property
     def _mask(self):
-        #This is useful for geolocation variables where we don't want to carry the mask
+        # This is useful for geolocation variables where we don't want to carry the mask
         if hasattr(self, '_nomask') and self._nomask:
             return np.ma.nomask
         if (not self.empty) and (self._stored_mask is not np.ma.nomask):
@@ -1734,7 +1778,7 @@ class Variable(MaskedArray):
             if self._stored_mask is not np.ma.nomask:
                 self._combined_mask = self._stored_mask | val
                 self._stored_mask = np.ma.nomask
-            #elif self._combined_mask is not Empty:
+            # elif self._combined_mask is not Empty:
             #    self._combined_mask = self._combined_mask | val
             else:
                 self._combined_mask = val
@@ -1758,14 +1802,14 @@ class Variable(MaskedArray):
     def _stored_mask(self, val):
         self._stored_mask_ = val
 
-    #################################################################
+    # ################################################################
     #
     # Size and shape functions and properties
     #
-    #################################################################
-    #Should probably error if the shape changes after read.
-    #The following functions allow a Variable object to have shape and size while remaining empty.
-    #This allows a user to pass a reader for the variable along with its shape rather than
+    # ################################################################
+    # Should probably error if the shape changes after read.
+    # The following functions allow a Variable object to have shape and size while remaining empty.
+    # This allows a user to pass a reader for the variable along with its shape rather than
     #   requiring an explicit data array in order to delay reading data and reduce I/O.
     def __get_shape(self):
         try:
@@ -1775,13 +1819,13 @@ class Variable(MaskedArray):
                     'May need to implement method of getting shape from the data file.')
     @property
     def shape(self):
-        #This gets a little weird.
-        #self._dat_shape has been set equal to np.ma.MaskedArray.shape so that it will always
+        # This gets a little weird.
+        # self._dat_shape has been set equal to np.ma.MaskedArray.shape so that it will always
         #   accurately reflect the shape of the current array.
-        #If, however, the array is empty, we still want to return the appropriate shape for the
+        # If, however, the array is empty, we still want to return the appropriate shape for the
         #   data that could be read into the instance.
-        #In order to do this, we allow for a given shape or corners to specify our shape.
-        #Additionally, setting self._varinfo['shape'] each time this is called will make sure that
+        # In order to do this, we allow for a given shape or corners to specify our shape.
+        # Additionally, setting self._varinfo['shape'] each time this is called will make sure that
         #   the shape is accurately and constnatly shared with the self.dataset.
         if not self._dat_shape:
             if not hasattr(self, '_corners'):
@@ -1790,7 +1834,7 @@ class Variable(MaskedArray):
                 self._varinfo['shape'] = (self._corners[2]-self._corners[0], self._corners[3]-self._corners[1])
         else:
             self._varinfo['shape'] = self._dat_shape
-        #Set this, too, so that we are sure to share with the dataset
+        # Set this, too, so that we are sure to share with the dataset
         self._dsinfo['shape'] = self._varinfo['shape']
         return self._varinfo['shape']
 
@@ -1804,13 +1848,13 @@ class Variable(MaskedArray):
         else:
             return self._dat_size
 
-    #################################################################
+    # ################################################################
     #
     # Variable state information properties
     #
-    #################################################################
+    # ################################################################
 
-    #Variable specific properties are stored in _optinfo
+    # Variable specific properties are stored in _optinfo
     @property
     def empty(self):
         return self._optinfo['empty']
@@ -1832,7 +1876,7 @@ class Variable(MaskedArray):
     def name(self):
         return self._optinfo['name']
 
-    #Properties to be shared with the dataset instance are stored in _dsinfo
+    # Properties to be shared with the dataset instance are stored in _dsinfo
     @property
     def dataprovider(self):
         return self._dsinfo['dataprovider']
@@ -1849,9 +1893,9 @@ class Variable(MaskedArray):
     def platform_name(self):
         return self._dsinfo['platform_name']
 
-    #Probably Variable specific.  Should be in _optinfo if needed.
-    #@property
-    #def data_provider(self):
+    # Probably Variable specific.  Should be in _optinfo if needed.
+    # @property
+    # def data_provider(self):
     #    return self._dsinfo['data_provider']
 
     @property
@@ -1897,8 +1941,8 @@ class Variable(MaskedArray):
     def registered(self):
         return self._dsinfo['registered']
 
-    #@property
-    #def badval(self):
+    # @property
+    # def badval(self):
     #    if self._optinfo['badval'] is Empty:
     #        try:
     #            self._optinfo['badval'] = self.__read_attr_value('badval')
@@ -1910,8 +1954,8 @@ class Variable(MaskedArray):
     #        except ValueError:
     #            raise SciFileError('Attribute `badval` must be a number.  Got %s.' % self._optinfo['badval'])
     #    return self._optinfo['badval']
-    #@badval.setter
-    #def badval(self, val):
+    # @badval.setter
+    # def badval(self, val):
     #    if val is None:
     #        self._optinfo['badval'] = None
     #    else:
@@ -1922,16 +1966,16 @@ class Variable(MaskedArray):
     #            raise SciFileError('Attribute badval must be a number.  Got %s line.' % 
     #                               (self._optinfo['badval']))
 
-    #@property
-    #def storage_dtype(self):
+    # @property
+    # def storage_dtype(self):
     #    if self._optinfo['storage_dtype'] is Empty:
     #        storage_dtype = self.__read_attr_value('storage_dtype')
     #        if isinstance(storage_dtype, np.ndarray):
     #            storage_dtype = storage_dtype[0]
     #        self._optinfo['storage_dtype'] = self.__convert_dtype_to_numpy(storage_dtype)
     #    return self._optinfo['storage_dtype']
-    #@storage_dtype.setter
-    #def storage_dtype(self, val):
+    # @storage_dtype.setter
+    # def storage_dtype(self, val):
     #    self._optinfo['storage_dtype'] = np.dtype(val)
 
     @property
@@ -1947,22 +1991,22 @@ class Variable(MaskedArray):
     @dataset.setter
     def dataset(self, val):
         if val is None:
-            #Attempt to avoid leakage
+            # Attempt to avoid leakage
             self._dsinfo = self._dsinfo.copy()
             self._mask = self._mask.copy()
             self._dataset = None
         else:
             if val.similar(self):
-                #Merge _dsinfo together for the dataset and the variable
+                # Merge _dsinfo together for the dataset and the variable
                 for key in val._dsinfo.keys():
                     if val._dsinfo[key] is None and self._dsinfo[key] is not None:
                         val._dsinfo[key] = self._dsinfo[key]
-                        #Store what we need in _finfo as well
+                        # Store what we need in _finfo as well
                         if key in val._finfo:
                             val._finfo[key] = getattr(self, key)
                 self._dataset = weakref.ref(val)
                 self._dsinfo = val._dsinfo
-                #Share the mask
+                # Share the mask
                 val._set_mask_inplace(self._mask | val.mask)
                 self._mask = val._mask
             else:
@@ -1973,10 +2017,8 @@ class Variable(MaskedArray):
                         print '  Variable.dataset var:  '+' '+str(attr)+' '+str(getattr(val.variables[var],attr))+' '+var
                     for gvar in val.geolocation_variables.keys():
                         print '  Variable.dataset gvar:  '+' '+str(attr)+' '+str(getattr(val.geolocation_variables[gvar],attr))+' '+gvar
-                #shell()
                 raise SciFileError('Cannot set `dataset` attribute on Variable.  Not similar.')
 
     @property
     def dataset_name(self):
         return self.dataset.name
-
