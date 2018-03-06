@@ -350,9 +350,9 @@ class Title(object):
         sect_sourcename = sector.sources.sources_dict[datafile.source_name]['source_name_display']
         sect_platformname = sector.sources.sources_dict[datafile.source_name]['platform_name_display']
 
-        if sect_sourcename != sourcename:
+        if sect_sourcename != "False" and sect_sourcename != sourcename:
             sourcename = sect_sourcename
-        if sect_platformname != platformname:
+        if sect_platformname != "False" and sect_platformname != platformname:
             platformname = sect_platformname
 
         return Title(satellite=platformname, sensor=sourcename,
