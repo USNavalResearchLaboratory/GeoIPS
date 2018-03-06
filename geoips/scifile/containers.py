@@ -1011,7 +1011,7 @@ class DataSet(object):
             # Make sure geolocation variables of the same name are similar
             if gvarname in self.geolocation_variables.keys():
                 sgvar = self.geolocation_variables[gvarname]
-                ogvar = self.geolocation_variables[gvarname]
+                ogvar = other.geolocation_variables[gvarname]
                 failed_test = 'Incompatible geolocation variables found in merge.'
                 if sgvar.shape != ogvar.shape:
                     raise ValueError(failed_test)
