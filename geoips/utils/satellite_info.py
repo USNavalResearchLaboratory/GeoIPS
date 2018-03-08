@@ -317,7 +317,7 @@ class GOES16SatInfo(SatInfo):
         # common sensorname.  Possibly need to make a "default" sensorname, and
         # allow for alternatives ? For now, just force it to gvar
         #self.sensornames = ['gvar', 'goes', 'gvissr']
-        self.sensornames = ['abi','glm']
+        self.sensornames = ['abi', 'glm', 'clavrx-abi']
         #self.orbital_period = 98 * 60
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -377,10 +377,6 @@ class ISSSatInfo(SatInfo):
         self.celestrak_tle_name = 'ISS (ZARYA)'
         self.tscan_tle_name = None
         self.geostationary = False
-
-class L2RETRIEVALSatInfo(SatInfo):
-    def _set_satinfo(self, sensor=None):
-        self.sensornames = ['clavrx', 'clavrx-abi', 'clavrx-ahi']
 
 class M2ASatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -1932,7 +1928,6 @@ SensorInfo_classes = {
         'amsub':  AMSUBSensorInfo,
         'ascat':  ASCATSensorInfo,
         'atms':  ATMSSensorInfo,
-        'clavrx':  CLAVRXSensorInfo,
         'clavrx-abi':  CLAVRXSensorInfo,
         'clavrx-ahi':  CLAVRXSensorInfo,
         'modis': MODISSensorInfo,
@@ -1997,7 +1992,6 @@ SatInfo_classes = {
         #   should contain ONLY alphanumeric characters.
         'himawari8': HIMAWARI8SatInfo,
         'iss': ISSSatInfo,
-        'l2retrieval':  L2RETRIEVALSatInfo,
         'model': MODELSatInfo,
         'mt2': MT2SatInfo,
         'mt1': MT1SatInfo,
