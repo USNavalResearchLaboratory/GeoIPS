@@ -58,7 +58,7 @@ class SatInfo(object):
             self._set_SensorInfo_atts(satellite=satellite)
         except AttributeError:
             pass
-
+    
     def _set_SatInfo_atts(self, sensor=None, **kwargs):
         # Set default attributes here, instead of directly
         # in __init__, so SatInfo's attributes can be set
@@ -305,6 +305,11 @@ class GOESESatInfo(SatInfo):
         self.orig_file_satname = 'g13'
         self.geostationary = True
 
+class StitchedSatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        self.sensornames = ['stitched']
+        self.geoips_satname = 'stitched'
+        self.geostationary = True
 
 class GOES16SatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -312,7 +317,7 @@ class GOES16SatInfo(SatInfo):
         # common sensorname.  Possibly need to make a "default" sensorname, and
         # allow for alternatives ? For now, just force it to gvar
         #self.sensornames = ['gvar', 'goes', 'gvissr']
-        self.sensornames = ['abi','glm']
+        self.sensornames = ['abi', 'glm', 'clavrx-abi']
         #self.orbital_period = 98 * 60
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -372,10 +377,6 @@ class ISSSatInfo(SatInfo):
         self.celestrak_tle_name = 'ISS (ZARYA)'
         self.tscan_tle_name = None
         self.geostationary = False
-
-class L2RETRIEVALSatInfo(SatInfo):
-    def _set_satinfo(self, sensor=None):
-        self.sensornames = ['clavrx']
 
 class M2ASatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -511,7 +512,7 @@ class METOPBSatInfo(SatInfo):
 
 class MODELSatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['icap','navgem','coamps']
+        self.sensornames = ['icap','navgem','coamps','naapsaot']
         #self.orbital_period = 107.1 * 60.0
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -624,6 +625,16 @@ class NPPSatInfo(SatInfo):
         self.tscan_tle_name = 'npp'
         self.geostationary = False
 
+class N20SatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        self.sensornames = ['viirs', 'atms', 'cris']
+        self.orbital_period = 101 * 60
+        # tle names for celestrak and tscan, default to satname
+        # if not defined in _set_satinfo
+        # None if not available (no ISS from tscan, no TLEs for GEO)
+        self.celestrak_tle_name = 'NOAA 20'
+        self.tscan_tle_name = 'noaa-20'
+        self.geostationary = False
 
 class NRLJCSatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -1491,6 +1502,12 @@ class ICAPSensorInfo(SensorInfo):
         self.OrigFNames = [OrigFName]
         self.pathnameformat = ''
 
+class NAAPSAOTSensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        self.interpolation_radius_of_influence = 56000
+        self.pathnameformat = ''
+        self.mins_per_file = 30
+
 class OLSSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         # This must match appropriate DataFileName class name in utils/path/datafilename.py
@@ -1691,6 +1708,13 @@ class SSMISSensorInfo(SensorInfo):
         self.interpolation_radius_of_influence = 15000
         #self.data_types = {}
 
+class StitchedSensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        self.swath_width_km = 12000
+        self.interpolation_radius_of_influence = 10000
+        self.mins_per_file = 10
+
+
 
 class TMISensorInfo(SensorInfo):
     def _set_sensor_atts(self):
@@ -1884,7 +1908,7 @@ class VIIRSSensorInfo(SensorInfo):
             self.FName['base_dirs'] = [os.getenv('NPPDATA'), os.getenv('OpsNPPDATA')]
         elif os.getenv('NPPDATA'):
             self.FName['base_dirs'] = [os.getenv('NPPDATA')]
-        self.pathnameformat='<sensorname>/<dataprovider>/<producttype>-<ext>/<date{%Y%m%d}>/<time{%H%M%S}>-<timestamp>-<pid>'
+        self.pathnameformat='<satname>/<sensorname>/<dataprovider>/<producttype>-<ext>/<date{%Y%m%d}>/<time{%H%M%S}>-<timestamp>-<pid>'
         self.data_types = {}
 
 
@@ -1904,6 +1928,8 @@ class WINDSATSensorInfo(SensorInfo):
 
 
 SensorInfo_classes = {
+        # Needed to allow for stitched directory
+        'stitched':  StitchedSensorInfo,
         'abi':  ABISensorInfo,
         'ahi':  AHISensorInfo,
         'amsr2':  AMSR2SensorInfo,
@@ -1912,7 +1938,8 @@ SensorInfo_classes = {
         'amsub':  AMSUBSensorInfo,
         'ascat':  ASCATSensorInfo,
         'atms':  ATMSSensorInfo,
-        'clavrx':  CLAVRXSensorInfo,
+        'clavrx-abi':  CLAVRXSensorInfo,
+        'clavrx-ahi':  CLAVRXSensorInfo,
         'modis': MODISSensorInfo,
         'gmi':  GMISensorInfo,
         'glm':  GLMSensorInfo,
@@ -1937,6 +1964,7 @@ SensorInfo_classes = {
         'navgem': MODELSensorInfo,
         'coamps': MODELSensorInfo,
         'icap': ICAPSensorInfo,
+        'naapsaot': NAAPSAOTSensorInfo,
         'seviri':  SEVIRISensorInfo,
         'tmi':  TMISensorInfo,
         'tpw_cira': TPWSensorInfo,
@@ -1946,7 +1974,10 @@ SensorInfo_classes = {
 
 
 SatInfo_classes = {
+        # Needed to allow for stitched directory
+        'stitched':  StitchedSatInfo,
         'npp': NPPSatInfo,
+        'jpss': N20SatInfo,
         'aqua': AQUASatInfo,
         'coriolis': CORIOLISSatInfo,
         'f08': F08SatInfo,
@@ -1972,7 +2003,6 @@ SatInfo_classes = {
         #   should contain ONLY alphanumeric characters.
         'himawari8': HIMAWARI8SatInfo,
         'iss': ISSSatInfo,
-        'l2retrieval':  L2RETRIEVALSatInfo,
         'model': MODELSatInfo,
         'mt2': MT2SatInfo,
         'mt1': MT1SatInfo,
@@ -2019,7 +2049,6 @@ def all_sats_for_sensor(sensor):
     for sat in SatInfo_classes.keys():
         if sensor in SatInfo_classes[sat]().sensornames:
             sats.append(sat)
-
     return sats
 
 
