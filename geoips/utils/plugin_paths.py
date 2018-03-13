@@ -58,6 +58,11 @@ elif os.getenv('UTILSDIR'):
     paths['GEOIPS_SCRIPTS'] = os.getenv('UTILSDIR')
 
 
+paths['GEOIPS_RCFILE'] = ''
+if os.getenv('GEOIPS_RCFILE'):
+    paths['GEOIPS_RCFILE'] = os.getenv('GEOIPS_RCFILE')
+
+
 paths['BOXNAME'] = socket.gethostname()
 
 

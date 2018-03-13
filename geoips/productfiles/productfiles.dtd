@@ -12,7 +12,7 @@
 # included license for more details.
 -->
 <!ELEMENT product_file          (product+)>
-<!ELEMENT product               (multisource_args?, contour_args?, windbarbs_args?,basic_args?, external_args?, footprints_args?, rgb_args?)>
+<!ELEMENT product               (multisource_args?, contour_args?, windbarbs_args?, streamline_args?, basic_args?, external_args?, footprints_args?, rgb_args?)>
 <!-- multisource product type is special. Order matters for productlayer
         Specify order in in productlayer attribute. Smallest number
             for order is on the top, largest number is on the bottom.
@@ -30,6 +30,9 @@
                                  colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
                                  best_possible_pixel_width?)>
 <!ELEMENT windbarbs_args        (source+, dataset?, img, img1, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,
+                                 colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
+                                 best_possible_pixel_width?)>
+<!ELEMENT streamline_args       (source+, dataset?, img, img1, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,
                                  colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
                                  best_possible_pixel_width?)>
 <!ELEMENT footprints_args       (source+, dataset?, speed, direction, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,

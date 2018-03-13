@@ -21,7 +21,7 @@ __title__ = "geoips"
 __summary__ = "Geolocated Information Processing System (GeoIPS(TM))"
 __uri__ = "http://www.nrlmry.navy.mil/geoips"
 
-__version__ = "0.4.0"
+__version__ = "1.0.4"
 
 __author__ = "Naval Research Laboratory Marine Meteorology Division"
 __email__ = "geoips@nrlmry.navy.mil"
@@ -32,6 +32,7 @@ __requires__ = [ 'h5py', # Anaconda
                  # 'pyhdf',
                  'netCDF4', # Anaconda - netcdf4
                  'pyresample',
+                 'memory_profiler',
                  'numpy', # Anaconda
                  'scipy', # Anaconda
                  'Pillow', # Anaconda - pillow
@@ -39,4 +40,5 @@ __requires__ = [ 'h5py', # Anaconda
                  'lxml', # Anaconda
                  'ephem', # Anaconda
                  'basemap', # Anaconda
+                 'numexpr',
                ]

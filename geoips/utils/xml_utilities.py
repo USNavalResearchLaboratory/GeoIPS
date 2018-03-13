@@ -122,6 +122,7 @@ def read_xmlfile(path, do_objectify=True):
                 # Attempt to read again
                 return read_xmlfile(path, do_objectify)
 
+            log.error('Failed on read_xmlfile for file '+path)
             raise resp
 
     return xmlfile

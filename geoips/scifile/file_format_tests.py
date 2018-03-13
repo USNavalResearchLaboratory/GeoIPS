@@ -181,11 +181,14 @@ def get_reader(fname):
 
     reader_list = []
     # list all readers, dynamically set in __init__.py to every module in scifile/readers/*.py:
+    #print readers.__all__
     for modulename in readers.__all__:
         module = getattr(readers, modulename)
+        #print module
         if not hasattr(module, 'reader_class_name'):
             continue
         reader = getattr(module, module.reader_class_name)()
+        #print reader
         if reader.format_test(fname):
             reader_list += [reader]
 

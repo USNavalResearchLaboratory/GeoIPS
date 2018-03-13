@@ -677,9 +677,9 @@ def set_atcf_sector(fields, dynamic_templatefname, finalstormname, tcyear, sfnam
     else:   
         newname = basin+stormnum+stormname
 
-    stormnum= fields['stormnum'].replace('_','').replace('.','')
-    stormname = fields['stormname'].replace('_','').replace('.','')
-    newname = newname.replace('_','').replace('.','')
+    stormnum= fields['stormnum'].replace('_','').replace('.','').replace('-','')
+    stormname = fields['stormname'].replace('_','').replace('.','').replace('-','')
+    newname = newname.replace('_','').replace('.','').replace('-','')
     # This ends up being tc2016io01one
     sector.name = 'tc'+str(tcyear)+newname
 
@@ -913,7 +913,7 @@ def parse_tc(line,dynamic_templatefname,sfname):
     
     stormnum= stormnum.replace('_','').replace('.','')
     stormname = stormname.replace('_','').replace('.','')
-    newname = newname.replace('_','').replace('.','')
+    newname = newname.replace('_','').replace('.','').replace('-','')
     sector.name = 'tc'+str(year)+newname
 
     sector.area_info.center_lat = clat
@@ -977,7 +977,7 @@ def write_single_dynamic_xml_file(sector, force_update=False):
             and os.stat(dynamic_sectorfile.name).st_uid == os.getuid() \
             and os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH') not in sector.source_info.sourcetemplate:
             dynamic_templatefname = \
-                sector.source_info.sourcetemplate.replace(os.getenv('GEOIPS_TEMPLATE_REPLACE',os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH')))
+                sector.source_info.sourcetemplate.replace(os.getenv('GEOIPS_TEMPLATE_REPLACE'),os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH'))
         elif not os.path.exists(sector.source_info.sourcetemplate):
             bname = os.path.basename(sector.source_info.sourcetemplate)
             for tpath in plugins.paths['TEMPLATEPATHS']:

@@ -620,15 +620,15 @@ class Sector(object):
     def name_dict(self, val):
         '''Setter for dictionary of sector name values.'''
         self.name_info.name_dict = val
-
-    @property
-    def area_dict(self):
-        '''Dictionary of area information.'''
-        self._area_dict = self.area_info.area_dict
-        return self._area_dict
-    @area_dict.setter
-    def area_dict(self, val):
-        self.area_info.area_dict = val
+    # THIS WILL NOT WORK!!! Need to use with min/max lat/lon
+    # @property
+    # def area_dict(self):
+    #     '''Dictionary of area information.'''
+    #     self._area_dict = self.area_info.area_dict
+    #     return self._area_dict
+    # @area_dict.setter
+    # def area_dict(self, val):
+    #     self.area_info.area_dict = val
 
     @property
     def basemap(self):
@@ -904,14 +904,16 @@ class Sector(object):
             self.__initialized = True
             self.scifile = scifile
 
-            self.area_parts = ['center_lat',
-                               'center_lon',
-                               'num_lines',
-                               'num_samples',
-                               'pixel_width',
-                               'pixel_height',
-                               'projection'
-                                ]
+            # THIS WILL NOT WORK!!!!!!!!!!!!!!!
+            # need to use min/max lat/lon
+            # self.area_parts = ['center_lat',
+            #                    'center_lon',
+            #                    'num_lines',
+            #                    'num_samples',
+            #                    'pixel_width',
+            #                    'pixel_height',
+            #                    'projection'
+            #                     ]
 
             #Should think about how to do this...
 
@@ -923,12 +925,14 @@ class Sector(object):
             #                         'num_samples',
             #                        ]
 
-        @property
-        def area_dict(self):
-            self._area_dict = OrderedDict()
-            for part in self.area_parts:
-                self._area_dict[part] = getattr(self, part)
-            return self._area_dict
+        # THIS WILL NOT WORK!!!!!!!!!!!!!!!
+        # need to use min/max lat/lon
+        # @property
+        # def area_dict(self):
+        #     self._area_dict = OrderedDict()
+        #     for part in self.area_parts:
+        #         self._area_dict[part] = getattr(self, part)
+        #     return self._area_dict
 
         # This needs to be in METERS
         @property

@@ -399,10 +399,13 @@ def qsub(command,
         qsub_cmd = ' '.join(qsub_args)
 
         getbox_cmd = 'hostname -s'
-        if gpaths['GEOIPS_SCRIPTS'] and os.path.exists(gpaths['GEOIPS_SCRIPTS']):
-            getbox_cmd = 'source '+gpaths['GEOIPS_SCRIPTS']+'/getbox.sh'
+        if gpaths['GEOIPS_SCRIPTS'] and os.path.exists(gpaths['GEOIPS_SCRIPTS']+'/getbox.sh'):
+            getbox_cmd = gpaths['GEOIPS_SCRIPTS']+'/getbox.sh'
 
-        job_cmd = command+' '+' '.join(cmdargs)
+        if gpaths['GEOIPS_RCFILE']:
+            job_cmd = 'bash --rcfile '+gpaths['GEOIPS_RCFILE']+' -ci "'+command+' '+' '.join(cmdargs)+'"'
+        else:
+            job_cmd = command+' '+' '.join(cmdargs)
 
         cmd = '; '.join([getbox_cmd, job_cmd])
 

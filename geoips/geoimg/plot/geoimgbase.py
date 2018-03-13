@@ -252,7 +252,7 @@ class GeoImgBase(object):
             self._imagery_output= True
         return self._imagery_output
 
-    def get_filename(self, external_product=None,merged_type=False):
+    def get_filename(self, external_product=None,merged_type=False, new_sourcename=None, new_platformname=None):
 
 
         final = self.is_final
@@ -269,10 +269,17 @@ class GeoImgBase(object):
             #pdb.set_trace()
             final = False
 
-        return ProductFileName.fromobjects(self.datafile, self.sector, self.product,
+        pfn = ProductFileName.fromobjects(self.datafile, self.sector, self.product,
                                            geoimgobj=self, geoipsfinal_product=final,
                                             external_product=external_product, merged=merged_type,
                                             data_output=data_output,)
+        # If these should be labeled as something besides source/platform (ie, stitched), 
+        # set new values here.
+        if new_sourcename:
+            pfn.sensorname = new_sourcename
+        if new_platformname:
+            pfn.satname = new_platformname
+        return pfn
 
     def merge(self, otherimg, condition=None, other_top=False):
         #self.extend_lines(2)
@@ -483,10 +490,14 @@ class GeoImgBase(object):
             log.info('In intermediate data file read_image')
             return df
 
-    def find_matching_sat_files(self, source, matchall, prodname, hour_range):
+    def find_matching_sat_files(self, source, matchall, prodname, hour_range, sat=None):
         matching_sat_files = []
         # Check all satellites that have the sensor "source"
-        for sat in all_sats_for_sensor(source):
+        if sat:
+            allsats=[sat]
+        else:
+            allsats = all_sats_for_sensor(source)
+        for sat in allsats:
             # productname is the name of the product for the current layer
             # (not the multisource product).
             if matchall:
@@ -539,13 +550,78 @@ class GeoImgBase(object):
         return best_file
 
     def plot_matching_files(self, matching_sat_files, plotted_self=False):
+        log.info('')
+        log.info('')
+        log.info('Plotting matching images...')
         for best_file in matching_sat_files:
+            log.info('')
             log.info('Plotting existing image '+best_file.name)
             layer_img = self.read_image(best_file.name)
             if plotted_self:
                 self.merge(layer_img, other_top=True)
             else:
                 self.merge(layer_img)
+
+    def stitch_products(self):
+        log.info('')
+        log.info('')
+        log.info('    Stitching products')
+        matching_sat_files = []
+        all_sat_files = []
+        # Go through all the sources listed for the current sector - it will 
+        # plot them all in the same image - that is what we mean by stitched,
+        # plot multiple satellites/sensors of the same product in the same sector.
+        for (sourcename, proddict) in self.sector.sources.products_dict.items():
+            log.info('')
+            log.info('')
+            # products_dict looks like ('abi', {'Infrared': {'testonly': 'no'}})
+            # If the current product is in products_dict for current
+            # source/sat, continue. Product names MUST MATCH
+            # Check all satellites defined for the current source (sensor)
+            for sat in all_sats_for_sensor(sourcename):
+                # If product is required for current sensor, and we are
+                # not trying to match the satellite of the current
+                # data file, find the closest match.
+                if sat != self.datafile.platform_name\
+                        and self.product.name in proddict.keys():
+                    log.info('')
+                    log.info('    Checking {0} {1} for {2}'.format(
+                        sourcename, sat, self.product.name))
+                    # We only want to match the single closest product
+                    # from the current sat/sensor
+                    matching_sat_files += self.find_matching_sat_files(
+                        source=sourcename,
+                        matchall=False,
+                        prodname=self.product.name,
+                        hour_range=1,
+                        sat=sat)
+
+        # This is where merging will have to be modified to transition between satellites
+        self.plot_matching_files(matching_sat_files)
+        log.info('')
+        log.info('')
+        if self.coverage() < self.sector.min_total_cover:
+            log.info('Coverage of '+str(self.coverage())+'% less than required '+str(self.sector.min_total_cover)+'%, SKIPPING')
+        else:
+            # Name these as stitched/stitched sensor/satellite instead of current datafile's sat/sensor
+            self.produce_imagery(final=False, new_sourcename='stitched', new_platformname='stitched')
+            self.produce_imagery(final=True, new_sourcename='stitched', new_platformname='stitched')
+
+    def required_layer(self, layers, orig_prodname, combined_prodname):
+        runme = False
+        # Check each layer against the source (sensor)/product of the current data file.  If the datafile source 
+        #   matches any of the possiblesources for the current layer, AND the current layer has 
+        #   runonreceipt set to "yes," then we know we need to create the product
+        for layer in layers:
+            if orig_prodname == layer[0] and self.datafile.source_name_product in layer[1].possiblesources and layer[1].runonreceipt == 'yes':
+                runme=True
+                log.info('    '+self.datafile.source_name_product+' '+orig_prodname+' data required for product'+combined_prodname+', running')
+            if orig_prodname == layer[0] and self.sector.isstitched and 'stitched' in layer[1].possiblesources and layer[1].runonreceipt == 'yes':
+                runme=True
+                log.info('    stitched '+orig_prodname+' data required for product '+combined_prodname+' sector'+self.sector.name+', running')
+        # If we found in the above loop that the multisource product needs to be produced this time,
+        #   start finding and merging the layers.
+        return runme
 
     def create_multisource_products(self):
         # Need to check every multisource product specified for current
@@ -561,37 +637,7 @@ class GeoImgBase(object):
             return None
 
         if self.sector.isstitched:
-            log.info('    Stitching products')
-            matching_sat_files = []
-            for (sourcename, proddict) in self.sector.sources.products_dict.items():
-                # products_dict looks like ('abi', {'Infrared': {'testonly': 'no'}})
-                # If the current product is in products_dict for current
-                # source, continue
-                if sourcename != self.datafile.source_name and self.product.name in proddict.keys():
-                    log.info('    Checking {0} for {1}'.format(
-                        sourcename, self.product.name))
-                    all_sat_files = self.find_matching_sat_files(
-                        source=sourcename,
-                        matchall=False,
-                        prodname=self.product.name,
-                        hour_range=1)
-
-                    if not all_sat_files:
-                        log.info('        Found no matching files for {0} {1}'
-                                 .format(sourcename, self.product.name))
-                        continue
-                    else:
-                        best_file = self.find_best_match(all_sat_files)
-                        if not best_file:
-                            log.info('No '+sourcename+' files found in range, SKIPPING')
-                            continue
-                        else:
-                            matching_sat_files += [best_file]
-            self.plot_matching_files(matching_sat_files)
-            if self.coverage() < self.sector.min_total_cover:
-                log.info('Coverage of '+str(self.coverage())+'% less than required '+str(self.sector.min_total_cover)+'%, SKIPPING')
-            else:
-                self.produce_imagery(final=True)
+            self.stitch_products()
 
         if 'multisource' not in self.sector.products.keys():
             log.info('    No multisource products defined')
@@ -602,24 +648,22 @@ class GeoImgBase(object):
             self._product = productfile.open_product('multisource',prodname)
             # Open productfile, read out productlayers, then sort based on "order" attribute. Trust me.
             layers = sorted(productfile.open_product('multisource',prodname).productlayers.iteritems(),key=lambda x:int(x[1].order),reverse=True)
-            runme = False
-            # Check each layer against the source (sensor)/product of the current data file.  If the datafile source 
-            #   matches any of the possiblesources for the current layer, AND the current layer has 
-            #   runonreceipt set to "yes," then we know we need to create the product
-            for layer in layers:
-                if orig_productname == layer[0] and self.datafile.source_name_product in layer[1].possiblesources and layer[1].runonreceipt == 'yes':
-                    runme=True
-                    log.info('    '+self.datafile.source_name_product+' '+orig_productname+' data required for product '+prodname+', running')
-            # If we found in the above loop that the multisource product needs to be produced this time,
-            #   start finding and merging the layers.
-            
-            if runme:
+
+            if self.required_layer(layers, orig_productname, prodname):
                 plotted_self = False
                 for layer in layers:
                     matching_sat_files = []
                     # If this is not the current product that we already have in memory, need to 
                     # find the appropriate temporary file and read it in.
-                    if self.datafile.source_name_product not in layer[1].possiblesources:
+                    possiblesources = layer[1].possiblesources.keys()
+                    if self.sector.isstitched:
+                        possiblesources += ['stitched']
+                    # This is performing overlays - if the current layer from the multisource product file is NOT the
+                    # current in memory image (ie, the multisource layer productname != current product name and 
+                    # multisource layer possiblesources does not include the current datafile's source), then go 
+                    # find the appropriate temporary image/datafile and plot it.  If it is the current in memory 
+                    # image, just plot it.
+                    if layer[0] != orig_productname or self.datafile.source_name_product not in possiblesources:
                         for source in layer[1].possiblesources:
                             log.info('    Checking '+source+' for '+layer[0]+' hour_range: '+str(layer[1].hour_range)+' matchall: '+str(layer[1].matchall))
                             matching_sat_files += self.find_matching_sat_files(
@@ -646,17 +690,22 @@ class GeoImgBase(object):
                                                  plotted_self=plotted_self)
                     # If this layer is the current image that we have in memory, just plot it.
                     else:
-                        log.info('Plotting current in-memory image')
+                        log.info('Plotting current in-memory image for layer '+layer[0]+' with possible sources '+
+                                str(possiblesources))
                         plotted_self = True
 
                 if self.coverage() < self.sector.min_total_cover:
                     log.info('Coverage of '+str(self.coverage())+'% less than required '+str(self.sector.min_total_cover)+'%, SKIPPING')
                     continue
-                self.produce_imagery(final=True)
+                if self.sector.isstitched:
+                    self.produce_imagery(final=True, new_sourcename='stitched', new_platformname='stitched')
+                else:
+                    self.produce_imagery(final=True)
             else:
                 log.info('    '+prodname+' product does not need to be produced on receipt of '+self.datafile.source_name_product+' '+orig_productname+' data, SKIPPING')
 
-    def produce_imagery(self, final=False, clean_old_files=True, geoips_only=False,datetimes=None,datetimes_name=None):
+    def produce_imagery(self, final=False, clean_old_files=True, geoips_only=False,datetimes=None,datetimes_name=None,
+            new_sourcename=None, new_platformname=None):
         ''' GeoImg produce_imagery method - called from process.py 
             The actual RGBA processed image array is stored in self.image property, which is defined
                 in the individual GeoImg subclasses (BasicImg, RGBImg, ExternalImg, etc). Data is 
@@ -708,7 +757,6 @@ class GeoImgBase(object):
                 if final and produce_web, read in final image we just wrote with PIL.Image.open,
                     then write back out to produce_web path with PIL.Image.open().save
                 If temporary, write with transparent=True
-                
         '''
         logstr = ''
         if datetimes:
@@ -740,8 +788,9 @@ class GeoImgBase(object):
             datetimes['startwriteimagery_'+str(datetimes_name)] = datetime.utcnow()
         # Always set the GeoIPS filename.  If self.is_final, it will be a GeoIPSfinal path,
         # if not self.is_final, it will be GeoIPSTemp.
-        geoips_product_filename = self.get_filename(merged_type=merged_type)
-                                            
+        geoips_product_filename = self.get_filename(merged_type=merged_type, 
+                new_sourcename=new_sourcename,
+                new_platformname=new_platformname)
         #Creating output directory if it doesn't already exist
         geoips_product_filename.makedirs()
 
@@ -778,7 +827,8 @@ class GeoImgBase(object):
                 if geoips_only:
                     log.info('SKIPPING'+dest.upper()+' geoips_only set')
                     continue
-                external_product_filename = self.get_filename(external_product=dest)
+                external_product_filename = self.get_filename(external_product=dest, new_sourcename=new_sourcename,
+                        new_platformname=new_platformname)
                 # If dest is not defined in productfilename.py, returns None
                 if not external_product_filename:
                     continue

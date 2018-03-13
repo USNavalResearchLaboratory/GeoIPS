@@ -289,13 +289,17 @@ def apply_data_range(data, min_val=None, max_val=None, min_outbounds='crop', max
 
 def invert_data_range(data, min_val, max_val):
     log.info('Inverting data between %r and %r' % (min_val, max_val))
+
+    # Preserve mask
+    origmask = data.mask
     if min_val > max_val:
         min_val, max_val = max_val, min_val
-    data = max_val - (data - min_val)
+    data = np.ma.masked_array((max_val - (data - min_val)).data, origmask)
+
     return data, min_val, max_val
 
 def apply_minimum_value(data, min_val, outbounds):
-    log.info('Applying minimum value of %r' % min_val)
+    log.info('Applying minimum value of %r to data with min %f' % (min_val, data.min()))
 
     #Determine if mask is currently hardened
     hardmask = data.hardmask
@@ -319,7 +323,7 @@ def apply_minimum_value(data, min_val, outbounds):
     return data
 
 def apply_maximum_value(data, max_val, outbounds):
-    log.info('Applying maximum value of %r' % max_val)
+    log.info('Applying maximum value of %r to data with max %f' % (max_val, data.max()))
 
     #Determine if mask is currently hardened
     hardmask = data.hardmask
@@ -403,7 +407,8 @@ def create_color_gun(datafile, gun):
             temp_data[var_name] = datafile.variables[var_name]
             if source_name.variables[var_name].zenith_correct and 'SunZenith' in datafile.geolocation_variables.keys():
                 log.info('Applying Solar Zenith Correction to variable '+var_name)
-                temp_data[var_name] = temp_data[var_name] / np.cos(np.deg2rad(datafile.geolocation_variables['SunZenith']))
+                origmask = temp_data[var_name].mask
+                temp_data[var_name] = np.ma.masked_array((temp_data[var_name] / np.cos(np.deg2rad(datafile.geolocation_variables['SunZenith']))).data, origmask)
     for source_name, source_gvars in geolocation_variables.items():
         for gvar_name in source_gvars:
             temp_data[gvar_name] = datafile.geolocation_variables[gvar_name]
@@ -436,9 +441,13 @@ def create_color_gun(datafile, gun):
     gun_data = apply_data_range(gun_data, gun.min, gun.max, gun.min_outbounds, gun.max_outbounds, gun.normalize, gun.inverse)
     #Apply gamma corrections
     if gun.gamma is not None:
+        # Preserve mask
+        origmask = gun_data.mask
         for ind, gamma in enumerate(gun.gamma):
             log.info('Using %r as gamma correction for #%r for %s gun.' % (gamma, ind+1, gun.name))
-            gun_data = gun_data**(1.0/float(gamma))
+            # This one actually didn't seem to lose the mask,
+            # but I'm explicitly preserving it anyway, just in case...
+            gun_data = np.ma.masked_array((gun_data**(1.0/float(gamma))).data, origmask)
 
     return gun_data
 
