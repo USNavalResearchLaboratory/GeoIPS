@@ -2192,11 +2192,12 @@ class NPPFileName(StandardDataFileName):
         # datatypee is sdr for legacy viirs tdfs from beryl/old GeoIPS
         if self.datatype in self.sensorinfo.all_prefixes or \
            self.datatype in ['VNP02IMG', 'VNP02MOD', 'VNP02DNB', 'VNP03DNB', 'VNP03MOD', 
-                             'VNP03IMG']:
+                             'VNP03IMG',
+                             'VJ102IMG', 'VJ102MOD', 'VJ102DNB', 'VJ103DNB', 'VJ103MOD',
+                             'VJ103IMG']:
             return True
         else:
             return False
-
 
     def set_fields(self,df,wildcards=False,scifile_obj=None):
         #RNSCA-RVIRS_npp_d20141205_t0012213_e0013467_b16083_c20141205020902820922_noaa_ops.h5
@@ -2229,7 +2230,9 @@ class NPPFileName(StandardDataFileName):
                 df.producttype += prodtype
         if not df.producttype:
             if self.datatype in ['VNP03DNB','VNP03IMG','VNP03MOD', 'VNP02DNB', 'VNP02IMG', 
-                                 'VNP02MOD']:
+                                 'VNP02IMG',
+                                 'VJ102IMG', 'VJ102MOD', 'VJ102DNB', 'VJ103DNB', 'VJ103MOD',
+                                 'VJ103IMG']:
                 df.producttype = 'sdr'
             else:
                 df.producttype = self.get_fillvalue()
@@ -2543,7 +2546,8 @@ class SeviriHRITFileName(StandardDataFileName):
         # self.satname is from filename, self.sensorinfo is current attempt at matching format
         # Need to make sure both filename and sensorinfo match
         # MSG1 is Meteosat-8, which is currently meteoIO
-        # MSG3 is Meteosat-10, which is currently meteoEU
+        # MSG3 is Meteosat-10, which used to be meteoEU
+        # MSG4 is Meteosat-11, which is currently meteoEU
         if self.satname == 'MSG1__'  and self.sensorinfo.satname == 'meteoIO':
             return True
         elif (self.satname == 'MSG3__' or self.satname == 'MSG4__') and self.sensorinfo.satname == 'meteoEU':
