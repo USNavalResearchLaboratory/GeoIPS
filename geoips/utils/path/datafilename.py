@@ -2230,7 +2230,7 @@ class NPPFileName(StandardDataFileName):
                 df.producttype += prodtype
         if not df.producttype:
             if self.datatype in ['VNP03DNB','VNP03IMG','VNP03MOD', 'VNP02DNB', 'VNP02IMG', 
-                                 'VNP02IMG',
+                                 'VNP02MOD',
                                  'VJ102IMG', 'VJ102MOD', 'VJ102DNB', 'VJ103DNB', 'VJ103MOD',
                                  'VJ103IMG']:
                 df.producttype = 'sdr'
