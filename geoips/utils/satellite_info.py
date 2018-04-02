@@ -317,7 +317,7 @@ class GOES16SatInfo(SatInfo):
         # common sensorname.  Possibly need to make a "default" sensorname, and
         # allow for alternatives ? For now, just force it to gvar
         #self.sensornames = ['gvar', 'goes', 'gvissr']
-        self.sensornames = ['abi', 'glm', 'clavrx-abi']
+        self.sensornames = ['abi', 'glm', 'clavrx-abi', 'ccbg-abi']
         #self.orbital_period = 98 * 60
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -355,7 +355,7 @@ class GPMSatInfo(SatInfo):
 
 class HIMAWARI8SatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['ahi']
+        self.sensornames = ['ahi', 'clavrx-ahi', 'ccbg-ahi']
         #self.orbital_period = 92.5 * 60
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -1073,6 +1073,17 @@ class CLAVRXSensorInfo(SensorInfo):
         # This must match appropriate DataFileName class name in utils/path/datafilename.py
         self.OrigFName['cls'] = 'CLAVRXFileName'
         self.OrigFName['nameformat'] = '<satname>_<dt0{%Y}>_<dt1{%j}>_<dt2{%H%M.%!%!%!%!%!%!}>' 
+        self.OrigFName['fieldsep'] = '_'
+        self.OrigFName['fillvalue'] = 'x'
+        self.OrigFName['noextension'] = False
+        self.OrigFNames = [self.OrigFName]
+        self.interpolation_radius_of_influence = 75000
+
+class CCBGSensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        # This must match appropriate DataFileName class name in utils/path/datafilename.py
+        self.OrigFName['cls'] = 'CCBGFileName'
+        self.OrigFName['nameformat'] = '<satname>_<sensorname>_<dt0{%Y}>_<dt1{%j}>_<dt2{%H%M_%!%!%!%!%!%!%!_%!%!}>' 
         self.OrigFName['fieldsep'] = '_'
         self.OrigFName['fillvalue'] = 'x'
         self.OrigFName['noextension'] = False
@@ -1940,6 +1951,8 @@ SensorInfo_classes = {
         'atms':  ATMSSensorInfo,
         'clavrx-abi':  CLAVRXSensorInfo,
         'clavrx-ahi':  CLAVRXSensorInfo,
+        'ccbg-abi':  CCBGSensorInfo,
+        'ccbg-ahi':  CCBGSensorInfo,
         'modis': MODISSensorInfo,
         'gmi':  GMISensorInfo,
         'glm':  GLMSensorInfo,

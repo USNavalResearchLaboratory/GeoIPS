@@ -1644,6 +1644,53 @@ class CLAVRXFileName(StandardDataFileName):
 
         return df
 
+class CCBGFileName(StandardDataFileName):
+
+    def istype(self):
+        '''
+        istype method is called after successfully matching a filename
+        format.  If istype returns True (default in StandardDataFileName),
+        use the current class.
+        If istype returns false, continue checking additional filename
+        formats.  Override istype method in subclasses (ie GOESFileName)
+        if there are more than one data types with the same filename
+        format (look at a field within the filename to determine which
+        data type it actually is
+        '''
+        #print 'in istype'
+        if self.satname in ['goes15']:
+            return True
+        else:
+            return False
+
+    def set_fields(self,df,wildcards=False,scifile_obj=None):
+
+        #print 'in CLAVRXFileName set_fields'
+        #See utils/satellite_info.py for these fields
+        #goes15_2016_310_1800.level2.hdf
+        #'<satname>_<date{%Y}>_<doy{%j}>_<time{%H%M}.<level>'
+        
+        df.datetime = self.datetime
+        dt_strs = df.set_datetime_str() 
+        for dt_field in dt_strs.keys():
+            setattr(df,dt_field,dt_strs[dt_field])
+        #print dt
+        #dt = datetime.strptime(self.YYYYMMDD+self.HHMN,'%Y%m%d%H%M')
+        #df.date = dt.strftime('%Y%m%d')
+        #df.time = self.HHMN
+        df.sensorname = 'ccbg'
+        df.satname = self.satname
+        df.scifile_source = df.sensorname
+        df.dataprovider = 'local' if df.dataprovider is df.get_fillvalue() else df.get_fillvalue()
+        df.producttype = self.get_fillvalue()
+        df.resolution = self.get_fillvalue()
+        df.channel = self.get_fillvalue()
+        df.area = self.get_fillvalue()
+        df.extra = self.get_fillvalue()
+        df.ext = self.ext
+
+        return df
+
 class GOESFileName(StandardDataFileName):
 
     def istype(self):
