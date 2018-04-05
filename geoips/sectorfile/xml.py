@@ -587,8 +587,8 @@ class Sector(object):
     def sector_name_product(self):
         # sector_name used in filenames, for merging, etc (ie, allows multiple TCs for single tc mint reader)
         # Use sector_name_product if available in scifile metadata.
-        if self.scifile and 'sector_name_product' in self.scifile.metadata.keys() and self.scifile.metadata['sector_name_product']:
-            return self.scifile.metadata['sector_name_product']
+        if self.scifile and 'sector_name_product' in self.scifile.metadata['top'].keys() and self.scifile.metadata['top']['sector_name_product']:
+            return self.scifile.metadata['top']['sector_name_product']
         else:
             # Default to name attribute if sector_name_product attribute is not defined in reader metadata
             return self.name
@@ -599,9 +599,9 @@ class Sector(object):
         if self.eval_att('@sector_name_display'):
             # If defined in xml, use that.
             return self.eval_att('@sector_name_display')
-        elif self.scifile and 'sector_name_display' in self.scifile.metadata.keys() and self.scifile.metadata['sector_name_display']: 
+        elif self.scifile and 'sector_name_display' in self.scifile.metadata['top'].keys() and self.scifile.metadata['top']['sector_name_display']: 
             # If not defined in xml, but defined in scifile metadata, use scifile metadata.
-            return self.scifile.metadata['sector_name_display']
+            return self.scifile.metadata['top']['sector_name_display']
         else:
             # Default to sector.name if sector_name_display attribute is not defined in xml or scifile metadata
             return self.name

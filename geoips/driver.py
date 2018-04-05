@@ -194,7 +194,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             return ret
 
         # If it is 'SECTOR_ON_READ' type reader, we won't have any variables because we haven't read yet...
-        if ('SECTOR_ON_READ' not in data_file.metadata.keys() or not data_file.metadata['SECTOR_ON_READ']) \
+        if ('SECTOR_ON_READ' not in data_file.metadata['top'].keys() or not data_file.metadata['top']['SECTOR_ON_READ']) \
             and not data_file.has_any_vars(required_vars):
             log.interactive('{0} No channels available, skipping current sector'.format(plog))
             ret = mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem
@@ -203,15 +203,15 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         log.interactive('{0} Sectoring data.'.format(plog))
         sectored = None
 
-        if 'SECTOR_ON_READ' in data_file.metadata.keys() and data_file.metadata['SECTOR_ON_READ']:
-            # Readers that sector at read time must set df.metadata['SECTOR_ON_READ'].
+        if 'SECTOR_ON_READ' in data_file.metadata['top'].keys() and data_file.metadata['top']['SECTOR_ON_READ']:
+            # Readers that sector at read time must set df.metadata['top']['SECTOR_ON_READ'].
             # These need to be re-read for each sector.
             log.info('    SECTOR_ON_READ set on data_file, reading data for sector: '.format(curr_sector.name))
             sectored = SciFile()
             # Read the next sector_definition
             sectored.import_data(runpaths, chans=chans, sector_definition=curr_sector)
-        elif 'NON_SECTORABLE' in data_file.metadata.keys() and data_file.metadata['NON_SECTORABLE']:
-            # Readers that are not able to be sectored  must set df.metadata['NON_SECTORABLE'].
+        elif 'NON_SECTORABLE' in data_file.metadata['top'].keys() and data_file.metadata['top']['NON_SECTORABLE']:
+            # Readers that are not able to be sectored  must set df.metadata['top']['NON_SECTORABLE'].
             # Driver will then skip attempting to sector
             log.info('    NON_SECTORABLE set on data_file, not attempting to sector data for sector: '+curr_sector.name)
             sectored = data_file
@@ -671,13 +671,13 @@ if __name__ == '__main__':
         # If 'SECTOR_ON_READ' is specified in df.metadata, that means the reader
         # will be read one sector at a time within the sector loop, so just maintain
         # the empty dataset for now.
-        if 'SECTOR_ON_READ' not in df.metadata.keys():
+        if 'SECTOR_ON_READ' not in df.metadata['top'].keys():
             # Start a new one to get rid of METADATA dataset
             df = SciFile()
             df.import_data(runpaths, chans=chans)
         else:
             log.info(('Reader {0} performs sectoring at read time - ' +
-                      'waiting to read until looping through sectors.').format(df.metadata['readername']))
+                      'waiting to read until looping through sectors.').format(df.metadata['top']['readername']))
         # I was trying to avoid reopening sectorfile, but we need the real scifile
         # object attached to it, not the metadata scifile object. Maybe this would
         # be fixed if we did import_metadata then import_data on the same SciFile()
