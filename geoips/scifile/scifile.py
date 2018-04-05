@@ -171,7 +171,7 @@ class SciFile(object):
         '''
         cls = self.__class__
         new = cls.__new__(cls)
-        new.metadata = self.metadata
+        new.metadata = self.metadata.copy()
 
         #Split out the dataset and viarable for each requested variable
         vars_to_gather = {}
@@ -412,7 +412,7 @@ class SciFile(object):
 
             metadata[readername]['top']['readername'] = readername
 
-        self.metadata = metadata[readername]['top']
+        self.metadata = metadata[readername]
         self.add_datasets(datasets)
 
     def expand_filename_list(self,paths):
@@ -485,7 +485,7 @@ class SciFile(object):
                 if variables:
                     datasets += [DataSet(dsname,variables=variables,copy=False)]
             metadata[readername]['top']['readername'] = readername
-        self.metadata = metadata[readername]['top']
+        self.metadata = metadata[readername]
 
         self.add_datasets(datasets)
 
@@ -813,40 +813,40 @@ class SciFile(object):
     # This is used for display in legends, titles, etc. Default to finfo dataprovider
     @property
     def dataprovider_display(self):
-        if 'dataprovider_display' in self.metadata.keys() and self.metadata['dataprovider_display']:
-            return self.metadata['dataprovider_display']
+        if 'dataprovider_display' in self.metadata['top'].keys() and self.metadata['top']['dataprovider_display']:
+            return self.metadata['top']['dataprovider_display']
         else:
             return self._finfo['dataprovider']
 
     # This is the standard GeoIPS id, used for filenames. Default to finfo source_name 
     @property
     def source_name_product(self):
-        if 'source_name_product' in self.metadata.keys() and self.metadata['source_name_product']:
-            return self.metadata['source_name_product']
+        if 'source_name_product' in self.metadata['top'].keys() and self.metadata['top']['source_name_product']:
+            return self.metadata['top']['source_name_product']
         else:
             return self._finfo['source_name']
 
     # This is used for display in legends, titles, etc. Default to finfo source_name
     @property
     def source_name_display(self):
-        if 'source_name_display' in self.metadata.keys() and self.metadata['source_name_display']:
-            return self.metadata['source_name_display']
+        if 'source_name_display' in self.metadata['top'].keys() and self.metadata['top']['source_name_display']:
+            return self.metadata['top']['source_name_display']
         else:
             return self._finfo['source_name']
 
     # This is the standard GeoIPS id, used for filenames. Default to finfo platform_name
     @property
     def platform_name_product(self):
-        if 'platform_name_product' in self.metadata.keys() and self.metadata['platform_name_product']:
-            return self.metadata['platform_name_product']
+        if 'platform_name_product' in self.metadata['top'].keys() and self.metadata['top']['platform_name_product']:
+            return self.metadata['top']['platform_name_product']
         else:
             return self._finfo['platform_name']
 
     # This is used for display in legends, titles, etc. Default to finfo platform_name
     @property
     def platform_name_display(self):
-        if 'platform_name_display' in self.metadata.keys() and self.metadata['platform_name_display']:
-            return self.metadata['platform_name_display']
+        if 'platform_name_display' in self.metadata['top'].keys() and self.metadata['top']['platform_name_display']:
+            return self.metadata['top']['platform_name_display']
         else:
             return self._finfo['platform_name']
     @property
@@ -904,7 +904,7 @@ class SciFile(object):
         '''
         #Create a new instance
         new = self.__class__.__new__(self.__class__)
-        new.metadata = self.metadata
+        new.metadata = self.metadata.copy()
 
         #Loop over the datasets, sector them, and add them to the new instance
         for dsname in self.datasets.keys():
@@ -943,7 +943,7 @@ class SciFile(object):
             interp_method = 'nearest'
         #Create a new instance
         new = self.__class__.__new__(self.__class__)
-        new.metadata = self.metadata
+        new.metadata = self.metadata.copy()
         temp_datasets = {}
 
         #print_mem_usage('scifbeforeregister',True)
