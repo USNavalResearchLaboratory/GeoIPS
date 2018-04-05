@@ -65,3 +65,37 @@ function lsall {
     cd $cwd
   fi
 }
+
+##############################################################################
+### Convenience function that runs grep in all available repos 
+### 	GEOIPS+EXTERNAL_GEOIPS
+##############################################################################
+function grepall { 
+  if [[ ! -z $PS1 ]]; then
+
+    geoips=$GEOIPS
+    if [ -z ${STANDALONE_GEOIPS+x} ]; then
+        geoips=$STANDALONE_GEOIPS
+    fi
+
+    # Save current directory so they don't end up someplace new.
+    cwd=$PWD
+
+    # Loop through all of the repos.
+    # STANDALONE_GEOIPS+EXTERNAL_GEOIPS will be ALL available Repos
+    for geoips_dir in ${geoips} ${EXTERNAL_GEOIPS//:/$'\n'}; do
+        # Go to geoips_dest, this will work wherever we started.
+        if [[ -e $geoips_dir ]]; then
+            cd $geoips_dir
+            # Print directory
+            echo -e "\033[1;35m"`pwd`"\033[0m":
+            # Run the git command on passed arguments
+            grep $@
+        fi
+        echo 
+    done
+
+    # Go back to where they started! This will work whether they started in OS or nrl
+    cd $cwd
+  fi
+}
