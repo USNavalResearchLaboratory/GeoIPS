@@ -89,7 +89,7 @@ class SciFile_Reader(Reader):
         If chans was explicitly an empty list, we just want metadata
         and no data, so return at this point.
         '''
-        if chans == []
+        if chans == []:
             return
 
         #Get the file level attributes

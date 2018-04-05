@@ -27,7 +27,7 @@ def recursively_load_dict_contents_from_group(h5file, path):
                 except:
                     pass
             # These should work as straight hdf5 variable types
-            elif isinstance(item,.value, (np.ndarray, np.int64, np.float64, bytes)):
+            elif isinstance(item.value, (np.ndarray, np.int64, np.float64, bytes)):
                 ans[key] = item.value 
             elif isinstance(item.value, (np.float32, np.int32, int, np.uint64)):
                 ans[key] = item.value
@@ -50,7 +50,7 @@ def recursively_load_dict_contents_from_group(h5file, path):
             # If it is not a list, then it is a regular old dictionary, and 
             # we need to recursively read in the rest of the levels.
             if not islist:
-                ans[key] = recursively_load_dict_contents_from_group(h5file, path+pathkey+'/'_
+                ans[key] = recursively_load_dict_contents_from_group(h5file, path+pathkey+'/')
     return ans
 
 def recursively_save_dict_contents_to_group(df, path, dic):
@@ -108,28 +108,32 @@ def recursively_save_dict_contents_to_group(df, path, dic):
             raise ValueError('Cannot save %s type '%type(item)) 
 
 def save_dict_to_hdf5(dic, h5fobj, basepath):
-''' Store dictionary dic into recursively defined groups,
+    '''
+    Store dictionary dic into recursively defined groups,
     starting with basepath, in the h5fobj hdf5file
-    
-load_dict_from_hdf5 and save_dict_to_hdf5 should do the same
+
+    load_dict_from_hdf5 and save_dict_to_hdf5 should do the same
     operations on the data in both directions to make everything
-    work in native hdf5 storage types (replace / with %fs%, 
+    work in native hdf5 storage types (replace / with %fs%,
     convert lists to dictionaries, convert datetime objects
-    to strings, etc) '''
+    to strings, etc)
+    '''
 
     recursively_save_dict_contents_to_group(h5fobj, basepath+'/', dic)
 
 
 
 def load_dict_from_hdf5(h5fobj, basepath):
-''' Read the dictionary stored in hdf5obj h5file, 
+    ''' 
+    Read the dictionary stored in hdf5obj h5file, 
     starting with basepath, into a dictionary, and
     return the resulting dictionary.
 
-load_dict_from_hdf5 and save_dict_to_hdf5 should do the same
+    load_dict_from_hdf5 and save_dict_to_hdf5 should do the same
     operations on the data in both directions to make everything
     work in native hdf5 storage types (replace / with %fs%, 
     convert lists to dictionaries, convert datetime objects
-    to strings, etc) '''
+    to strings, etc) 
+    '''
 
     return recursively_load_dict_contents_from_group(h5fobj, basepath+'/')
