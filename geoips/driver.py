@@ -209,7 +209,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             log.info('    SECTOR_ON_READ set on data_file, reading data for sector: '.format(curr_sector.name))
             sectored = SciFile()
             # Read the next sector_definition
-            sectored.import_data([runpath], chans=chans, sector_definition=curr_sector)
+            sectored.import_data(runpaths, chans=chans, sector_definition=curr_sector)
         elif 'NON_SECTORABLE' in data_file.metadata.keys() and data_file.metadata['NON_SECTORABLE']:
             # Readers that are not able to be sectored  must set df.metadata['NON_SECTORABLE'].
             # Driver will then skip attempting to sector
@@ -547,7 +547,7 @@ def predict_sectors(platform_name, source_name, start_dt, end_dt):
 def _get_argument_parser():
     '''Create an argument parser with all of the correct arguments.'''
     parser = ArgParse()
-    parser.add_arguments(['path', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
+    parser.add_arguments(['paths', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
                           'forcereprocess', 'all', 'allstatic', 'alldynamic', 'tc', 'volcano', 'sectorfiles',
                           'templatefiles', 'no_multiproc', 'mp_max_cpus', 'queue', 'printmemusg'])
     return parser
@@ -568,16 +568,17 @@ if __name__ == '__main__':
     log.info('Starting main: {0}'.format(DATETIMES['start']))
 
     # Get the data path and check to be sure it exists
-    runpath = args['path']
-    if os.path.exists(runpath):
-        log.interactive('Input path: {0}'.format(runpath))
-    else:
-        raise IOError('No such file or directory: {0}'.format(runpath))
+    runpaths = args['paths']
+    for runpath in runpaths:
+        if os.path.exists(runpath):
+            log.interactive('Input path: {0}'.format(runpath))
+        else:
+            raise IOError('No such file or directory: {0}'.format(runpath))
 
     # Set up data file instance and read the metadata
     print_mem_usage('Before reading metadata')
     df = SciFile()
-    df.import_metadata([runpath])
+    df.import_metadata(runpaths)
 
     # If no sectors passed, run pass predictor to get list of sectors.
     # Allow search for dynamic sectors to start 9 hours before start time of data.
@@ -586,7 +587,9 @@ if __name__ == '__main__':
     if df.start_datetime == df.end_datetime:
         dyn_end_dt = df.end_datetime + timedelta(hours=2)
     if not args['sectorlist']:
-        args['sectorlist'] = predict_sectors(df.platform_name, df.source_name, dyn_start_dt, dyn_end_dt)
+        args['sectorlist'] = []
+        for ds in df.datasets.values():
+            args['sectorlist'] = predict_sectors(ds.platform_name, ds.source_name, dyn_start_dt, dyn_end_dt)
 
     DATETIMES['after_opendatafile'] = datetime.utcnow()
     print_mem_usage('After reading metadata')
@@ -617,16 +620,20 @@ if __name__ == '__main__':
     except AttributeError:
         log.info('\t\t\t{0}'.format(sectfile))
 
-    req_prods = sectfile.get_requested_products(df.source_name, args['productlist'])
-    pf = productfile.open2(df.source_name, req_prods)
-    if hasattr(pf, 'names'):
-        log.info('\t\tProducts from files: ')
-        for pfname in sorted(pf.names):
-            log.info('\t\t\t{0}'.format(pfname))
+    req_prods = []
+    for ds in df.datasets.values():
+        req_prods += sectfile.get_requested_products(ds.source_name, args['productlist'])
+        pf = productfile.open2(ds.source_name, req_prods)
+        if hasattr(pf, 'names'):
+            log.info('\t\tProducts from files: ')
+            for pfname in sorted(pf.names):
+                log.info('\t\t\t{0}'.format(pfname))
 
-    log.info('\n\n')
-    # Get list of all possible channels required based on sectorfile and productlist
-    chans = sectfile.get_required_vars(df.source_name, args['productlist'])
+    chans = []
+    for ds in df.datasets.values():
+        log.info('\n\n')
+        # Get list of all possible channels required based on sectorfile and productlist
+        chans += sectfile.get_required_vars(ds.source_name, args['productlist'])
     log.info('\tRequired channels: {0}'.format(sorted(chans)))
     log.info('\n')
     log.info('\tRequired sectors: {0}'.format(sorted(sectfile.sectornames())))
@@ -649,7 +656,7 @@ if __name__ == '__main__':
         #      I also think that df should have an itersectors method and that all
         #      datafiles should be handled the same, regardless of how they are sectored.
         # MLS: How about
-        #       df = SciFile([runpath]) above where the import_metadata was
+        #       df = SciFile(runpaths) above where the import_metadata was
         #           (no import_metadata, __init__ will automatically return metadata)
         #       Don't re-initialize SciFile object ever again, just subsequent import_datas.
         #       df.import_data(chans=chans,sector=curr_sector) in sector loop
@@ -667,7 +674,7 @@ if __name__ == '__main__':
         if 'SECTOR_ON_READ' not in df.metadata.keys():
             # Start a new one to get rid of METADATA dataset
             df = SciFile()
-            df.import_data([runpath], chans=chans)
+            df.import_data(runpaths, chans=chans)
         else:
             log.info(('Reader {0} performs sectoring at read time - ' +
                       'waiting to read until looping through sectors.').format(df.metadata['readername']))
