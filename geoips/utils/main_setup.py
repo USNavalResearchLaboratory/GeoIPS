@@ -134,6 +134,9 @@ class ArgParse(argparse.ArgumentParser):
         if 'path' in arglist: self.add_argument('path', nargs='?', default=None, type=os.path.abspath,
                         help='''Path data file or directory.'''
                        )
+        if 'paths' in arglist: self.add_argument('paths', nargs='*', default=None, type=os.path.abspath,
+                        help='''List of paths to multiple data files or directories.'''
+                       )
         if 'satellite' in arglist: self.add_argument('satellite', help='Single satellite name')
         if 'sensor' in arglist: self.add_argument('sensor', help='Single sensor name')
         if 'sector' in arglist: self.add_argument('sector', help='Single sector name')
