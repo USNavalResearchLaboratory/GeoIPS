@@ -48,6 +48,7 @@ log = logging.getLogger(__name__)
 # finfo contains data that will be stored at the file level
 _empty_finfo = {'source_name': None,
                 'platform_name': None,
+                'security_classification': None,
                 'start_datetime': None,
                 'end_datetime': None,
                 'filename_datetime': None,
@@ -781,6 +782,18 @@ class DataSet(object):
     @platform_name.deleter
     def platform_name(self):
         self._dsinfo_prop_deleter('platform_name')
+
+    @property
+    def security_classification(self):
+        return self._dsinfo_prop_getter('security_classification')
+
+    @security_classification.setter
+    def security_classification(self, val):
+        self._dsinfo_prop_setter('security_classification', val)
+
+    @security_classification.deleter
+    def security_classification(self):
+        self._dsinfo_prop_deleter('security_classification')
 
     @property
     def sensor_name(self):
@@ -1892,6 +1905,10 @@ class Variable(MaskedArray):
     @property
     def platform_name(self):
         return self._dsinfo['platform_name']
+
+    @property
+    def security_classification(self):
+        return self._dsinfo['security_classification']
 
     # Probably Variable specific.  Should be in _optinfo if needed.
     # @property

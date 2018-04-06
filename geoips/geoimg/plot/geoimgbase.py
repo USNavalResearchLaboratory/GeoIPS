@@ -1059,6 +1059,21 @@ class GeoImgBase(object):
                 # Even trying "test \n test" explicitly just printed \n.
                 ax.set_title(titlestr, position=[xpos, ypos])
 
+            if self.datafile.security_classification:
+                textcolor = 'black'
+                if 'SECRET' in self.datafile.security_classification or '//' in self.datafile.security_classification:
+                    textcolor = 'red'
+                ax.text(0,1, self.datafile.security_classification,
+                    horizontalalignment = 'right',
+                    verticalalignment = 'bottom',
+                    color = textcolor,
+                    transform = ax.transAxes)
+                ax.text(1,0, self.datafile.security_classification,
+                    horizontalalignment = 'left',
+                    verticalalignment = 'top',
+                    color = textcolor,
+                    transform = ax.transAxes)
+
             fig.canvas.mpl_connect('draw_event', on_draw)
         else:
             log.info('Will create temporary figure and axes.')
