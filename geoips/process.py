@@ -72,6 +72,7 @@ __doc__ = '''
 def create_imagery(data_file, sector, productlist, outdir,
                 nofinal, forcereprocess, sectorfile,
                 printmemusg,geoips_only,product,datetimes,plog):
+    final_productnames = []
     if productlist is None or product.lower() in productlist:
         datetimes['start_'+sector.name+product] = datetime.utcnow()
         pplog = plog+product
@@ -101,6 +102,7 @@ def create_imagery(data_file, sector, productlist, outdir,
             log.interactive('SKIPPING: No required variables available')
             return None
 
+        # Skip if appropriate data is not found (day vs night)
         if curr_product.day_ngt.lower() == 'day':
             if data_file.has_day(curr_product.day_ang) is False:
                 log.info(pplog+' SKIPPING: Product %s requires daytime data, but none found.' % str(product))
@@ -110,14 +112,32 @@ def create_imagery(data_file, sector, productlist, outdir,
                 log.info(pplog+' SKIPPING: Product %s requires nighttime data, but none found.' % str(product))
                 return None
 
-
-#            if forcereprocess is False and (os.path.exists(output_fname.name)):
-#                log.warning('SKIPPING: Output file '+output_fname.name+' already exists. Not reprocessing! '+commands.getoutput('ls --full-time '+output_fname.name))
-#                log.interactive('SKIPPING: Output file '+output_fname.name+' already exists. Not reprocessing! '+commands.getoutput('ls --full-time '+output_fname.name))
-#                continue
+        '''
+        Used to default to not automatically reprocessing if file already
+            existed. This confused / annoyed people. Leave option for future
+            (but maybe change to default to always reprocessing:
+                request --noreprocess instead of --forcereprocess
+        '''
+#       if forcereprocess is False and (os.path.exists(output_fname.name)):
+#       log.warning('SKIPPING: Output file '+output_fname.name+' already exists. Not reprocessing! '+commands.getoutput('ls --full-time '+output_fname.name))
+#       log.interactive('SKIPPING: Output file '+output_fname.name+' already exists. Not reprocessing! '+commands.getoutput('ls --full-time '+output_fname.name))
+#       continue
 #
 
-        # This is where we actually run the processing method on the data
+        '''
+        This is where we actually run the processing method on the data
+        The appropriate GeoImg sublclass object is opened (ie BasicImg, 
+        RGBImg, ExternalAlg, etc) which contains specific:
+            def image: imag/data generation method
+            def coverage: coverage checking method
+            def plot: image/data plotting/export method
+        These GeoImg subclass methods are written to acommodate the specific
+            requirements for data types that would be using the particular 
+            GeoImg subclass.
+        The option of returning a dictionary of arrays from "def image"
+            is available - in which case produce_imagery is run
+            separately on each available key in the image dictionary.
+        ''' 
         log.info(pplog+'    Opening GeoImg...')
         tag = sector.name+product
         datetimes['startalg_'+tag] = datetime.utcnow()
@@ -130,63 +150,98 @@ def create_imagery(data_file, sector, productlist, outdir,
         print_mem_usage(tag+' after opening GeoImg',printmemusg)
 
 
-        # This should not be necessary - we should filter these out before actually processing.
-        # But probably not a bad idea to have a catch in at this point too anyway.
-        # Note img.coverage forces registering and processing data. Was not working when I
-        #   passed intermediate_data_output to produce_imagery, but now that I set it in
-        #   GeoImg instantiation, should be fine. Might want to address the fact that we don't
-        #   want to fully register / process to check coverage, but for now we'll leave it the
-        #   way it is.
-        # Okay, seriously, we have to quit using blank except statements everywhere.  We've got
-        #   to fix the code so this isn't needed.  It makes debugging completely impossible!
-        #   Please please please stop it!
+        '''
+        This should not be necessary - we should filter these out before actually processing.
+        But probably not a bad idea to have a catch in at this point too anyway.
+        Note img.coverage forces registering and processing data. Was not working when I
+          passed intermediate_data_output to produce_imagery, but now that I set it in
+          GeoImg instantiation, should be fine. Might want to address the fact that we don't
+          want to fully register / process to check coverage, but for now we'll leave it the
+          way it is.
+        Okay, seriously, we have to quit using blank except statements everywhere.  We've got
+          to fix the code so this isn't needed.  It makes debugging completely impossible!
+          Please please please stop it!
+        '''
         try:
             currcovg = img.coverage()
         except Exception as err:
             log.exception('Failed creating image for '+curr_product.name+', SKIPPING')
             log.exception(err.message)
             return None
-        if currcovg > 0.0:
-            log.info('\n\n\n\n        Running GeoImg.produce_imagery for TEMPORARY SINGLE GRANULE image... \n')
-            img.produce_imagery(geoips_only=geoips_only,datetimes=datetimes,datetimes_name=tag)
-        else:
-            log.info('\n\n\n\n'+pplog+'        TEMPORARY SINGLE GRANULE image had 0.0% coverage, '+str(currcovg)+'% !!! SKIPPING '+sector.name+' '+product+' ALTOGETHER!!... \n')
-            return None
 
-        # Comment out above and uncomment belo For testing purposes -
-        # Comment out everything after this too to write all temp files directly to GeoIPS final
-        #img.produce_imagery(final=True, clean_old_files=False,geoips_only=geoips_only)
+
+        '''
+        Write out the individual granule images, if required.
+        if NO_GRANULE_COMPOSITES is set in the metadata of the datafile
+            (within the reader), we do not need the individual granule
+            images, just the FULLCOMPOSITE and FINAL, so skip this step
+            to save time/IO
+        '''
+        if 'NO_GRANULE_COMPOSITES' in data_file.metadata['top'].keys() \
+            and data_file.metadata['top']['NO_GRANULE_COMPOSITES']:
+            log.info('\n\n\n\n      '+pplog+' TEMPORARY SINGLE GRANULE images not required, skipping .... \n')
+        else:
+            if currcovg > 0.0:
+                log.info('\n\n\n\n       '+pplog+' Running geoimg.produce_imagery for TEMPORARY SINGLE GRANULE image... \n')
+                if isinstance(img.image, dict):
+                    for imgkey in img.image.keys():
+                        img.produce_imagery(geoips_only=geoips_only, datetimes=datetimes, datetimes_name=tag, imgkey=imgkey)
+                else:
+                    img.produce_imagery(geoips_only=geoips_only, datetimes=datetimes, datetimes_name=tag)
+            else:
+                log.info('\n\n\n\n'+pplog+'        TEMPORARY SINGLE GRANULE image had 0.0% coverage, '+str(currcovg)+'% !!! SKIPPING '+sector.name+' '+product+' ALTOGETHER!!... \n')
+                return None
+
         print_mem_usage(tag+' after writing granule image',printmemusg)
         datetimes['endalg_'+tag] = datetime.utcnow()
 
         datetimes['startmergegran_'+tag] = datetime.utcnow()
 
-        # Set 'NO_GRANULE_COMPOSITES' in the metadata if granules should not be composited
-        # (ie, geostationary, model data, etc)
+
+
+        ''' 
+        Write out the full composite images, with no labels, legends, borders,
+            coastlines. All products should write out full composite images,
+            but if NO_GRANULE_COMPOSITES is set, it will just write out the 
+            full image and not try to merge any granules together (saves time
+            /IO)
+        '''
+                
         if 'NO_GRANULE_COMPOSITES' in data_file.metadata['top'].keys() \
             and data_file.metadata['top']['NO_GRANULE_COMPOSITES']:
-            log.info('    NO_GRANULE_COMPOSITES set in SciFile Metadata - no granule or swath compositing')
+            log.info('\n\n\n\n      '+pplog+' NO_GRANULE_COMPOSITES set in SciFile Metadata - no granule or swath compositing .... \n')
             finalimg = img
             finalimg.merged_type = 'FULLCOMPOSITE'
-            # This is necessary for overlays - expects imagery in fullcomposites directory.
-            # Need a better method for this. Maybe always run merge_granules, and put special case in geoimg ?
-            img.produce_imagery(geoips_only=geoips_only,datetimes=datetimes,datetimes_name=tag)
+            # This is necessary for overlays - expects imagery in fullcomposite directory.
+            # Need a better method for this, maybe always run merge_granules and put 
+            # special case in geoimg?
+            if isinstance(img.image, dict):
+                for imgkey in img.image.keys():
+                    img.produce_imagery(geoips_only=geoips_only, datetimes=datetimes, datetimes_name=tag, imgkey=imgkey)
+            else:
+                img.produce_imagery(geoips_only=geoips_only, datetimes=datetimes, datetimes_name=tag)
+            
         else:
             log.info('\n\n\n\n       '+pplog+' Running merge_granules for TEMPORARY SWATH image... \n')
             swathimg = img.merge_granules()
 
-            # Sometimes when trying to merge swaths, another process will delete our current merged img
-            # before we can use it. Wrap all merges / produce_imagerys in try except for any file that could
-            # potentially be deleted before we use it.
+            '''
+            Sometimes when trying to merge swaths, another process will delete our current merged img
+            before we can use it. Wrap all merges / produce_imagerys in try except for any file that could
+            potentially be deleted before we use it.
+            '''
             try:
                 log.info('\n\n\n\n       '+pplog+' Running produce_imagery for TEMPORARY SWATH image... \n')
                 swathimg.produce_imagery(geoips_only=geoips_only)
             except (IOError,OSError),resp:
                 log.error(str(resp)+pplog+' Failed writing TEMPORARY SWATH image. Someone else did it for us? Skipping to next product')
                 return None
-            # sector.composite_on specifies whether we want to do swath composites
-            # for this particular sector. Some sectors in arctic / antarctic do
-            # not need composited, because all swaths overlap.
+
+            '''
+            sector.composite_on specifies whether we want to do swath composites
+            for this particular sector. Some sectors in arctic / antarctic do
+            not need composited, because all swaths overlap.
+            '''
             if sector.composite_on:
                 log.info('\n\n\n\n       '+pplog+' Running merge_swaths and produce_imagery for TEMPORARY FULLCOMPOSITE image... \n')
                 try:
@@ -211,8 +266,11 @@ def create_imagery(data_file, sector, productlist, outdir,
         datetimes['endmergegran_'+tag] = datetime.utcnow()
         log.info(pplog+'Done merging granules')
         print_mem_usage(tag+' after merge',printmemusg)
-        # If the finalimg is > 40% coverage, create the final images with
-        # coast lines, legends, gridlines.
+
+        ''' 
+        If the finalimg is > 40% coverage, create the final images with
+        coast lines, legends, gridlines.
+        '''
         curr_covg = sector.min_total_cover
         # If min_cover defined in product file, use that, not sector coverage.
         if curr_product.min_cover != None:
@@ -221,36 +279,46 @@ def create_imagery(data_file, sector, productlist, outdir,
             log.info('\n\n\n\n   '+pplog+' Running GeoImg.produce_imagery for FINAL MERGED images... Coverage greater than specified coverage of: '+str(curr_covg)+' \n')
             # These get written to GeoIPS final, nexsat, TC, etc, as needed.
             try:
-                # Note produce_imagery method actually sets self._is_final using the passed
-                # 'final' argument, which is relied upon
-                # in determining filenames / output data type (data files or imagery files)
+                '''
+                Note produce_imagery method actually sets self._is_final using the passed
+                'final' argument, which is relied upon
+                in determining filenames / output data type (data files or imagery files)
+                '''
                 curr_geoips_only = check_if_testonly(finalimg, geoips_only)
-                finalimg.produce_imagery(final=True, geoips_only=curr_geoips_only)
+                if isinstance(finalimg.image, dict):
+                    for imgkey in finalimg.image.keys():
+                        finalimg._is_final = True
+                        final_productnames += [finalimg.get_filename(imgkey=imgkey).name]
+                        finalimg.produce_imagery(final=True, geoips_only=curr_geoips_only, imgkey=imgkey)
+                else:
+                    finalimg.produce_imagery(final=True, geoips_only=curr_geoips_only)
             except (IOError,OSError),resp:
                 log.error(str(resp)+pplog+' Failed writing FINAL MERGED image. Someone else did it for us? Skipping to next product')
                 return None
             print_mem_usage(tag+' after final merge',printmemusg)
-        # Check the special multi-source product type,
-        # create anything that this data file kicks off
-        # (anything marked as 'runonreceipt' in productfile)
-        # This is NOT tied to finalimg.produce_imagery because there are
-        #   many different data types that can go into a single
-        #   multisource product.  We do not want to limit
-        #   multisource product generation on the coverage of the CURRENT
-        #   data.  There might be other layers that have sufficient
-        #   coverage - always check. STITCHED, for example!
+
+
+
+        '''
+        Check the special multi-source product type,
+        create anything that this data file kicks off
+        (anything marked as 'runonreceipt' in productfile)
+        This is NOT tied to finalimg.produce_imagery because there are
+          many different data types that can go into a single
+          multisource product.  We do not want to limit
+          multisource product generation on the coverage of the CURRENT
+          data.  There might be other layers that have sufficient
+          coverage - always check. STITCHED, for example!
+        create_multisource_products will actually plot the appropriate
+            multisource images / data products
+        multsource products rely on the FULLCOMPOSITE products for 
+            merging (data or imagery), so those must always be produced.
+        '''
         finalimg.create_multisource_products()
-        # When we turn on multisource products, make sure they are getting written in create_multisource_products
-        # This is writing out a final image regardless of percent coverage, not what we want!
-        #try:
-        #    # Didn't I write this out in create_multisource_products ?
-        #    finalimg.produce_imagery(final=True, geoips_only=geoips_only)
-        #except (IOError,OSError),resp:
-        #    log.error(str(resp)+pplog+' Failed writing FINAL MERGED image. Someone else did it for us? Skipping to next product')
-        #    return None
 
         log.info(pplog+' endprod')
         datetimes['end_'+tag] = datetime.utcnow()
+        log.info('Final products: '+'\n'.join(final_productnames))
 
 
 def check_if_testonly(finalimg, geoips_only):
@@ -390,36 +458,6 @@ def process(data_file, sector, productlist=None, outdir=None, nofinal=False, for
 
 
 def _get_argument_parser():
-    '''Create an argument parser with all of the correct arguments.'''
-    parser = ArgParse()
-    parser.add_arguments(['file',
-                          'sector',
-                          'productlist',
-                          'sectorfiles',
-                          'forcereprocess',
-                          'product_outpath',
-                          'nofinal',
-                          'loglevel',
-                        ])
-    return parser
-
-if __name__ == '__main__':
-    #Set all of these to None for uncaught exeption handling
-    emailsubject = 'GIProcess'
-    email_hndlr = None
-    root_logger = None
-    combined_sf = None
-    args = {'file':None, 'sectorfiles':[]}
-
-    #Parse commandline arguments
-    parser = _get_argument_parser()
-    args = vars(parser.parse_args())
-    args = parser.cleanup_args(args)
-
-    #[callingscript,satellite,sensor,datasource,date,sector,product,rest] = os.path.basename(args['file']).split('_',7)
-    root_logger, file_hndlr, email_hndlr = root_log_setup(loglevel=args['loglevel'], subject=emailsubject)
-
-
     #Open the datafile
     df = SciFile()
     df.import_data([args['file']])

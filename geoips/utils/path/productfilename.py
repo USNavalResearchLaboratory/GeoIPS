@@ -532,6 +532,7 @@ class ProductFileName(object):
                     text_output=False,
                     external_product=None,
                     merged='GRANULE',
+                    imgkey=None,
                     ):
         # If both geoipsfinal_product and external_product are defined, fail!
         # We should only return one filename, so this would be ambiguous!
@@ -697,7 +698,11 @@ class ProductFileName(object):
             pf.productname = pf.get_fillvalue()
             #print 'product fill: '+pf.productname
         else:
-            pf.productname = productobj.name
+            if imgkey:
+                pf.productname = productobj.name+imgkey
+            else:
+                pf.productname = productobj.name
+                
             #print 'product exists: '+pf.productname
         if data_file:
             # Default to using geoimgobj - in case of merged granules
