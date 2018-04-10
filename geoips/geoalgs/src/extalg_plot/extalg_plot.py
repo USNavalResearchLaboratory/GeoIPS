@@ -59,7 +59,7 @@ def extalg_plot(gi, imgkey=None):
             pass
         else:
             gi.image[imgkey].dtype = 'float64'
-        currimg = colormapper.to_rgba(normalize(gi.image[imgkey])
+        currimg = colormapper.to_rgba(normalize(gi.image[imgkey]))
         gi.basemap.imshow(currimg, ax=gi.axes, interpolation='nearest')
     else:
         colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap(gi.product.cmap))
@@ -67,7 +67,7 @@ def extalg_plot(gi, imgkey=None):
             pass
         else:
             gi.image.dtype = 'float64'
-        currimg = colormapper.to_rgba(normalize(gi.image)
+        currimg = colormapper.to_rgba(normalize(gi.image))
         gi.basemap.imshow(currimg, ax=gi.axes, interpolation='nearest')
 
     if gi.is_final:

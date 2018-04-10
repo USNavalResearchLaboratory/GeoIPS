@@ -20,7 +20,7 @@ def extalg_coverage(gi, imgkey=None):
     
     if imgkey and imgkey != 'winds':
         return 100 * (float(np.ma.count(gi[imgkey])) / gi[imgkey].size)
-    if isinstance(gi.image, dict):
+    if isinstance(gi, dict):
         for imgkey in gi.keys():
             if imgkey != 'winds':
                 return 100 * (float(np.ma.count(gi[imgkey])) / gi[imgkey].size)

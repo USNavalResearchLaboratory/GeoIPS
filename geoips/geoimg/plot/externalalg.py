@@ -118,7 +118,7 @@ class ExternalAlg(GeoImgBase):
             and plots/data are upside down - check this.  Perhaps flipud
             will have to go in the individual algorithms 
             '''
-            if is_instance(outdata, dict):
+            if isinstance(outdata, dict):
                 for imgkey in outdata.keys():
                     outdata[imgkey] = np.flipud(outdata[imgkey])
             else:
