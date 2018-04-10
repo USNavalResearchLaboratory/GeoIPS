@@ -1,5 +1,9 @@
 #!/bin/env python
 import os
+import logging
+from IPython import embed as shell
+
+log = logging.getLogger(__name__)
 
 def extalg(datafile, sector, product, workdir):
     '''
@@ -25,11 +29,15 @@ def extalg(datafile, sector, product, workdir):
     included - navgem, abi, ahi, viirs, etc
     '''
     write_file = False
+    for dfname in datafile.datafiles.keys():
         if 'preprocessed' not in dfname:
             write_file = True
     if write_file:
-        dirname = os.getenv(GEOIPS_OUTDIRS)+'/data/preprocessed/%s_%s'%(datafile.source_name,
+        if datafile.security_classification:
+            dirname = os.getenv('GEOIPS_OUTDIRS')+'/data/preprocessed/%s_%s'%(datafile.source_name,
                                             datafile.security_classification.replace('/','-'))
+        else:
+            dirname = os.getenv('GEOIPS_OUTDIRS')+'/data/preprocessed/%s'%(datafile.source_name)
         baseh5filename = '%s/%s_%s'%(dirname,
                             sector.name,
                             '_'.join(sorted(datafile.datasets.keys())))
@@ -49,8 +57,9 @@ def extalg(datafile, sector, product, workdir):
     log.info('Registering datasets...')
     registered_data = datafile.register(sector.area_definition,
             interp_method = None,
-            roi = None
-            #required_datasets = ['B13BT']
+            roi = None,
+            #required_datasets = ['B13BT'],
+            )
 
 
     '''
@@ -61,6 +70,7 @@ def extalg(datafile, sector, product, workdir):
     a starting point for specifying different sat configs
     dynamically
     '''
+
     from .extalg_config import extalg_config
     sat_config = {}
     extalg_config(sat_config)
@@ -77,7 +87,7 @@ def extalg(datafile, sector, product, workdir):
     for ds in registered_data.datasets.values():
         # Grab the appropriate variable name out of the sat_config dict
         srcname = ds.source_name
-        varname = sat_config[srcname]['varname']
+        varname = sat_config[srcname]['varname'][0]
         # now set the outdata dictionary to the appropriate data array.
         outdata[srcname+'irvar'] = ds.variables[varname]
 
