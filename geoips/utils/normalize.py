@@ -26,13 +26,21 @@ from IPython import embed as shell
 
 # Changed bounds defaults to crop to match geoimg/geoimg.py.apply_data_range and productfile/xml.py.outbounds
 # Does not appear normalize is ever used with defaults for bounds.
-def normalize(data, min_val, max_val, min_bounds='crop', max_bounds='crop'):
+def normalize(data, min_val=None, max_val=None, min_bounds='crop', max_bounds='crop'):
+
     #Determine if mask is currently hardened
-    hardmask = data.hardmask
+    hardmask = None
+    if hasattr(data, 'hardmask'):
+        hardmask = data.hardmask
+
     #Harden the mask to avoid unmasking bad values
     if hardmask is False:
         data.harden_mask()
 
+    if min_val == None:
+        min_val = data.min()
+    if max_val == None:
+        max_val = data.max()
     if min_bounds is None:
         min_bounds = 'retain'
     if max_bounds is None:
