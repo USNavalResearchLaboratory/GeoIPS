@@ -42,6 +42,8 @@ try:
     import h5py  # This must be imported before lxml, which is imported in process ?
 except:
     print 'Failed h5py import in driver.py. If you need it, install it.'
+import matplotlib 
+matplotlib.use('agg') # Believe this must be set before something else is imported? So do it up front
 
 # GeoIPS Libraries
 from geoips.process import process
