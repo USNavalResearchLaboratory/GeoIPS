@@ -90,7 +90,7 @@ function grepall {
             # Print directory
             echo -e "\033[1;35m"`pwd`"\033[0m":
             # Run the git command on passed arguments
-            grep $@
+            grep $@/*
         fi
         echo 
     done
