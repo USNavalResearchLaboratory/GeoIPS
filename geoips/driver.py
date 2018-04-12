@@ -42,6 +42,8 @@ try:
     import h5py  # This must be imported before lxml, which is imported in process ?
 except:
     print 'Failed h5py import in driver.py. If you need it, install it.'
+import matplotlib 
+matplotlib.use('agg') # Believe this must be set before something else is imported? So do it up front
 
 # GeoIPS Libraries
 from geoips.process import process
@@ -98,7 +100,7 @@ __doc__ = '''
 # @profile
 def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc, mp_max_cpus,
                 printmemusg, sects, mp_jobs, mp_waiting, geoips_only, sectors_run, mp_num_procs,
-                mp_max_num_jobs, mp_num_waits, mp_num_times_cleared, waittimes, didmem):
+                mp_max_num_jobs, mp_num_waits, mp_num_times_cleared, waittimes, didmem, separate_datasets):
     if printmemusg and (datetime.utcnow().second % 5) == 0 and not didmem:
         print_mem_usage('drmainloop ', printmemusg)
         didmem = True
@@ -194,7 +196,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             return ret
 
         # If it is 'SECTOR_ON_READ' type reader, we won't have any variables because we haven't read yet...
-        if ('SECTOR_ON_READ' not in data_file.metadata.keys() or not data_file.metadata['SECTOR_ON_READ']) \
+        if ('SECTOR_ON_READ' not in data_file.metadata['top'].keys() or not data_file.metadata['top']['SECTOR_ON_READ']) \
             and not data_file.has_any_vars(required_vars):
             log.interactive('{0} No channels available, skipping current sector'.format(plog))
             ret = mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem
@@ -203,15 +205,15 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         log.interactive('{0} Sectoring data.'.format(plog))
         sectored = None
 
-        if 'SECTOR_ON_READ' in data_file.metadata.keys() and data_file.metadata['SECTOR_ON_READ']:
-            # Readers that sector at read time must set df.metadata['SECTOR_ON_READ'].
+        if 'SECTOR_ON_READ' in data_file.metadata['top'].keys() and data_file.metadata['top']['SECTOR_ON_READ']:
+            # Readers that sector at read time must set df.metadata['top']['SECTOR_ON_READ'].
             # These need to be re-read for each sector.
             log.info('    SECTOR_ON_READ set on data_file, reading data for sector: '.format(curr_sector.name))
             sectored = SciFile()
             # Read the next sector_definition
-            sectored.import_data([runpath], chans=chans, sector_definition=curr_sector)
-        elif 'NON_SECTORABLE' in data_file.metadata.keys() and data_file.metadata['NON_SECTORABLE']:
-            # Readers that are not able to be sectored  must set df.metadata['NON_SECTORABLE'].
+            sectored.import_data(runpaths, chans=chans, sector_definition=curr_sector)
+        elif 'NON_SECTORABLE' in data_file.metadata['top'].keys() and data_file.metadata['top']['NON_SECTORABLE']:
+            # Readers that are not able to be sectored  must set df.metadata['top']['NON_SECTORABLE'].
             # Driver will then skip attempting to sector
             log.info('    NON_SECTORABLE set on data_file, not attempting to sector data for sector: '+curr_sector.name)
             sectored = data_file
@@ -289,6 +291,24 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             log.info('Sectored data shape: {0}'.format(sectored_shape))
             # utils.path.productfilename needs sector_file for calling pass_prediction
             # Pass rather than opening again.
+            if separate_datasets:
+                dfnew = SciFile()
+                log.info('Running each dataset separately through driver')
+                dfnew.metadata = sectored.metadata.copy()
+                olddsname = None
+                for dsname in sectored.datasets.keys():
+                    if olddsname:
+                        dfnew.delete_dataset(olddsname)
+                    dfnew.add_dataset(sectored.datasets[dsname])
+                    if 'datasets' in dfnew.metadata and dsname in dfnew.metadata['datasets'].keys():
+                        for key in dfnew._finfo.keys():
+                            if key in dfnew.metadata['datasets'][dsname].keys():
+                                dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname]['platform_name']
+                                dfnew.datasets[dsname].platform_name = dfnew.metadata['top']['platform_name']
+                    olddsname = dsname
+                process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
+                    sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
+
             process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
                     sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
             # MLS 20160126 Try this for memory usage ? Probably doesn't do anything
@@ -362,7 +382,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 
 def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=None, call_next=True,
            forcereprocess=False, queue=None, no_multiproc=False, mp_max_cpus=1, 
-           printmemusg=False):
+           printmemusg=False, separate_datasets=False):
     '''
     Produce imagery from a single input data file for any number of sectors and products.
 
@@ -480,7 +500,7 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
         rs_ret = run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc,
                              mp_max_cpus, printmemusg, sects, mp_jobs, mp_waiting, geoips_only,
                              sectors_run, mp_num_procs, mp_max_num_jobs, mp_num_waits, mp_num_times_cleared,
-                             waittimes, didmem)
+                             waittimes, didmem, separate_datasets)
         mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem = rs_ret
     if not sects and not mp_jobs:
         log.info('MPLOG All jobs completed')
@@ -547,7 +567,7 @@ def predict_sectors(platform_name, source_name, start_dt, end_dt):
 def _get_argument_parser():
     '''Create an argument parser with all of the correct arguments.'''
     parser = ArgParse()
-    parser.add_arguments(['path', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
+    parser.add_arguments(['paths', 'separate_datasets', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
                           'forcereprocess', 'all', 'allstatic', 'alldynamic', 'tc', 'volcano', 'sectorfiles',
                           'templatefiles', 'no_multiproc', 'mp_max_cpus', 'queue', 'printmemusg'])
     return parser
@@ -568,16 +588,17 @@ if __name__ == '__main__':
     log.info('Starting main: {0}'.format(DATETIMES['start']))
 
     # Get the data path and check to be sure it exists
-    runpath = args['path']
-    if os.path.exists(runpath):
-        log.interactive('Input path: {0}'.format(runpath))
-    else:
-        raise IOError('No such file or directory: {0}'.format(runpath))
+    runpaths = args['paths']
+    for runpath in runpaths:
+        if os.path.exists(runpath):
+            log.interactive('Input path: {0}'.format(runpath))
+        else:
+            raise IOError('No such file or directory: {0}'.format(runpath))
 
     # Set up data file instance and read the metadata
     print_mem_usage('Before reading metadata')
     df = SciFile()
-    df.import_metadata([runpath])
+    df.import_metadata(runpaths)
 
     # If no sectors passed, run pass predictor to get list of sectors.
     # Allow search for dynamic sectors to start 9 hours before start time of data.
@@ -586,7 +607,9 @@ if __name__ == '__main__':
     if df.start_datetime == df.end_datetime:
         dyn_end_dt = df.end_datetime + timedelta(hours=2)
     if not args['sectorlist']:
-        args['sectorlist'] = predict_sectors(df.platform_name, df.source_name, dyn_start_dt, dyn_end_dt)
+        args['sectorlist'] = []
+        for ds in df.datasets.values():
+            args['sectorlist'] = predict_sectors(ds.platform_name, ds.source_name, dyn_start_dt, dyn_end_dt)
 
     DATETIMES['after_opendatafile'] = datetime.utcnow()
     print_mem_usage('After reading metadata')
@@ -617,16 +640,20 @@ if __name__ == '__main__':
     except AttributeError:
         log.info('\t\t\t{0}'.format(sectfile))
 
-    req_prods = sectfile.get_requested_products(df.source_name, args['productlist'])
-    pf = productfile.open2(df.source_name, req_prods)
-    if hasattr(pf, 'names'):
-        log.info('\t\tProducts from files: ')
-        for pfname in sorted(pf.names):
-            log.info('\t\t\t{0}'.format(pfname))
+    req_prods = []
+    for ds in df.datasets.values():
+        req_prods += sectfile.get_requested_products(ds.source_name, args['productlist'])
+        pf = productfile.open2(ds.source_name, req_prods)
+        if hasattr(pf, 'names'):
+            log.info('\t\tProducts from files: ')
+            for pfname in sorted(pf.names):
+                log.info('\t\t\t{0}'.format(pfname))
 
-    log.info('\n\n')
-    # Get list of all possible channels required based on sectorfile and productlist
-    chans = sectfile.get_required_vars(df.source_name, args['productlist'])
+    chans = []
+    for ds in df.datasets.values():
+        log.info('\n\n')
+        # Get list of all possible channels required based on sectorfile and productlist
+        chans += sectfile.get_required_vars(ds.source_name, args['productlist'])
     log.info('\tRequired channels: {0}'.format(sorted(chans)))
     log.info('\n')
     log.info('\tRequired sectors: {0}'.format(sorted(sectfile.sectornames())))
@@ -649,7 +676,7 @@ if __name__ == '__main__':
         #      I also think that df should have an itersectors method and that all
         #      datafiles should be handled the same, regardless of how they are sectored.
         # MLS: How about
-        #       df = SciFile([runpath]) above where the import_metadata was
+        #       df = SciFile(runpaths) above where the import_metadata was
         #           (no import_metadata, __init__ will automatically return metadata)
         #       Don't re-initialize SciFile object ever again, just subsequent import_datas.
         #       df.import_data(chans=chans,sector=curr_sector) in sector loop
@@ -664,13 +691,13 @@ if __name__ == '__main__':
         # If 'SECTOR_ON_READ' is specified in df.metadata, that means the reader
         # will be read one sector at a time within the sector loop, so just maintain
         # the empty dataset for now.
-        if 'SECTOR_ON_READ' not in df.metadata.keys():
+        if 'SECTOR_ON_READ' not in df.metadata['top'].keys():
             # Start a new one to get rid of METADATA dataset
             df = SciFile()
-            df.import_data([runpath], chans=chans)
+            df.import_data(runpaths, chans=chans)
         else:
             log.info(('Reader {0} performs sectoring at read time - ' +
-                      'waiting to read until looping through sectors.').format(df.metadata['readername']))
+                      'waiting to read until looping through sectors.').format(df.metadata['top']['readername']))
         # I was trying to avoid reopening sectorfile, but we need the real scifile
         # object attached to it, not the metadata scifile object. Maybe this would
         # be fixed if we did import_metadata then import_data on the same SciFile()
@@ -702,9 +729,30 @@ if __name__ == '__main__':
         except:
             log.info('\tSomething undefined on SciFile object')
 
+        if args['separate_datasets']:
+            dfnew = SciFile()
+            log.info('Running each dataset separately through driver')
+            dfnew.metadata = df.metadata.copy()
+            olddsname = None
+            for dsname in sectored.datasets.keys():
+                if olddsname:
+                    dfnew.delete_dataset(olddsname)
+                dfnew.add_dataset(sectored.datasets[dsname])
+                if 'datasets' in dfnew.metadata and dsname in dfnew.metadata['datasets'].keys():
+                    for key in dfnew._finfo.keys():
+                        if key in dfnew.metadata['datasets'][dsname].keys():
+                            dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname]['platform_name']
+                            dfnew.datasets[dsname].platform_name = dfnew.metadata['top']['platform_name']
+                olddsname = dsname
+            driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
+               outdir=args['product_outpath'], call_next=args['next'],
+               forcereprocess=args['forcereprocess'], queue=args['queue'],
+               no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
+               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'])
+
         driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
                outdir=args['product_outpath'], call_next=args['next'],
                forcereprocess=args['forcereprocess'], queue=args['queue'],
                no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
-               printmemusg=args['printmemusg'])
+               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'])
 

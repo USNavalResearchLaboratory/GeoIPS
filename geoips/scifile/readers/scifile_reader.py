@@ -13,7 +13,7 @@
 # Python Standard Libraries
 from datetime import datetime
 import os
-
+import logging
 
 # Installed Libraries
 import numpy as np
@@ -25,6 +25,9 @@ from IPython import embed as shell
 from .reader import Reader
 from ..containers import _empty_varinfo, _empty_dsinfo, _empty_finfo, Variable, DataSet
 from ..scifileexceptions import SciFileError
+from ..utils import load_dict_from_hdf5
+
+log = logging.getLogger(__name__)
 
 # For now must include this string for automated importing of classes.
 reader_class_name = 'SciFile_Reader'
@@ -67,6 +70,28 @@ class SciFile_Reader(Reader):
         fileobj = h5py.File(fname, 'r')
         _finfo = _empty_finfo.copy()
 
+        '''
+        Read the metadata dictionary stored in hdf5 file into metadata attribute
+            on scifile object
+        '''
+        log.info('Reading metadata dictionary from hdf5 file')
+        currmetadata = load_dict_from_hdf5(fileobj, 'METADATA')
+        log.info('Done reading metadata dictionary from hdf5 file')
+        '''
+        HAVE TO POPULATE EXISTING KEYS. If you just do metadata = currmetadata
+            it overwrites at the top level, so we lose the "reader" metadata 
+            level in scifile
+        '''
+        for key in currmetadata.keys():
+            metadata[key] = currmetadata[key]
+
+        '''
+        If chans was explicitly an empty list, we just want metadata
+        and no data, so return at this point.
+        '''
+        if chans == []:
+            return
+
         #Get the file level attributes
         for attr in fileobj.attrs.keys():
             if attr in _finfo:
@@ -76,8 +101,13 @@ class SciFile_Reader(Reader):
                     _finfo[attr] = fileobj.attrs[attr]
             else:
                 raise SciFileError('Unexpected file level attribute encountered: %s' % attr)
+
         #Loop over the datasets
         for dsname in fileobj.keys():
+            # metadata dictionary was already populated separately above, so skip here
+            if dsname == 'METADATA':
+                continue
+
             dsobj = fileobj[dsname]
             #Should be able to avoid the need for this by separating _dsinfo attributes
             #   into the file level.  May also need to add the ability to do this at the variable level.
@@ -136,11 +166,13 @@ class SciFile_Reader(Reader):
                 _varinfo.update(_finfo)
                 metadata['top'] = _varinfo
 
+        # MLS 20180405 whatever was going on here appears to no longer be necessary.
+        # comment out for now.
         # MLS 20170105
         # I have no idea what is going on here - shape is getting set to [width,height] 
         # and everyhting else is (width,height).  Brute force it into shape for now.
         # At some point we're going to have to do some major reworking of this, but 
         # for now I'm just making it work...
-        metadata['top']['shape'] = (metadata['top']['shape'][0],metadata['top']['shape'][1])
+        # metadata['top']['shape'] = (metadata['top']['shape'][0],metadata['top']['shape'][1])
     
         return 

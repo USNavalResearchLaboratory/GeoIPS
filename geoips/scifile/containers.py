@@ -48,6 +48,7 @@ log = logging.getLogger(__name__)
 # finfo contains data that will be stored at the file level
 _empty_finfo = {'source_name': None,
                 'platform_name': None,
+                'security_classification': None,
                 'start_datetime': None,
                 'end_datetime': None,
                 'filename_datetime': None,
@@ -783,6 +784,18 @@ class DataSet(object):
         self._dsinfo_prop_deleter('platform_name')
 
     @property
+    def security_classification(self):
+        return self._dsinfo_prop_getter('security_classification')
+
+    @security_classification.setter
+    def security_classification(self, val):
+        self._dsinfo_prop_setter('security_classification', val)
+
+    @security_classification.deleter
+    def security_classification(self):
+        self._dsinfo_prop_deleter('security_classification')
+
+    @property
     def sensor_name(self):
         return self._dsinfo_prop_getter('source_name')
 
@@ -1258,8 +1271,8 @@ class DataSet(object):
 
         # This should be attached to the scifile instance.  Probably should move sensor_info.py into scifile
         if not roi:
-            if 'interpolation_radius_of_influence' in self.scifile.metadata.keys():
-                roi = self.scifile.metadata['interpolation_radius_of_influence']
+            if 'interpolation_radius_of_influence' in self.scifile.metadata['top'].keys():
+                roi = self.scifile.metadata['top']['interpolation_radius_of_influence']
                 log.info('        Using READER radius of influence: '+str(roi))
             else:
                 try:
@@ -1892,6 +1905,10 @@ class Variable(MaskedArray):
     @property
     def platform_name(self):
         return self._dsinfo['platform_name']
+
+    @property
+    def security_classification(self):
+        return self._dsinfo['security_classification']
 
     # Probably Variable specific.  Should be in _optinfo if needed.
     # @property

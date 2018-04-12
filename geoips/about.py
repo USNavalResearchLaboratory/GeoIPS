@@ -39,6 +39,7 @@ __requires__ = [ 'h5py', # Anaconda
                  'matplotlib', # Anaconda
                  'lxml', # Anaconda
                  'ephem', # Anaconda
-                 'basemap', # Anaconda
+                 'geos', # needed for basemap
+                 'basemap', # Anaconda ? install from source
                  'numexpr',
                ]

@@ -134,6 +134,9 @@ class ArgParse(argparse.ArgumentParser):
         if 'path' in arglist: self.add_argument('path', nargs='?', default=None, type=os.path.abspath,
                         help='''Path data file or directory.'''
                        )
+        if 'paths' in arglist: self.add_argument('paths', nargs='*', default=None, type=os.path.abspath,
+                        help='''List of paths to multiple data files or directories.'''
+                       )
         if 'satellite' in arglist: self.add_argument('satellite', help='Single satellite name')
         if 'sensor' in arglist: self.add_argument('sensor', help='Single sensor name')
         if 'sector' in arglist: self.add_argument('sector', help='Single sector name')
@@ -144,6 +147,9 @@ class ArgParse(argparse.ArgumentParser):
         if 'nofinal' in arglist: self.add_argument('--nofinal', action='store_true',
                         help='''If nofinal is included command line, do not produce final Image
                                 with gridlines and coastlines (only produce GEOIPSTEMP images)''')
+        if 'separate_datasets' in arglist: self.add_argument('--separate_datasets', action='store_true',
+                        help='''If separate_datasets is included command line, run driver on each
+                                dataset separately''')
 
         if 'sectorlist' in arglist: self.add_argument('-s', '--sectorlist', nargs='?', default=None,
                         help='''A list of short sector names over which the data file should be processed.

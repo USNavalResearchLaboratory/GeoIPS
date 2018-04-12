@@ -252,7 +252,7 @@ class GeoImgBase(object):
             self._imagery_output= True
         return self._imagery_output
 
-    def get_filename(self, external_product=None,merged_type=False, new_sourcename=None, new_platformname=None):
+    def get_filename(self, external_product=None,merged_type=False, new_sourcename=None, new_platformname=None, imgkey=None):
 
 
         final = self.is_final
@@ -272,7 +272,7 @@ class GeoImgBase(object):
         pfn = ProductFileName.fromobjects(self.datafile, self.sector, self.product,
                                            geoimgobj=self, geoipsfinal_product=final,
                                             external_product=external_product, merged=merged_type,
-                                            data_output=data_output,)
+                                            data_output=data_output,imgkey=imgkey)
         # If these should be labeled as something besides source/platform (ie, stitched), 
         # set new values here.
         if new_sourcename:
@@ -705,7 +705,7 @@ class GeoImgBase(object):
                 log.info('    '+prodname+' product does not need to be produced on receipt of '+self.datafile.source_name_product+' '+orig_productname+' data, SKIPPING')
 
     def produce_imagery(self, final=False, clean_old_files=True, geoips_only=False,datetimes=None,datetimes_name=None,
-            new_sourcename=None, new_platformname=None):
+            new_sourcename=None, new_platformname=None, imgkey=None):
         ''' GeoImg produce_imagery method - called from process.py 
             The actual RGBA processed image array is stored in self.image property, which is defined
                 in the individual GeoImg subclasses (BasicImg, RGBImg, ExternalImg, etc). Data is 
@@ -775,7 +775,10 @@ class GeoImgBase(object):
         # future anyway.
         if self.is_final or not self.intermediate_data_output:
             # This is what actually creates the plot. Defined in GeoImgBase subclasses
-            self.plot()
+            if imgkey:
+                self.plot(imgkey=imgkey)
+            else:
+                self.plot()
         
         if datetimes:
             datetimes['endplot_'+str(datetimes_name)] = datetime.utcnow()
@@ -790,7 +793,8 @@ class GeoImgBase(object):
         # if not self.is_final, it will be GeoIPSTemp.
         geoips_product_filename = self.get_filename(merged_type=merged_type, 
                 new_sourcename=new_sourcename,
-                new_platformname=new_platformname)
+                new_platformname=new_platformname,
+                imgkey=imgkey)
         #Creating output directory if it doesn't already exist
         geoips_product_filename.makedirs()
 
@@ -1058,6 +1062,21 @@ class GeoImgBase(object):
                 # New lines do not seem to work for this ?!
                 # Even trying "test \n test" explicitly just printed \n.
                 ax.set_title(titlestr, position=[xpos, ypos])
+
+            if self.datafile.security_classification:
+                textcolor = 'black'
+                if 'SECRET' in self.datafile.security_classification or '//' in self.datafile.security_classification:
+                    textcolor = 'red'
+                ax.text(0,1, self.datafile.security_classification,
+                    horizontalalignment = 'right',
+                    verticalalignment = 'bottom',
+                    color = textcolor,
+                    transform = ax.transAxes)
+                ax.text(1,0, self.datafile.security_classification,
+                    horizontalalignment = 'left',
+                    verticalalignment = 'top',
+                    color = textcolor,
+                    transform = ax.transAxes)
 
             fig.canvas.mpl_connect('draw_event', on_draw)
         else:
