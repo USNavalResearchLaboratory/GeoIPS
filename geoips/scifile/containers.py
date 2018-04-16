@@ -128,8 +128,11 @@ class BaseContainer(object):
         '''
         Append a new key/value pair.  Error on overlapping keys.
         '''
-        if key in self._contents:
-            raise KeyError("%s already contains the key '%s'" % (self.obj.__class__, key))
+        ##########################################################################
+        #### MLS 20180416 Attempts at making scifile less restrictive
+        ####        so we can have arbitrary data types in different datasets
+        ####if key in self._contents:
+        ####    raise KeyError("%s already contains the key '%s'" % (self.obj.__class__, key))
         self._force_append(key, val)
 
     def _force_append(self, key, val):
@@ -314,16 +317,29 @@ class DataSet(object):
         #    SciFile is an update to all and to all subsequent Variables.
         # Typically the values in here should never actually change except
         #    to go from `None` to something non-`None`.
+
         obj._dsinfo = _empty_dsinfo.copy()
         for key, val in _dsinfo.items():
             if key in obj._dsinfo:
                 obj._dsinfo[key] = val
             else:
                 raise SciFileError('Unrecognized dataset attribute in _dsinfo: %s' % key)
+
+        ##########################################################################
+        #### MLS 20180416 Attempts at making scifile less restrictive
+        ####        so we can have arbitrary data types in different datasets
+        ''' Here we should only overwrite dataset fields if the 
+            value of the current dataset field is None.  We do not want to 
+            clobber the unique dataset attributes with those from
+            the top scifile level.  But we do want to populate fields
+            that do not already have values with the "defaults" from the
+            overall scifile object. '''
         obj._finfo = _empty_finfo.copy()
         for key, val in _dsinfo.items():
-            if key in obj._finfo:
+            if obj._finfo.has_key(key) and obj._finfo[key] is None:
                 obj._finfo[key] = val
+            if obj._finfo.has_key(key) and obj._finfo[key] is not None and obj._dsinfo[key] is None:
+                obj._dsinfo[key] = obj._finfo[key]
 
         return obj
 
@@ -470,8 +486,11 @@ class DataSet(object):
 
         Raises a KeyError if a variable of the same name already exists in this DataSet.
         '''
-        if not self.similar(data):
-            raise SciFileError('Cannot add Variable to DataSet.  Not similar.')
+        ##########################################################################
+        #### MLS 20180416 Attempts at making scifile less restrictive
+        ####        so we can have arbitrary data types in different datasets
+        #if not self.similar(data):
+        #    raise SciFileError('Cannot add Variable to DataSet.  Not similar.')
         if name is None:
             try:
                 name = data.name
@@ -724,14 +743,24 @@ class DataSet(object):
 
     def _dsinfo_prop_setter(self, propname, val):
         self._dsinfo[propname] = val
-        if propname in self._finfo:
+        ##########################################################################
+        #### MLS 20180416 Attempts at making scifile less restrictive
+        ####        so we can have arbitrary data types in different datasets
+        ''' Only reset the value of the property at the scifile level
+            if it is currently None '''
+        if propname in self._finfo.keys() and self._finfo[propname] is None:
             self._finfo[propname] = val
 
     def _dsinfo_prop_deleter(self, propname):
         try:
             self._dsinfo[propname] = None
-            if propname in self._finfo:
-                self._finfo[propname] = None
+            ##########################################################################
+            #### MLS 20180416 Attempts at making scifile less restrictive
+            ####        so we can have arbitrary data types in different datasets
+            ''' Let's not delete the property out of the scifile level
+                just because we deleted it out of the dataset level '''
+            #if propname in self._finfo:
+            #    self._finfo[propname] = None
         except KeyError:
             pass
 
@@ -1484,23 +1513,34 @@ class DataSet(object):
             self._finfo = self._finfo.copy()
             self._scifile = None
         else:
-            if val.similar(self):
-                # Merge _finfo together for the scifile and the dataset
-                for key in val._finfo.keys():
-                    if val._finfo[key] is None and self._finfo[key] is not None:
-                        val._finfo[key] = self._finfo[key]
-                self._scifile = weakref.ref(val)
-                self._finfo = val._finfo
-            else:
-                log.warning('dataset.scifile Not similar')
-                for attr in self._finfo.keys():
-                    print '  dataset.scifile self: '+' '+str(attr)+' '+str(getattr(self,attr))
-                    print '  dataset.scifile ds:   '+' '+str(attr)+' '+str(getattr(val,attr))+' '+val.name
-                    for var in val.variables.keys():
-                        print '  dataset.scifile var:  '+' '+str(attr)+' '+str(getattr(val.variables[var],attr))+' '+var
-                    for gvar in val.geolocation_variables.keys():
-                        print '  Variable.dataset gvar:  '+' '+str(attr)+' '+str(getattr(val.geolocation_variables[gvar],attr))+' '+gvar
-                raise SciFileError('Cannot set `scifile` attribute on DataSet.  Not similar.')
+            ##########################################################################
+            #### MLS 20180416 Attempts at making scifile less restrictive
+            ####        so we can have arbitrary data types in different datasets
+            #if val.similar(self):
+            #    # Merge _finfo together for the scifile and the dataset
+            #    for key in val._finfo.keys():
+            #        if val._finfo[key] is None and self._finfo[key] is not None:
+            #            val._finfo[key] = self._finfo[key]
+            #    self._scifile = weakref.ref(val)
+            #    self._finfo = val._finfo
+            #else:
+            #    log.warning('dataset.scifile Not similar')
+            #    for attr in self._finfo.keys():
+            #        print '  dataset.scifile self: '+' '+str(attr)+' '+str(getattr(self,attr))
+            #        print '  dataset.scifile ds:   '+' '+str(attr)+' '+str(getattr(val,attr))+' '+val.name
+            #        for var in val.variables.keys():
+            #            print '  dataset.scifile var:  '+' '+str(attr)+' '+str(getattr(val.variables[var],attr))+' '+var
+            #        for gvar in val.geolocation_variables.keys():
+            #            print '  Variable.dataset gvar:  '+' '+str(attr)+' '+str(getattr(val.geolocation_variables[gvar],attr))+' '+gvar
+            #    raise SciFileError('Cannot set `scifile` attribute on DataSet.  Not similar.')
+            ''' We do not want to fail altogether if datasets are not similar.
+                We do want to set the finfo properties at the scifile level
+                to the new values if the current value is None '''
+            for key in val._finfo.keys():
+                if val._finfo[key] is None and self._finfo[key] is not None:
+                    val._finfo[key] = self._finfo[key]
+            self._scifile = weakref.ref(val)
+            self._finfo = val._finfo
 
     @property
     def dataset_name(self):
@@ -1597,8 +1637,15 @@ class Variable(MaskedArray):
                 # raise SciFileError('Unrecognized variable attribute in _varinfo: %s' % key)
         obj._dsinfo = _empty_dsinfo.copy()
         for key, val in _varinfo.items():
-            if obj._dsinfo.has_key(key):
+            ##########################################################################
+            #### MLS 20180416 Attempts at making scifile less restrictive
+            ####        so we can have arbitrary data types in different datasets
+            ''' Only overwrite existing fields if they have value of None '''
+            if obj._dsinfo.has_key(key) and obj._dsinfo[key] is None:
                 obj._dsinfo[key] = val
+            # If field is not set in varinfo, but it is set in dsinfo, use dsinfo value
+            elif obj._dsinfo.has_key(key) and obj._varinfo[key] is None:
+                obj._varinfo[key] = val
 
         # The mask is shared between variables by default.  Setting this forces a variable to
         #   ALWAYS return np.ma.nomask regardless.
@@ -1664,7 +1711,12 @@ class Variable(MaskedArray):
         self.__dict__.update(_optinfo)
 
     def write(self, group):
-        badval = -999.9
+        ##########################################################################
+        #### MLS 20180416 Why not use badval from the actual variable info ?
+        if self_varinfo['badval']:
+            badval = self._varinfo['badval']
+        else:
+            badval = -999.9
         varobj = group.create_dataset(self.name, data=self.filled(fill_value=badval))
         varobj.attrs['badval'] = badval
         for attr in self._varinfo.keys():
@@ -2013,28 +2065,56 @@ class Variable(MaskedArray):
             self._mask = self._mask.copy()
             self._dataset = None
         else:
-            if val.similar(self):
-                # Merge _dsinfo together for the dataset and the variable
-                for key in val._dsinfo.keys():
-                    if val._dsinfo[key] is None and self._dsinfo[key] is not None:
-                        val._dsinfo[key] = self._dsinfo[key]
-                        # Store what we need in _finfo as well
-                        if key in val._finfo:
-                            val._finfo[key] = getattr(self, key)
-                self._dataset = weakref.ref(val)
-                self._dsinfo = val._dsinfo
-                # Share the mask
-                val._set_mask_inplace(self._mask | val.mask)
-                self._mask = val._mask
-            else:
-                for attr in self._dsinfo.keys():
-                    print '  Variable.dataset self: '+' '+str(attr)+' '+str(getattr(self,attr))
-                    print '  Variable.dataset ds:   '+' '+str(attr)+' '+str(getattr(val,attr))+' '+val.name
-                    for var in val.variables.keys():
-                        print '  Variable.dataset var:  '+' '+str(attr)+' '+str(getattr(val.variables[var],attr))+' '+var
-                    for gvar in val.geolocation_variables.keys():
-                        print '  Variable.dataset gvar:  '+' '+str(attr)+' '+str(getattr(val.geolocation_variables[gvar],attr))+' '+gvar
-                raise SciFileError('Cannot set `dataset` attribute on Variable.  Not similar.')
+            ##########################################################################
+            #### MLS 20180416 Attempts at making scifile less restrictive
+            ####        so we can have arbitrary data types in different datasets
+            #if val.similar(self):
+            #    # Merge _dsinfo together for the dataset and the variable
+            #    for key in val._dsinfo.keys():
+            #        if val._dsinfo[key] is None and self._dsinfo[key] is not None:
+            #            val._dsinfo[key] = self._dsinfo[key]
+            #            # Store what we need in _finfo as well
+            #            if key in val._finfo:
+            #                val._finfo[key] = getattr(self, key)
+            #    self._dataset = weakref.ref(val)
+            #    self._dsinfo = val._dsinfo
+            ##########################################################################
+            #### MLS 20180416 Attempts at making scifile less restrictive
+            ####        so we can have arbitrary data types in different datasets
+            ''' NOTE THIS USED TO BE SHARING THE MASK!!!!!!!!!!!!!!!
+                THIS COULD BE THE NOTORIOUS CUMULATIVE MASK PROBLEM!!!!!
+                It has now been removed, so either we broke something, 
+                or we never have to worry about doing the funky stuff with
+                setting things to "nomask" in the readers anymore... '''
+            #    # Share the mask
+            #    val._set_mask_inplace(self._mask | val.mask)
+            #    self._mask = val._mask
+            #else:
+            #    for attr in self._dsinfo.keys():
+            #        print '  Variable.dataset self: '+' '+str(attr)+' '+str(getattr(self,attr))
+            #        print '  Variable.dataset ds:   '+' '+str(attr)+' '+str(getattr(val,attr))+' '+val.name
+            #        for var in val.variables.keys():
+            #            print '  Variable.dataset var:  '+' '+str(attr)+' '+str(getattr(val.variables[var],attr))+' '+var
+            #        for gvar in val.geolocation_variables.keys():
+            #            print '  Variable.dataset gvar:  '+' '+str(attr)+' '+str(getattr(val.geolocation_variables[gvar],attr))+' '+gvar
+            #    raise SciFileError('Cannot set `dataset` attribute on Variable.  Not similar.')
+            ##########################################################################
+            #### MLS 20180416 Attempts at making scifile less restrictive
+            ####        so we can have arbitrary data types in different datasets
+            ''' Here we want to merge what dataset information we can from
+                the different levels, but otherwise we want to allow the 
+                datasets to be unique '''
+            for key in val._dsinfo.keys():
+                if val._dsinfo[key] is None and self._dsinfo[key] is not None:
+                    val._dsinfo[key] = self._dsinfo[key]
+                    # Store what we need in _finfo as well,
+                    # but only if field is undefined currently at the top level
+                    if key in val._finfo.keys() and val._finfo[key] is None:
+                        val._finfo[key] = getattr(self,key)
+                    if key in val._finfo.keys() and val._finfo[key] is not None and val._dsinfo[key] is None:
+                        val._dsinfo[key] = val._finfo[key]
+            self._dataset = weakref.ref(val)
+            self._dsinfo = val._dsinfo
 
     @property
     def dataset_name(self):
