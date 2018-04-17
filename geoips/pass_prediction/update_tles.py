@@ -17,6 +17,7 @@ import os
 import shutil
 import re
 from datetime import datetime
+import logging
 
 
 # Installed Libraries
@@ -34,6 +35,9 @@ import ephem
 #from satellite_info import tle_names,tscan_names
 from geoips.utils.satellite_info import all_available_satellites,get_celestrak_tle_name,get_tscan_tle_name
 from geoips.utils.plugin_paths import paths as gpaths
+
+
+log = logging.getLogger(__name__)
 
 
 pull_celestrak = True 
@@ -99,7 +103,8 @@ def write_to_tle_file(newtlefile,tlelines):
         SS = int(PS)
         SS = '{:02.0f}'.format(SS)
         newdt = datetime.strptime(YYJJJ+HH+MN+SS,'%y%j%H%M%S')
-    except ValueError:
+    except ValueError, resp:
+        print '%s Bad TLE! %s'%(resp,tlelines)
         return None
 
     #print "Checking overpass time: "+str(newdt)+' for '+tlelines[0].strip()
@@ -226,6 +231,7 @@ for tlefile in ['weather.txt','stations.txt','resource.txt','noaa.txt','science.
                 continue
         # If it does not appear to be a TLE file at all, skip it...
         except IndexError,resp:
+            print '%s Bad TLE! %s'%(resp, tlelines)
             continue
         for gisat in all_available_satellites():
             #print sat+' '+gisat
@@ -237,6 +243,8 @@ for tlefile in ['weather.txt','stations.txt','resource.txt','noaa.txt','science.
                     badlines += 1
                 else:
                     goodlines += 1
+                # Only do this once per satellite.
+                break
     print('      '+str(badlines)+' bad lines in file')
     print('      '+str(goodlines)+' good lines in file\n')
 
