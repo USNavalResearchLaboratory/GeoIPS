@@ -366,6 +366,12 @@ class SciFile(object):
                 else:
                     df.attrs[attr] = val
 
+        log.info('Writing metadata dictionary out to hdf5 file')
+        # Save the full metadata dictionary into the METADATA dataset in h5 file
+        from .utils import save_dict_to_hdf5
+        save_dict_to_hdf5(self.metadata, df, 'METADATA')
+        log.info('Done writing metadata dictionary out to hdf5 file')
+
         #Loop over datasets and call their write method
         for ds in self.datasets.values():
             ds.write(df, variables, geolocation_variables)

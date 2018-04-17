@@ -930,9 +930,22 @@ class Dataset(object):
         return self.node.pyval
 
 class Colorbar(object):
-    def __init__(self, dataset_xml, scifile=None):
+    def __init__(self, dataset_xml=None, scifile=None):
         self.node = dataset_xml
         self.scifile = scifile
+
+    @staticmethod
+    def fromvals(cmap, ticks=None, ticklabels=None, title=None):
+        cbar = Colorbar()
+        cbar._cmap = cmap
+        cbar._ticks = ticks
+        if not ticks:
+            cbar._ticks = []
+        cbar._ticklabels = ticklabels
+        if not ticklabels:
+            cbar._ticklabels = []
+        cbar._title = title
+        return cbar
 
     def __str__(self):
         return etree.tostring(self.node, pretty_print=True)

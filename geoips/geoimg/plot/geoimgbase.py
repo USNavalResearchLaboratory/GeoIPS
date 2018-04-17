@@ -100,6 +100,10 @@ class GeoImgBase(object):
             else:
                 self._cmap = None
 
+    def set_colorbars(self, cmap, ticks=None, ticklabels=None, title=None):
+        from geoips.productfile.xml import Colorbar
+        return Colorbar.fromvals(cmap, ticks, ticklabels, title)
+
     def register_data(self, interp_method='nearest'):
         img_dts = {}
         pname = self.product.name
