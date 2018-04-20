@@ -1625,7 +1625,7 @@ class Variable(MaskedArray):
         # in when the RSCAT reader was failing when passing _nomask=True
         # when it did not have a mask to copy.  There may be more 
         # reliances on having a mask later in the processing. 
-        if not _nomask:
+        if not _nomask and hasattr(data,'mask'):
             obj._mask = data.mask.copy()
         obj._varinfo = _empty_varinfo.copy()
         for key, val in _varinfo.items():
