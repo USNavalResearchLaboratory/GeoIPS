@@ -14,9 +14,11 @@
 # Please see geoalgs/README.txt for information on module/product naming (and everything else
 # relating to geoalgs)
 
-.PHONY: extalg extalg_config
-extalg: config init $(LIB)/extalg.py $(LIB)/extalg_config.py
+.PHONY: extalg extalg_plot extalg_coverage extalg_config
+extalg: config init $(LIB)/extalg.py $(LIB)/extalg_plot.py $(LIB)/extalg_coverage.py $(LIB)/extalg_config.py
 extalg_config: $(LIB)/extalg_config.py
+extalg_plot: $(LIB)/extalg_plot.py
+extalg_coverage: $(LIB)/extalg_coverage.py
 
 $(LIB)/extalg.py: $(SRC)/extalg/extalg.py config init $(SRC)/extalg/__init__.py
 	@echo ""
@@ -27,6 +29,24 @@ $(LIB)/extalg.py: $(SRC)/extalg/extalg.py config init $(SRC)/extalg/__init__.py
 	@cat $(SRC)/extalg/extalg_config_*.py >> $(SRC)/extalg/extalg_config.py
 	-ln -s $< $@
 	$(ADDIMPORT) "from .$(notdir $(LIB)).extalg import extalg"
+	@echo "----------------------------------"
+	@echo ""
+
+$(LIB)/extalg_plot.py: $(SRC)/extalg/extalg_plot.py
+	@echo ""
+	@echo "----------------------------------"
+	@echo Making library: $@
+	-ln -s $< $@
+	$(ADDIMPORT) "from .$(notdir $(LIB)).extalg_plot import extalg_plot"
+	@echo "----------------------------------"
+	@echo ""
+
+$(LIB)/extalg_coverage.py: $(SRC)/extalg/extalg_coverage.py
+	@echo ""
+	@echo "----------------------------------"
+	@echo Making library: $@
+	-ln -s $< $@
+	$(ADDIMPORT) "from .$(notdir $(LIB)).extalg_coverage import extalg_coverage"
 	@echo "----------------------------------"
 	@echo ""
 
@@ -50,6 +70,10 @@ clean_extalg:
 	@echo ""
 	-rm $(LIB)/extalg.py
 	-rm $(LIB)/extalg_config.py
+	-rm $(LIB)/extalg_plot.py
+	-rm $(LIB)/extalg_coverage.py
 	$(DELIMPORT) "from .$(notdir $(LIB)).extalg import extalg"
 	$(DELIMPORT) "from .$(notdir $(LIB)).extalg_config import extalg_config"
+	$(DELIMPORT) "from .$(notdir $(LIB)).extalg_coverage import extalg_coverage"
+	$(DELIMPORT) "from .$(notdir $(LIB)).extalg_plot import extalg_plot "
 	@echo "----------------------------------"
