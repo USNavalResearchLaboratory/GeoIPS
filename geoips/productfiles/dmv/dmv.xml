@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<product_file>
+<product method='externalalg' name='dmv' testonly='no'>
+    <externalalg_args>
+        <source name='dmv'>
+            <var>speed</var>
+            <var>direction</var>
+            <var>lats</var>
+            <var>lons</var>
+        </source>
+        <day_night>both</day_night>
+    </externalalg_args>
+</product>
+</product_file>
+
