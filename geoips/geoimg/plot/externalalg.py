@@ -115,15 +115,9 @@ class ExternalAlg(GeoImgBase):
             NOTE all plotting routines flipud the data before setting the 
             image array. Not exactly sure why (maybe pyresample flipuds
             when registering?  If you don't register data for some reason
-            and plots/data are upside down - check this.  Perhaps flipud
-            will have to go in the individual algorithms 
+            and plots/data are upside down - check this.
+            Put flipud in the individual algorithms if needed.
             '''
-            if isinstance(outdata, dict):
-                for imgkey in outdata.keys():
-                    outdata[imgkey] = np.flipud(outdata[imgkey])
-            else:
-                outdata = np.flipud(outdata)
-
             self._image = outdata
 
         return self._image
