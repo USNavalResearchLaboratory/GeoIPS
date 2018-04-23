@@ -654,6 +654,8 @@ class DataSet(object):
         return self._mask
 
     def _set_mask_inplace(self, mask):
+        if not hasattr(self, '_mask'):
+            self._mask = np.ma.nomask
         # If we don't have a mask yet, we will need to distribute the mask to the variables
         if self._mask.ndim == 0:
             self._mask = mask

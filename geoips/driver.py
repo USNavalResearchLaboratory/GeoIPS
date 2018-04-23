@@ -303,8 +303,8 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                     if 'datasets' in dfnew.metadata and dsname in dfnew.metadata['datasets'].keys():
                         for key in dfnew._finfo.keys():
                             if key in dfnew.metadata['datasets'][dsname].keys():
-                                dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname][key]
-                                dfnew.datasets[dsname].platform_name = dfnew.metadata['top'][key]
+                                dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname]['platform_name']
+                                dfnew.datasets[dsname].platform_name = dfnew.metadata['top']['platform_name']
                     olddsname = dsname
                 process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
                     sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
@@ -741,8 +741,8 @@ if __name__ == '__main__':
                 if 'datasets' in dfnew.metadata and dsname in dfnew.metadata['datasets'].keys():
                     for key in dfnew._finfo.keys():
                         if key in dfnew.metadata['datasets'][dsname].keys():
-                            dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname][key]
-                            dfnew.datasets[dsname].platform_name = dfnew.metadata['top'][key]
+                            dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname]['platform_name']
+                            dfnew.datasets[dsname].platform_name = dfnew.metadata['top']['platform_name']
                 olddsname = dsname
             driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
                outdir=args['product_outpath'], call_next=args['next'],
