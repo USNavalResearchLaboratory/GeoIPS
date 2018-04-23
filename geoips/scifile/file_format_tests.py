@@ -120,6 +120,19 @@ def ncdf4_format_test(fname):
     except:
         return False
 
+def ascii_format_test(fname):
+    try:
+        with open(fname) as f:
+            line = f.readline()
+        try:
+            line.decode('ascii')
+        except UnicodeDecodeError:
+            return False
+        else:
+            return True 
+    except:
+        return False
+
 
 def bz2_format_test(fname):
     try:
