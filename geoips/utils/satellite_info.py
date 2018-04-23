@@ -521,6 +521,17 @@ class MODELSatInfo(SatInfo):
         #self.tscan_tle_name = 'metop-1'
         #self.geostationary = False
 
+class WindVectorsSatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        self.sensornames = ['dmv']
+        #self.orbital_period = 107.1 * 60.0
+        # tle names for celestrak and tscan, default to satname
+        # if not, defined in _set_satinfo
+        # None if not available (no ISS from tscan, no TLEs for GEO)
+        #self.celestrak_tle_name = 'METOP-B'
+        #self.tscan_tle_name = 'metop-1'
+        #self.geostationary = False
+
 
 class MT1SatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -1452,6 +1463,30 @@ class NAVGEMForecastSensorInfo(SensorInfo):
         #self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/amsub/global']
         #self.pathnameformat = ''
 
+class DMVSensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        self.interpolation_radius_of_influence = 56000
+        #### This must match appropriate DataFileName class name in utils/path/datafilename.py
+        #### AMV201803121100GOESE.txt  AMV201803121300GOESEO.txt  QI2018031205TPARC-OCEAN.txt  QI2018031205WG10H.txt  QI2018031205WVM5H.txt
+        ###OrigFName = self.OrigFName.copy()
+        ###OrigFName['cls'] = 'NOAADMVTxtFileName'
+        ###OrigFName['nameformat'] = '<stuff1>'
+        ###OrigFName['fieldsep'] = '_'
+        ###OrigFName['fillvalue'] = 'x'
+        ###OrigFName['noextension'] = False
+        ###self.OrigFNames = [OrigFName]
+        ###self.FName['runfulldir'] = True
+        ###if os.getenv('SATDATROOT'):
+        ###    #print 'setting base_dir in setSensorInfoAtts'
+        ###    self.FName['base_dirs'] = [os.getenv('SATDATROOT')]
+        #### resolution is the tau, extra is the level
+        ###self.pathnameformat = '<satname>/<sensorname>/<date{%Y%m%d}>'
+        ####self.num_lines = 2030
+        ####self.num_samples = 1354
+        ####self.mins_per_file = 60
+        ####self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/amsub/global']
+        ####self.pathnameformat = ''
+
 
 class MODELSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
@@ -1977,6 +2012,7 @@ SensorInfo_classes = {
         'navgem': MODELSensorInfo,
         'coamps': MODELSensorInfo,
         'icap': ICAPSensorInfo,
+        'dmv': DMVSensorInfo,
         'naapsaot': NAAPSAOTSensorInfo,
         'seviri':  SEVIRISensorInfo,
         'tmi':  TMISensorInfo,
@@ -2043,6 +2079,7 @@ SatInfo_classes = {
         'm2a': M2ASatInfo,
         'multi': MULTISatInfo,
         'navgem': NAVGEMSatInfo,
+        'windvectors': WindVectorsSatInfo,
         'terra': TERRASatInfo,
         'trmm': TRMMSatInfo,
         }
