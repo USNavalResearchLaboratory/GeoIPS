@@ -100,9 +100,24 @@ class GeoImgBase(object):
             else:
                 self._cmap = None
 
-    def set_colorbars(self, cmap, ticks=None, ticklabels=None, title=None):
+    def set_colorbars(self, cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None):
+        ''' Method to allow setting the colorbars explicitly.  Previously boundaries was always
+            None, and norm was always  norm = Normalize(vmin=img.min(), vmax=img.max()).
+            In order to allow additional colorbar configurations, we are allowing the user
+            to call "set_colorbars" with the appropriate arguments, and it will overwrite the
+            self._colorbars property with the desired colorbar configuration.  This will 
+            require updating this method any time we discover an additional color bar 
+            setting that we would like to be user accessible. 
+        '''
+               
         from geoips.productfile.xml import Colorbar
-        return Colorbar.fromvals(cmap, ticks, ticklabels, title)
+        if isinstance(cmap, list):
+            self._colorbars = []
+            for [ccmap, cticks, cticklabels, ctitles, cbounds, cnorm] in zip(cmap, ticks, ticklabels, titles, bounds, norm):
+                self._colorbars += Colorbar.fromvals(ccmap, cticks, cticklabels, ctitle, cbounds, cnorm)
+        else:
+            self._colorbars = [colorbar.fromvals(cmap, ticks, ticklabels, title, bounds, norm)]
+        return self._colorbars
 
     def register_data(self, interp_method='nearest'):
         img_dts = {}
@@ -1033,13 +1048,20 @@ class GeoImgBase(object):
                     cmap = get_cmap(cbarinfo.cmap)
                     cbar_norm = None
                     ticks = None
+                    bounds = None
                     if len(cbarinfo.ticks) != 0:
                         ticks = cbarinfo.ticks
                         vmin = min(ticks)
                         vmax = max(ticks)
                         cbar_norm = Normalize(vmin=vmin, vmax=vmax)
+                    if cbarinfo.norm:
+                        cbar_norm = cbarinfo.norm
+                    if cbarinfo.bounds:
+                        bounds = cbarinfo.bounds
+                        ticks = bounds
                     cbar = ColorbarBase(cbar_axes, cmap=cmap, extend='both',
-                                 orientation='horizontal', ticks=ticks, norm=cbar_norm)
+                                 orientation='horizontal', ticks=ticks, norm=cbar_norm,
+                                 boundaries = bounds)
                     if len(cbarinfo.ticklabels) != 0:
                         cbar.set_ticklabels(cbarinfo.ticklabels)
                     # MLS 20151202 This sets the font size for the color bar 
@@ -1082,7 +1104,12 @@ class GeoImgBase(object):
                     color = textcolor,
                     transform = ax.transAxes)
 
-            fig.canvas.mpl_connect('draw_event', on_draw)
+            # MLS 20180424 If I comment this out, newlines work in the titles of 
+            #               plots. I have no idea why this command makes the 
+            #               newlines go away... From my limited testing, it didn't
+            #               seem to have any effect to remove this call, but 
+            #               probably something to watch...
+            #fig.canvas.mpl_connect('draw_event', on_draw)
         else:
             log.info('Will create temporary figure and axes.')
             #Get figure size
