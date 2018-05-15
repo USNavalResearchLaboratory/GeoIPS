@@ -1715,7 +1715,7 @@ class Variable(MaskedArray):
     def write(self, group):
         ##########################################################################
         #### MLS 20180416 Why not use badval from the actual variable info ?
-        if self_varinfo['badval']:
+        if self._varinfo['badval']:
             badval = self._varinfo['badval']
         else:
             badval = -999.9
