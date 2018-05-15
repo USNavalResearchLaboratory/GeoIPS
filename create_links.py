@@ -17,6 +17,8 @@ import os
 import commands
 import sys
 
+print 'REMEMBER ONLY LINKS FILES THAT ARE IN GIT!!!!'
+
 if not os.getenv('GEOIPS'):
     print 'Must define $GEOIPS in environment.  Failing.'
     sys.exit()
@@ -232,3 +234,5 @@ for destbase in destinations:
                     print(line.replace(pluginbase+'/','*')+'\n')
             if writegitignore:
                 print 'cat '+gitignore_fname
+
+print 'REMEMBER ONLY LINKS FILES THAT ARE IN GIT!!!!'
