@@ -174,6 +174,13 @@ def recursively_load_dict_contents_from_group(h5file, path):
                     ans[key] = False
                 if ans[key] == 'None':
                     ans[key] = None
+
+                '''NOTE if key == 'sector_definition', we need to do
+                    ans[key] = sectorfile.open_sector(ans[key]) 
+                    to fully restore the saved metadata dictionary
+                    That will require more testing that I'm going to do right now.
+                '''
+
                 # Turn string datetime back into datetime obj
                 try:
                     ans[key] = datetime.strptime(ans[key], '%Y%m%d%H%M%S.%f')
@@ -259,6 +266,10 @@ def recursively_save_dict_contents_to_group(df, path, dic):
 
         else:
             from geoips.sectorfile.xml import Sector
+            '''NOTE This needs to be added to recursively_load_dict_contents_from_group
+                in order to restore the 'sector_definition' metadata dictionary entry
+                on read.  That will require more testing that I'm going to do right now.
+            '''
             if isinstance(item, Sector):
                 df[val] = item.name
             else:
