@@ -55,6 +55,7 @@ from geoips.utils.log_setup import interactive_log_setup, root_log_setup
 from geoips.utils.path.filename import _FileNameBase
 from geoips.utils.memusg import print_mem_usage
 from geoips.pass_prediction.pass_prediction import pass_prediction
+from geoips.utils.plugin_paths import paths as gpaths
 
 
 SHAREDSCRATCH = os.getenv('SHAREDSCRATCH')
@@ -100,7 +101,8 @@ __doc__ = '''
 # @profile
 def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc, mp_max_cpus,
                 printmemusg, sects, mp_jobs, mp_waiting, geoips_only, sectors_run, mp_num_procs,
-                mp_max_num_jobs, mp_num_waits, mp_num_times_cleared, waittimes, didmem, separate_datasets):
+                mp_max_num_jobs, mp_num_waits, mp_num_times_cleared, waittimes, didmem, separate_datasets,
+                write_sectored_datafile):
     if printmemusg and (datetime.utcnow().second % 5) == 0 and not didmem:
         print_mem_usage('drmainloop ', printmemusg)
         didmem = True
@@ -268,6 +270,26 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         #       the SECTORED data file for development purposes.
         # shell()
 
+        '''If user requested write_sectored_datafile command line, then see if this is not
+            already a PRESECTORED data file, and write if necessary
+        '''
+        if write_sectored_datafile:
+            write_file = False
+            '''Currently we will not rewrite if all datafiles are already
+                in PRESECTORED_DATA_PATH (meaning it was already written out)
+            '''
+            for dfname in sectored.datafiles.keys():
+                if gpaths['PRESECTORED_DATA_PATH'] not in dfname:
+                    write_file = True
+            if write_file:
+                from geoips.scifile.utils import write_datafile
+                '''Currently only h5 is supported.  Will have to write new def write for additional
+                    filetypes
+                   write_datafile determines appropriate paths and filename based
+                    on all the datasets contained in the scifile object.
+                '''
+                write_datafile(gpaths['PRESECTORED_DATA_PATH'],sectored,curr_sector, filetype='h5')
+
         log.info('{0} Checking products'.format(plog))
 
         # This is for timing the running of different sections of driver.py
@@ -382,7 +404,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 
 def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=None, call_next=True,
            forcereprocess=False, queue=None, no_multiproc=False, mp_max_cpus=1, 
-           printmemusg=False, separate_datasets=False):
+           printmemusg=False, separate_datasets=False, write_sectored_datafile=False):
     '''
     Produce imagery from a single input data file for any number of sectors and products.
 
@@ -435,6 +457,19 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     |                |        | subsequent processing stages.                                     |
     |                |        |                                                                   |
     |                |        | **Default:** None                                                 |
+    +----------------+--------+-------------------------------------------------------------------+
+    | separate_datasets | *bool* | **True:** run on each dataset individually                     |
+    |                   |        |                                                                |
+    |                   |        | ** False:** run all datasets concurrently                      |
+    |                   |        |                                                                |
+    |                   |        | **Default:** False                                             |
+    +----------------+--------+-------------------------------------------------------------------+
+    | write_sectored_datafile| *bool* | **True:** write sectored datafile out to                  |
+    |                        |        |                 $PRESECTORED_DATA_PATH                    |
+    |                        |        |                                                           |
+    |                        |        | ** False:** do not write out datafile                     |
+    |                        |        |                                                           |
+    |                        |        | **Default:** False                                        |
     +----------------+--------+-------------------------------------------------------------------+
     '''
     # If we are not calling this from driver.py, set these times
@@ -500,7 +535,7 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
         rs_ret = run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc,
                              mp_max_cpus, printmemusg, sects, mp_jobs, mp_waiting, geoips_only,
                              sectors_run, mp_num_procs, mp_max_num_jobs, mp_num_waits, mp_num_times_cleared,
-                             waittimes, didmem, separate_datasets)
+                             waittimes, didmem, separate_datasets, write_sectored_datafile)
         mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem = rs_ret
     if not sects and not mp_jobs:
         log.info('MPLOG All jobs completed')
@@ -567,7 +602,7 @@ def predict_sectors(platform_name, source_name, start_dt, end_dt):
 def _get_argument_parser():
     '''Create an argument parser with all of the correct arguments.'''
     parser = ArgParse()
-    parser.add_arguments(['paths', 'separate_datasets', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
+    parser.add_arguments(['paths', 'separate_datasets', 'write_sectored_datafile', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
                           'forcereprocess', 'all', 'allstatic', 'alldynamic', 'tc', 'volcano', 'sectorfiles',
                           'templatefiles', 'no_multiproc', 'mp_max_cpus', 'queue', 'printmemusg'])
     return parser
@@ -748,11 +783,13 @@ if __name__ == '__main__':
                outdir=args['product_outpath'], call_next=args['next'],
                forcereprocess=args['forcereprocess'], queue=args['queue'],
                no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
-               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'])
+               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
+               write_sectored_datafile=args['write_sectored_datafile'])
 
         driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
                outdir=args['product_outpath'], call_next=args['next'],
                forcereprocess=args['forcereprocess'], queue=args['queue'],
                no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
-               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'])
+               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
+               write_sectored_datafile=args['write_sectored_datafile'])
 

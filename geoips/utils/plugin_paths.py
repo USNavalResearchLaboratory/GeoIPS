@@ -45,6 +45,12 @@ subdirs['GEOALGSPATHS']='/geoips/geoalgs/src'
 # At a minimum, GEOIPS_OUTDIRS must be defined.
 paths['GEOIPS_OUTDIRS'] = os.getenv('GEOIPS_OUTDIRS')
 
+# If you want to write out preprocessed data files
+if os.getenv('PRESECTORED_DATA_PATH'):
+    paths['PRESECTORED_DATA_PATH'] = os.getenv('PRESECTORED_DATA_PATH')
+else:
+    paths['PRESECTORED_DATA_PATH'] = paths['GEOIPS_OUTDIRS']+'/presectored'
+
 # If GEOIPS is not defined, we must have a system install.
 # Set GEOIPS to current path (get rid of utils/plugin_paths.py)
 paths['GEOIPS'] = os.getenv('GEOIPS')
