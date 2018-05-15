@@ -325,7 +325,7 @@ class SciFile(object):
             shutil.copyfile(sdfn.name,os.getenv('FTPROOT')+'/satdata/for_atcf/'+os.path.basename(sdfn.name))
     
 
-    def write(self, fname=None, variables=None, geolocation_variables=None, mode='w-'):
+    def write(self, fname=None, variables=None, geolocation_variables=None, mode='w-', filetype='h5'):
         '''Write the contained data out to a standard SciFile hdf5 file.
         Need to describe this data format in detail...
         If variables or geolocation_variables are None, then include ALL variables of that type.
@@ -335,6 +335,8 @@ class SciFile(object):
             (otherwise, the one that is not included will include all variables of that type, in addition
             to the ones you specified)
         '''
+        if filetype != 'h5':
+            raise TypeError('Currently only h5 filetypes supported for write')
         #Using StringIO to obtain an in-memory file-like object
         if not fname:
             sdfn = DataFileName().create_standard(scifile_obj=self)
