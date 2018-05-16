@@ -301,11 +301,21 @@ def invert_data_range(data, min_val, max_val):
 def apply_minimum_value(data, min_val, outbounds):
     log.info('Applying minimum value of %r to data with min %f' % (min_val, data.min()))
 
-    #Determine if mask is currently hardened
-    hardmask = data.hardmask
-    #Harden the mask to avoid unmasking bad values
-    if hardmask is False:
-        data.harden_mask()
+    ##Determine if mask is currently hardened
+    #hardmask = data.hardmask
+    ##Harden the mask to avoid unmasking bad values
+    #if hardmask is False:
+    #    data.harden_mask()
+
+    # Allow for numpy arrays that are not masked arrays
+    hardmask = None
+    if hasattr(data,'hardmask'):
+        #Determine if mask is currently hardened
+        hardmask = data.hardmask
+        #Harden the mask to avoid unmasking bad values
+        if hardmask is False:
+            data.harden_mask()
+
 
     #If outbounds is set to "mask" then mask the out of range data
     if outbounds == 'mask':
@@ -325,11 +335,20 @@ def apply_minimum_value(data, min_val, outbounds):
 def apply_maximum_value(data, max_val, outbounds):
     log.info('Applying maximum value of %r to data with max %f' % (max_val, data.max()))
 
-    #Determine if mask is currently hardened
-    hardmask = data.hardmask
-    #Harden the mask to avoid unmasking bad values
-    if hardmask is False:
-        data.harden_mask()
+    ##Determine if mask is currently hardened
+    #hardmask = data.hardmask
+    ##Harden the mask to avoid unmasking bad values
+    #if hardmask is False:
+    #    data.harden_mask()
+
+    # Allow for numpy arrays that are not masked arrays
+    hardmask = None
+    if hasattr(data,'hardmask'):
+        #Determine if mask is currently hardened
+        hardmask = data.hardmask
+        #Harden the mask to avoid unmasking bad values
+        if hardmask is False:
+            data.harden_mask()
 
     #If outboudns is set to "mask" then mask the out of range data
     if outbounds == 'mask':
