@@ -100,7 +100,7 @@ class GeoImgBase(object):
             else:
                 self._cmap = None
 
-    def set_colorbars(self, cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None):
+    def set_colorbars(self, cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None, append=False):
         ''' Method to allow setting the colorbars explicitly.  Previously boundaries was always
             None, and norm was always  norm = Normalize(vmin=img.min(), vmax=img.max()).
             In order to allow additional colorbar configurations, we are allowing the user
@@ -108,15 +108,61 @@ class GeoImgBase(object):
             self._colorbars property with the desired colorbar configuration.  This will 
             require updating this method any time we discover an additional color bar 
             setting that we would like to be user accessible. 
+
+            Pass either single values, or lists of values
+
+            +--------------+-----------+---------------------------------------------------+
+            | Parameters:  | Type:     | Description:                                      |
+            +==============+===========+===================================================+
+            | cmap:        | *list*    | list of string cmap names                         |
+            |              | *str*     | Single string cmap name
+            +--------------+-----------+---------------------------------------------------+
+
+            +----------------+--------+-------------------------------------------------------------------+
+            | Keywords:  | Type:            | Description:                                                |
+            +================+========+===================================================================+
+            | ticks:     | *list* of *list* | List of lists of floats with tick locations                 |
+            |            | *list* of *float*| List of floats with tick locations                          |
+            +----------------+--------+-------------------------------------------------------------------+
+            | ticklabels:| *list* of *list* | List of lists of strings with tick labels - same length as  |
+            |            |                  |       ticks lists                                           |
+            |            | *list* of *str*  | List of strings with tick labels - same length as ticks     |
+            +----------------+--------+-------------------------------------------------------------------+
+            | title:     | *list* of *str*  | List of strings of colorbar titles                          |
+            |            | *str*            | String of title for passed colorbar                         |
+            +----------------+--------+-------------------------------------------------------------------+
+            | bounds:    | *list* of *np arr*  | List of numpy arrays of floats at discrete bounds of data|
+            |            |                     |        these are passed to matplotlib Colorbar instance  |
+            |            | *np arr*            | Single numpy array to pass to Colorbar. You must apply   |
+            |            |                     |        these same bounds when actually normalizing /     |
+            |            |                     |        plotting data                                     |
+            +----------------+--------+-------------------------------------------------------------------+
+            | norm:      | *list* of *Normalize*  | List of matplotlib.colors Normalize instances, or     |
+            |            |                        |       colors instances that can be passed to          |
+            |            |                        |       colorbarbase norm argument                      |
+            |            | *Normalize*            | single matplotlib.colors Normalize instance           |
+            +----------------+--------+-------------------------------------------------------------------+
+            | append:    | *bool*           | True: append specified colorbar(s) to self._colorbars       |
+            |            |                  | False: Replace self._colorbars with passed values           |
+            |            |                  | Default: False                                              |
+            +----------------+--------+-------------------------------------------------------------------+
+
         '''
                
         from geoips.productfile.xml import Colorbar
-        if isinstance(cmap, list):
-            self._colorbars = []
-            for [ccmap, cticks, cticklabels, ctitles, cbounds, cnorm] in zip(cmap, ticks, ticklabels, titles, bounds, norm):
-                self._colorbars += Colorbar.fromvals(ccmap, cticks, cticklabels, ctitle, cbounds, cnorm)
+        if not cmap:
+            if not append:
+                self._colorbars = []
+        elif isinstance(cmap, list):
+            if not append:
+                self._colorbars = []
+            for (ccmap, cticks, cticklabels, ctitles, cbounds, cnorm) in zip(cmap, ticks, ticklabels, titles, bounds, norm):
+                self._colorbars += [Colorbar.fromvals(ccmap, cticks, cticklabels, ctitle, cbounds, cnorm)]
         else:
-            self._colorbars = [colorbar.fromvals(cmap, ticks, ticklabels, title, bounds, norm)]
+            if append:
+                self._colorbars += [Colorbar.fromvals(cmap, ticks, ticklabels, title, bounds, norm)]
+            else:
+                self._colorbars = [Colorbar.fromvals(cmap, ticks, ticklabels, title, bounds, norm)]
         return self._colorbars
 
     def register_data(self, interp_method='nearest'):
@@ -1087,6 +1133,9 @@ class GeoImgBase(object):
                     titlestr = self.title
                 # New lines do not seem to work for this ?!
                 # Even trying "test \n test" explicitly just printed \n.
+                # Apparently fig.canvas.mpl_connect('draw_event', on_draw)
+                # below makes the new lines go away.. Works if we comment it
+                # out
                 ax.set_title(titlestr, position=[xpos, ypos])
 
             if self.datafile.security_classification:
