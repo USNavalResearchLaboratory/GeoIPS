@@ -167,6 +167,27 @@ class Title(object):
         self._first_line = line
         return self._first_line
 
+    @property
+    def second_line(self):
+        '''
+        Get the second line of the title constructed from the object's attributes.
+
+        Returns a string of the form:
+        >>> self.time_range self.copyright
+
+        This is not actually currently used, but a placeholder to try to decide 
+        how to handle user configurable titles. May not want everything in one
+        line, and may not want everything that is there by default, but also
+        may not want to explicitly set the title when creating the geoimg obj.
+
+        '''
+        line_parts = [
+                      self.time_range,
+                      self.copyright,
+                      ]
+        line = ' '.join(line_parts)
+        self._second_line = line
+        return self._second_line
 
     @property
     def lines(self):
@@ -174,6 +195,14 @@ class Title(object):
         Get the title as an array of lines.
 
         '''
+
+        '''
+        This is not actually currently used, but a placeholder to try to decide 
+        how to handle user configurable titles. May not want everything in one
+        line, and may not want everything that is there by default, but also
+        may not want to explicitly set the title when creating the geoimg obj.
+        '''
+        #self._lines = [self.first_line, self.second_line]
         self._lines = [self.first_line]
         if self.extra_lines is not None:
             self._lines.extend(self.extra_lines)
