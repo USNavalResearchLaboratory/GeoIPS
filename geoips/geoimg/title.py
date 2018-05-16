@@ -161,10 +161,12 @@ class Title(object):
                       self.sensor.upper(),
                       self.product,
                       self.time_range,
-                      self.copyright]
+                      self.copyright,
+                      ]
         line = ' '.join(line_parts)
         self._first_line = line
         return self._first_line
+
 
     @property
     def lines(self):
@@ -332,7 +334,7 @@ class Title(object):
                      date=currdate, start_time=currtime, end_time=currtime, tau=tau, extra_lines=extra_lines)
 
     @staticmethod
-    def from_objects(datafile, sector, product, extra_lines=None):
+    def from_objects(datafile, sector, product, extra_lines=None, display_platform=True, display_source=True):
         '''
         Creates a title line given an input utils.path.ProductFileName object.
 
@@ -354,6 +356,14 @@ class Title(object):
             sourcename = sect_sourcename
         if sect_platformname != "False" and sect_platformname != platformname:
             platformname = sect_platformname
+
+
+        # If specifically requested to not display platform and source, set 
+        # to empty strings here.
+        if not display_platform:
+            platformname = ''
+        if not display_source:
+            sourcename = ''
 
         return Title(satellite=platformname, sensor=sourcename,
                      product=product.product_name_display, date=currdate, start_time=currtime,
