@@ -45,11 +45,29 @@ subdirs['GEOALGSPATHS']='/geoips/geoalgs/src'
 # At a minimum, GEOIPS_OUTDIRS must be defined.
 paths['GEOIPS_OUTDIRS'] = os.getenv('GEOIPS_OUTDIRS')
 
-# If you want to write out preprocessed data files
+# Location for writing out presectored data files
 if os.getenv('PRESECTORED_DATA_PATH'):
     paths['PRESECTORED_DATA_PATH'] = os.getenv('PRESECTORED_DATA_PATH')
 else:
-    paths['PRESECTORED_DATA_PATH'] = paths['GEOIPS_OUTDIRS']+'/presectored'
+    paths['PRESECTORED_DATA_PATH'] = paths['GEOIPS_OUTDIRS']+'/preprocessed/sectored'
+
+# Location for writing out preread, but unsectored, data files
+if os.getenv('PREREAD_DATA_PATH'):
+    paths['PREREAD_DATA_PATH'] = os.getenv('PREREAD_DATA_PATH')
+else:
+    paths['PREREAD_DATA_PATH'] = paths['GEOIPS_OUTDIRS']+'/preprocessed/unsectored'
+
+# Location for writing out preregistered data files
+if os.getenv('PREREGISTERED_DATA_PATH'):
+    paths['PREREGISTERED_DATA_PATH'] = os.getenv('PREREGISTERED_DATA_PATH')
+else:
+    paths['PREREGISTERED_DATA_PATH'] = paths['GEOIPS_OUTDIRS']+'/preprocessed/registered'
+
+
+# GEOIPS_COPYRIGHT determines what organization name displays in imagery titles, etc.
+paths['GEOIPS_COPYRIGHT'] = 'NRL-Monterey'
+if os.getenv('GEOIPS_COPYRIGHT'):
+    paths['GEOIPS_COPYRIGHT'] = os.getenv('GEOIPS_COPYRIGHT')
 
 # If GEOIPS is not defined, we must have a system install.
 # Set GEOIPS to current path (get rid of utils/plugin_paths.py)

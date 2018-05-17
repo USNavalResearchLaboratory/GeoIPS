@@ -207,7 +207,10 @@ def create_imagery(data_file, sector, productlist, outdir,
             /IO)
         '''
                 
-        if 'NO_GRANULE_COMPOSITES' in data_file.metadata['top'].keys() \
+        if hasattr(curr_product,'finalonly') and curr_product.finalonly:
+            log.info('      finalonly set on product %s, not creating FULLCOMPOSITE image'%curr_product.name)
+            finalimg = img
+        elif 'NO_GRANULE_COMPOSITES' in data_file.metadata['top'].keys() \
             and data_file.metadata['top']['NO_GRANULE_COMPOSITES']:
             log.info('\n\n\n\n      '+pplog+' NO_GRANULE_COMPOSITES set in SciFile Metadata - no granule or swath compositing .... \n')
             finalimg = img

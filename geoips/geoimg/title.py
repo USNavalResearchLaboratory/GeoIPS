@@ -13,10 +13,11 @@
 # included license for more details.
 
 # Python Standard Libraries
-import os
 import logging
 from datetime import datetime
 from datetime import timedelta
+
+from geoips.utils.plugin_paths import paths as gpaths
 
 try:
     from IPython import embed as shell
@@ -25,10 +26,7 @@ except:
 
 log = logging.getLogger(__name__)
 
-COPYRIGHT = os.getenv('GEOIPS_COPYRIGHT')
-if COPYRIGHT is None:
-    COPYRIGHT = 'NRL-Monterey'
-
+COPYRIGHT = gpaths['GEOIPS_COPYRIGHT']
 
 class Title(object):
     def __init__(self, lines=None, satellite=None, sensor=None, product=None, date=None,
