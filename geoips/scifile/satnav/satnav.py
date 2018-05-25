@@ -4,6 +4,7 @@ import os
 import logging
 import numpy as np
 import numexpr as ne
+from hashlib import md5
 
 from pyresample.geometry import SwathDefinition
 from pyresample.kd_tree import get_neighbour_info
@@ -427,7 +428,7 @@ class SatNav(object):
                 fname, sector.name, sect_num_lines, sect_num_samples, sect_clat, sect_clon)
             md_dict.update(ad.proj_dict)
 
-        md_hash = hash(frozenset(md_dict))
+        md_hash = md5(md_dict.__str__()).hexdigest()
         fname = '{}_{}.DAT'.format(fname, md_hash)
 
         return os.path.join(cache, fname)
@@ -710,7 +711,6 @@ class SatNav(object):
             get_neighbour_info(fldk_ad, ad, radius_of_influence=roi, neighbours=1, nprocs=nproc)
         if not valid_input_index.any():
             raise SatNavError('{} sector does not intersect data.'.format(sector.name))
-        shell()
 
         # Determine which lines and samples intersect our domain.
         good_lines, good_samples = np.where(valid_input_index.reshape(shape))
