@@ -66,6 +66,7 @@ SKIP_MODULES += satsuncalc
 SKIP_MODULES += interp
 SKIP_MODULES += share
 SKIP_MODULES += ccbg
+SKIP_MODULES += geocolor_night
 # SKIP_MODULES += elevation
 MODULES = $(filter-out $(SKIP_MODULES),$(subst /,,$(wildcard */)))
 # MODULES = $(subst /,,$(wildcard */))
