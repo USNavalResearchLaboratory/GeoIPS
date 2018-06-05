@@ -442,6 +442,8 @@ class SatNav(object):
         '''
         deg2rad = np.pi / 180.0
         x, y = np.meshgrid(np.arange(0, self.num_samples, 1), np.arange(0, self.num_lines, 1))
+        x = np.fliplr(x)
+        y = np.fliplr(y)
         self._data['x'] = deg2rad * (x - self.sample_offset) / (2**-16 * self.sample_scale)
         self._data['y'] = deg2rad * (y - self.line_offset) / (2**-16 * self.line_scale)
 
