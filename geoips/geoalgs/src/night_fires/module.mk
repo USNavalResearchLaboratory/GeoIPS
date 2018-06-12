@@ -18,7 +18,7 @@ night_fires: init $(LIB)/night_fires.py
 
 NFIMP := "from .$(notdir $(LIB)).night_fires import night_fires"
 
-$(LIB)/night_fires.py: $(SRC)/night_fires/night_fires.py config
+$(LIB)/night_fires.py: $(SRC)/night_fires/night_fires.py config ancildat
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
