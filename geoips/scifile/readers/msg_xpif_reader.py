@@ -829,7 +829,7 @@ def get_indexes(metadata, lats, lons, sect):
         #   in meters
         # This uses the only piece of information available concerning resolution in the metadata
         log.info('    GETGEOINDS Calculating radius of influence {}'.format(sect.name))
-        roi = 10000 * metadata['res']
+        roi = 10000
         log.info('    GETGEOINDS Running get_neighbour_info {}'.format(sect.name))
         valid_input_index, valid_output_index, index_array, distance_array = \
             get_neighbour_info(fldk_ad, ad, radius_of_influence=roi, neighbours=1, nprocs=nprocs)
@@ -988,7 +988,7 @@ def get_geolocation_cache_filename(pref, metadata, sect=None):
     # files, which can be problematic for large numbers of sectors
 
     if sect:
-        ad = sect.aread_definition
+        ad = sect.area_definition
         log.info('    Using area_definition information for hash: {}'.format(str(ad.proj_dict.items())))
         sector_hash = hash(frozenset(ad.proj_dict.items()))
         sect_nlines = ad.shape[0]
@@ -1060,10 +1060,10 @@ def get_geolocation(dt, metadata, sect=None):
         sat_zen = np.full(shape, -999.1)
         sat_azm = np.full(shape, -999.1)
 
-        lons[index_mask] = fldk_lons[lons[index_mask], samples[index_mask]]
-        lats[index_mask] = fldk_lats[lats[index_mask], samples[index_mask]]
-        sat_zen[index_mask] = fldk_lats[sat_zen[index_mask], samples[index_mask]]
-        sat_azm[index_mask] = fldk_lats[sat_azm[index_mask], samples[index_mask]]
+        lons[index_mask] = fldk_lons[lines[index_mask], samples[index_mask]]
+        lats[index_mask] = fldk_lats[lines[index_mask], samples[index_mask]]
+        sat_zen[index_mask] = fldk_sat_zen[lines[index_mask], samples[index_mask]]
+        sat_azm[index_mask] = fldk_sat_azm[lines[index_mask], samples[index_mask]]
 
     else:
         lats = fldk_lats
