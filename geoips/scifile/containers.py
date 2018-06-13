@@ -1319,6 +1319,10 @@ class DataSet(object):
                     sensor_info = SatSensorInfo()
                     roi = sensor_info.interpolation_radius_of_influence
                     log.info('        Using DEFAULT SATELLITE_INFO radius of influence: '+str(roi))
+
+        # ROI up to here is in km, not m
+        roi = roi * 1000
+
         if hasattr(ad, 'pixel_size_x') and hasattr(ad, 'pixel_size_y'):
             if ad.pixel_size_x > roi or ad.pixel_size_y > roi:
                 log.info('        Using sector radius of influence: '+str(ad.pixel_size_x)+' or '+str(ad.pixel_size_y)+', not sensor/product: '+str(roi))
