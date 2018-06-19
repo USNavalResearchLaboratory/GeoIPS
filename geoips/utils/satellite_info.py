@@ -1175,6 +1175,7 @@ class GOESImagerSensorInfo(SensorInfo):
         # MOD021KM.P2014290.0415.hdf
         # This must match appropriate DataFileName class name in utils/path/datafilename.py
         OrigFNameDish = self.OrigFName.copy()
+        OrigFNameDish2 = self.OrigFName.copy()
         OrigFNameDishNC = self.OrigFName.copy()
         OrigFNameCLASS = self.OrigFName.copy()
 
@@ -1183,6 +1184,12 @@ class GOESImagerSensorInfo(SensorInfo):
         OrigFNameDish['fieldsep'] = '.'
         OrigFNameDish['fillvalue'] = 'x'
         OrigFNameDish['noextension'] = True
+
+        OrigFNameDish2['cls'] = 'GOESFileName'
+        OrigFNameDish2['nameformat'] = '<date{%Y%m%d}>.<time{%H%M%S}>.<satname>'
+        OrigFNameDish2['fieldsep'] = '.'
+        OrigFNameDish2['fillvalue'] = 'x'
+        OrigFNameDish2['noextension'] = True
 
         OrigFNameDishNC['cls'] = 'GOESFileName'
         OrigFNameDishNC['nameformat'] = '<date{%Y%m%d}>.<time{%H%M}>.<satname>.<dataset>'
@@ -1216,7 +1223,7 @@ class GOESImagerSensorInfo(SensorInfo):
         # This is used in scifile/containers.py register. Has to match biggest possible
         # pixel size (at edge of scan)
         self.interpolation_radius_of_influence = 15000
-        self.OrigFNames = [OrigFNameDish, OrigFNameDishNC, OrigFNameCLASS]
+        self.OrigFNames = [OrigFNameDish, OrigFNameDish2, OrigFNameDishNC, OrigFNameCLASS]
 
 
 class ABISensorInfo(SensorInfo):
