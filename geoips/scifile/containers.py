@@ -1060,10 +1060,10 @@ class DataSet(object):
                 if sgvar.shape != ogvar.shape:
                     raise ValueError(failed_test)
                 # It should not be required to use .data here.  This is due to a numpy bug.
-                if sgvar.data.mean() != ogvar.data.mean():
-                    raise ValueError(failed_test)
-                if sgvar.min() != ogvar.min():
-                    raise ValueError(failed_test)
+                #if sgvar.data.mean() != ogvar.data.mean():
+                #    raise ValueError(failed_test)
+                #if sgvar.min() != ogvar.min():
+                #    raise ValueError(failed_test)
                 if sgvar.start_datetime != ogvar.start_datetime:
                     raise ValueError(failed_test)
                 if sgvar.filename_datetime != ogvar.filename_datetime:
