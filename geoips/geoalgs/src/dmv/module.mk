@@ -15,11 +15,11 @@
 # relating to geoalgs)
 
 .PHONY: dmv dmv_plot dmv_coverage
-dmv: config init $(LIB)/dmv.py $(LIB)/dmv_plot.py $(LIB)/dmv_coverage.py
+dmv: init $(LIB)/dmv.py $(LIB)/dmv_plot.py $(LIB)/dmv_coverage.py
 dmv_plot: $(LIB)/dmv_plot.py
 dmv_coverage: $(LIB)/dmv_coverage.py
 
-$(LIB)/dmv.py: $(SRC)/dmv/dmv.py config init $(SRC)/dmv/__init__.py
+$(LIB)/dmv.py: $(SRC)/dmv/dmv.py init $(SRC)/dmv/__init__.py
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
