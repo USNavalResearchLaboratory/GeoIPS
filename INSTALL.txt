@@ -1,0 +1,37 @@
+From this directory: 
+
+module load python  # Needed for pip install
+python setup.py sdist
+pip install dist/geoips*.tgz --devel -vvv
+export GEOIPS_OUTDIRS=<PATH_TO_OUTPUT_FILES>
+
+
+
+
+Required packages and associated licenses (available via source code in a 
+separate repo if needed, or automatically installed via pip install)
+
+Anaconda Python, https://www.continuum.io/, Anaconda End User License Agreement, https://docs.continuum.io/anaconda/eula
+
+satpy 0.5.0, https://github.com/pytroll/satpy/blob/master/LICENSE.txt, GPLV3 
+pyresample, https://github.com/pytroll/pyresample, GLGPLV3
+lxml, http://lxml.de/, BSD License. https://github.com/lxml/lxml/blob/master/doc/licenses/BSD.txt
+
+pyephem 3.7.6.0, LGPL License, https://pypi.org/project/ephem/ 
+basemap 1.1.0, geos-3.3.3 is LGPL, data (coastlines, etc) is GPL, https://github.com/matplotlib/basemap
+Pillow 5.1.0 PIL software license, https://github.com/python-pillow/Pillow
+pyproj 1.9.5.1 MIT style Jeffrey Whitaker License, Proj.4 MIT Style Frank Warmerdam license https://pypi.org/project/pyproj/ 
+
+
+# Used for logging, but not strictly required
+psutil 5.4.5, BSD License, https://github.com/giampaolo/psutil
+memory_profiler, https://pypi.python.org/pypi/memory_profiler/0.41, BSD License, 
+
+# Required for specific data types:
+pygrib 2.0.0, https://pypi.python.org/pypi/pygrib, MIT license 
+pyhdf, https://github.com/fhs/python-hdf4/blob/master/LICENSE, MIT License
+xRITDecompress 2.0.6 REGISTRATION REQUIRED* Public Wavelet Transform Decompression Library Software License http://oiswww.eumetsat.int/WEBOPS-cgi/wavelet/register
+
+* NOTE: GeoIPS uses the xRITDecompress software for one specific task.  This software is NOT included in the GeoIPS open source release or external dependencies tarball.  In order to use the functionality that requires xRITDecompress, the user must download the software themselves and register to obtain the license and use the software within GeoIPS.  A note of this is made in the GeoIPS LICENSE, INSTALL, and README file included with the open source release.
+
+
