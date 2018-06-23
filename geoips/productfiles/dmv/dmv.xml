@@ -16,6 +16,12 @@
             <var>lons</var>
         </source>
         <day_night>both</day_night>
+        <cmap>tropix_no_white</cmap>
+        <colorbar>
+            <cmap>tropix_no_white</cmap>
+            <ticks>0 5 10 15 20 25 30 35 40 45 50 55 60</ticks>
+            <title>knots</title>
+        </colorbar>
     </externalalg_args>
 </product>
 </product_file>
