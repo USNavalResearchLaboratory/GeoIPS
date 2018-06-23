@@ -835,6 +835,15 @@ class Possiblesource(object):
         return etree.tostring(self.node, pretty_print=True)
 
     @property
+    def platforms(self):
+        if not hasattr(self, '_platforms'):
+            if self.node.attrib['platforms'] == False:
+                self._platforms = False
+            else:
+                self._platforms= self.node.attrib['platforms'].split(' ')
+        return self._platforms
+
+    @property
     def name(self):
         if not hasattr(self, '_name'):
             self._name = self.node.pyval

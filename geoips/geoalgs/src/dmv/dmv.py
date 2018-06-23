@@ -34,7 +34,8 @@ def dmv(datafile, sector, product, workdir):
     '''
     outdata = {}
     for dsname in datafile.datasets.keys():
-        if 'grid' not in dsname:
+        #if '1d' not in dsname or '800' not in dsname:
+        if '1d' not in dsname:
             continue
         outdata[dsname] = {}
         for varname in datafile.datasets[dsname].variables.keys():
