@@ -14,7 +14,7 @@ from geoips.utils.gencolormap import get_cmap
 
 log = logging.getLogger(__name__)
 
-def dmv_plot(gi, imgkey=None):
+def winds_plot(gi, imgkey=None):
 
     # Figure and axes
     gi._figure, gi._axes = gi._create_fig_and_ax()

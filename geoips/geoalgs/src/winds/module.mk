@@ -14,49 +14,49 @@
 # Please see geoalgs/README.txt for information on module/product naming (and everything else
 # relating to geoalgs)
 
-.PHONY: dmv dmv_plot dmv_coverage
-dmv: init $(LIB)/dmv.py $(LIB)/dmv_plot.py $(LIB)/dmv_coverage.py
-dmv_plot: $(LIB)/dmv_plot.py
-dmv_coverage: $(LIB)/dmv_coverage.py
+.PHONY: winds winds_plot winds_coverage
+winds: init $(LIB)/winds.py $(LIB)/winds_plot.py $(LIB)/winds_coverage.py
+winds_plot: $(LIB)/winds_plot.py
+winds_coverage: $(LIB)/winds_coverage.py
 
-$(LIB)/dmv.py: $(SRC)/dmv/dmv.py init $(SRC)/dmv/__init__.py
+$(LIB)/winds.py: $(SRC)/winds/winds.py init $(SRC)/winds/__init__.py
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
 	-ln -s $< $@
-	$(ADDIMPORT) "from .$(notdir $(LIB)).dmv import dmv"
+	$(ADDIMPORT) "from .$(notdir $(LIB)).winds import winds"
 	@echo "----------------------------------"
 	@echo ""
 
-$(LIB)/dmv_plot.py: $(SRC)/dmv/dmv_plot.py
+$(LIB)/winds_plot.py: $(SRC)/winds/winds_plot.py
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
 	-ln -s $< $@
-	$(ADDIMPORT) "from .$(notdir $(LIB)).dmv_plot import dmv_plot"
+	$(ADDIMPORT) "from .$(notdir $(LIB)).winds_plot import winds_plot"
 	@echo "----------------------------------"
 	@echo ""
 
-$(LIB)/dmv_coverage.py: $(SRC)/dmv/dmv_coverage.py
+$(LIB)/winds_coverage.py: $(SRC)/winds/winds_coverage.py
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
 	-ln -s $< $@
-	$(ADDIMPORT) "from .$(notdir $(LIB)).dmv_coverage import dmv_coverage"
+	$(ADDIMPORT) "from .$(notdir $(LIB)).winds_coverage import winds_coverage"
 	@echo "----------------------------------"
 	@echo ""
 
 
-.PHONY: clean_dmv
-clean_dmv:
+.PHONY: clean_winds
+clean_winds:
 	@echo ""
 	@echo "----------------------------------"
-	@echo "Cleaning dmv"
+	@echo "Cleaning winds"
 	@echo ""
-	-rm $(LIB)/dmv.py
-	-rm $(LIB)/dmv_plot.py
-	-rm $(LIB)/dmv_coverage.py
-	$(DELIMPORT) "from .$(notdir $(LIB)).dmv import dmv"
-	$(DELIMPORT) "from .$(notdir $(LIB)).dmv_coverage import dmv_coverage"
-	$(DELIMPORT) "from .$(notdir $(LIB)).dmv_plot import dmv_plot "
+	-rm $(LIB)/winds.py
+	-rm $(LIB)/winds_plot.py
+	-rm $(LIB)/winds_coverage.py
+	$(DELIMPORT) "from .$(notdir $(LIB)).winds import winds"
+	$(DELIMPORT) "from .$(notdir $(LIB)).winds_coverage import winds_coverage"
+	$(DELIMPORT) "from .$(notdir $(LIB)).winds_plot import winds_plot "
 	@echo "----------------------------------"
