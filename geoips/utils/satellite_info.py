@@ -523,7 +523,7 @@ class MODELSatInfo(SatInfo):
 
 class WindVectorsSatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['dmv']
+        self.sensornames = ['winds']
         #self.orbital_period = 107.1 * 60.0
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -1470,7 +1470,7 @@ class NAVGEMForecastSensorInfo(SensorInfo):
         #self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/amsub/global']
         #self.pathnameformat = ''
 
-class DMVSensorInfo(SensorInfo):
+class WINDSSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         self.interpolation_radius_of_influence = 56000
         #### This must match appropriate DataFileName class name in utils/path/datafilename.py
@@ -2019,7 +2019,7 @@ SensorInfo_classes = {
         'navgem': MODELSensorInfo,
         'coamps': MODELSensorInfo,
         'icap': ICAPSensorInfo,
-        'dmv': DMVSensorInfo,
+        'winds': WINDSSensorInfo,
         'naapsaot': NAAPSAOTSensorInfo,
         'seviri':  SEVIRISensorInfo,
         'tmi':  TMISensorInfo,
