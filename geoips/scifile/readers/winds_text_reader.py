@@ -86,11 +86,20 @@ class Winds_Text_Reader(Reader):
 
         with open(fname) as fp:
             while not metadata['top']['start_datetime']:
-                try:
-                    typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi,interv = fp.readline().split()
-                except ValueError:
-                    typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi = fp.readline().split()
+                parts = fp.readline().split()
+                if len(parts) == 12:
+                    typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi,interv = parts
+                elif len(parts) == 11:
+                    typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi = parts
                     interv = 0
+                elif len(parts) == 9:
+                    typ,sat,day,hms,lat,lon,pre,spd,dr = parts
+                    interv = 0
+                    rff = 0
+                    qi = 0
+                else:
+                    log.error('Unsupported format for %s'%(parts))
+                interv = 0
                 try:
                     metadata['top']['start_datetime'] = datetime.strptime(day+hms,'%Y%m%d%H%M')
                     metadata['top']['end_datetime'] = metadata['top']['start_datetime']
@@ -109,15 +118,23 @@ class Winds_Text_Reader(Reader):
                 except ValueError:
                     continue
             for cnt,line in enumerate(fp):
-                try:
-                    typ,sat,day,hm,lat,lon,pre,spd,dr,rff,qi,interv = line.split()
-                except ValueError:
-                    typ,sat,day,hm,lat,lon,pre,spd,dr,rff,qi = line.split()
+                parts = line.split()
+                if len(parts) == 12:
+                    typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi,interv = parts
+                elif len(parts) == 11:
+                    typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi = parts
                     interv = 0
+                elif len(parts) == 9:
+                    typ,sat,day,hms,lat,lon,pre,spd,dr = parts
+                    interv = 0
+                    rff = 0
+                    qi = 0
+                else:
+                    log.error('Unsupported format for %s'%(parts))
                 pre = int(pre)
                 if pre >= 100 and pre < 250:
                     key = sat+typ+'100to2501d'
-                elif pre >= 251 and pre < 350:
+                elif pre >= 251 and pre < 399:
                     key = sat+typ+'251to3501d'
                 elif pre >= 400 and pre < 599:
                     key = sat+typ+'400to5991d'
@@ -129,10 +146,11 @@ class Winds_Text_Reader(Reader):
                     log.warning('Pressure outside allowable range: '+str(pre))
                     continue
                 if key not in dat.keys():
+                    log.info('Starting dataset %s'%(key))
                     dat[key] = self.get_empty_datfields()
                     datavars[key] = {}
                 dat[key]['days'] += [day]
-                dat[key]['hms']+= [hm]
+                dat[key]['hms']+= [hms]
                 dat[key]['lats'] += [lat]
                 dat[key]['lons'] += [lon]
                 dat[key]['pres'] += [pre]
@@ -141,7 +159,7 @@ class Winds_Text_Reader(Reader):
                 dat[key]['rffs'] += [rff]
                 dat[key]['qis']+= [qi]
                 dat[key]['intervs'] += [interv]
-                 
+
 
         minlat = 999
         minlon = 999
@@ -181,7 +199,12 @@ class Winds_Text_Reader(Reader):
 
         for typ in datavars.keys():
             dsname = typ.replace('1d','grid')
-            log.info('Interpolating data to grid for %s'%(dsname))
+            if datavars[typ]['speed'].size >= 4:
+                log.info('Interpolating data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
+            else:
+                log.info('Not enough points to interpolate data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
+                continue
+
             speed = datavars[typ]['speed']
             direction = datavars[typ]['direction']
             lats = datavars[typ]['lats']
@@ -191,12 +214,12 @@ class Winds_Text_Reader(Reader):
             v = (speed * np.sin(np.radians(direction)))#*1.94384
 
             # interpolate
-            gvars[dsname] = {}
-            datavars[dsname] = {}
             gridpres = np.ma.masked_invalid(griddata((lats,lons),pres,(gridlats,gridlons),method='linear'))
             gridu = np.ma.masked_invalid(griddata((lats,lons),u,(gridlats,gridlons),method='linear'))
             gridv = np.ma.masked_invalid(griddata((lats,lons),v,(gridlats,gridlons),method='linear'))
             gridspeed = np.ma.masked_invalid(griddata((lats,lons),speed,(gridlats,gridlons),method='linear'))
+            gvars[dsname] = {}
+            datavars[dsname] = {}
             datavars[dsname]['gridpres'] = np.ma.masked_invalid(gridpres)
             datavars[dsname]['gridu'] = np.ma.masked_invalid(gridu)
             datavars[dsname]['gridv'] = np.ma.masked_invalid(gridv)
