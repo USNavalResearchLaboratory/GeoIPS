@@ -177,6 +177,8 @@ class VariableContainer(BaseContainer):
         Add a new variable to the container.
         This will fail if a variable with the same name already exists.
         '''
+        if not isinstance(var, Variable):
+            raise TypeError('Expected %s, got %s.' % (Variable, type(var)))
         if var.name in self._contents:
             raise ValueError("%s already contains variable named '%s'" % (self.obj.__class__, var.name))
         self._force_append(var)
@@ -498,8 +500,11 @@ class DataSet(object):
                 raise ValueError('Input data must either be a Variable instance or name keyword must be provided.')
         # NOTE:  When adding a new variable in this method, we should try to create a clean variable
         #       with no additional references in order to avoid backward propagation of changes.
+        if not isinstance(data, Variable):
+            data = Variable(name, data=data)
         if copy:
-            data = data._create_similar(data, name=name)
+            if hasattr(data, '_create_similar'):
+                data = data._create_similar(data, name=name)
         if _force:
             self.variables._force_append(data)
         else:
