@@ -45,24 +45,29 @@ subdirs['GEOALGSPATHS']=os.path.join('geoips','geoalgs','src')
 # At a minimum, GEOIPS_OUTDIRS must be defined.
 paths['GEOIPS_OUTDIRS'] = os.getenv('GEOIPS_OUTDIRS')
 
-# Location for writing out presectored data files
+# Location for writing out presectored data files, but unregistered
 if os.getenv('PRESECTORED_DATA_PATH'):
     paths['PRESECTORED_DATA_PATH'] = os.getenv('PRESECTORED_DATA_PATH')
 else:
     paths['PRESECTORED_DATA_PATH'] = os.path.join(paths['GEOIPS_OUTDIRS'],'preprocessed','sectored')
 
-# Location for writing out preread, but unsectored, data files
+# Location for writing out preread, but unsectored/registered, data files
 if os.getenv('PREREAD_DATA_PATH'):
     paths['PREREAD_DATA_PATH'] = os.getenv('PREREAD_DATA_PATH')
 else:
     paths['PREREAD_DATA_PATH'] = os.path.join(paths['GEOIPS_OUTDIRS'],'preprocessed','unsectored')
 
-# Location for writing out preregistered data files
+# Location for writing out preregistered data files, but no algorithms applied
 if os.getenv('PREREGISTERED_DATA_PATH'):
     paths['PREREGISTERED_DATA_PATH'] = os.getenv('PREREGISTERED_DATA_PATH')
 else:
     paths['PREREGISTERED_DATA_PATH'] = os.path.join(paths['GEOIPS_OUTDIRS'],'preprocessed','registered')
 
+# Location for writing out precalculated data files (algorithms applied)
+if os.getenv('PRECALCULATED_DATA_PATH'):
+    paths['PRECALCULATED_DATA_PATH'] = os.getenv('PRECALCULATED_DATA_PATH')
+else:
+    paths['PRECALCULATED_DATA_PATH'] = os.path.join(paths['GEOIPS_OUTDIRS'],'preprocessed','algorithms')
 
 # GEOIPS_COPYRIGHT determines what organization name displays in imagery titles, etc.
 paths['GEOIPS_COPYRIGHT'] = 'NRL-Monterey'
