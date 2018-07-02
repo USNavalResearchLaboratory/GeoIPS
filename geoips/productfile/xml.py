@@ -243,6 +243,15 @@ class Product(object):
         return self._method
 
     @property
+    def finalonly(self):
+        if not hasattr(self, '_finalonly'):
+            self._finalonly = test_attrib_bool(self.node, 'finalonly')
+        return self._finalonly
+    @finalonly.setter
+    def finalonly(self, val):
+        self._finalonly = val
+
+    @property
     def testonly(self):
         if not hasattr(self, '_testonly'):
             self._testonly = test_attrib_bool(self.node, 'testonly')
@@ -917,6 +926,12 @@ class Variable(object):
     def zenith_correct(self):
         self._zenith_correct = test_attrib_bool(self.node, 'zenith')
         return self._zenith_correct
+
+    @property
+    def mark_terminator(self):
+        if not hasattr(self, '_mark_terminator'):
+            self._mark_terminator = test_attrib_bool(self.node, 'mark_terminator')
+        return self._mark_terminator
 
     @property
     def units(self):

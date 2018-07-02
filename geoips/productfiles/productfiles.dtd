@@ -40,7 +40,7 @@
                                  best_possible_pixel_width?)>
 <!ELEMENT external_args         (source+, dataset?, datasets?, day_night?,min_cover?,interpmethod?, interpolation_radius_of_influence?, colorbar*,legend_text?, max_day_zen_ang?,
                                  coastcolor?, gridcolor?, best_possible_pixel_height?,best_possible_pixel_width?)>
-<!ELEMENT externalalg_args         (source+, dataset?, datasets?, day_night?,min_cover?,interpmethod?, cmap?, interpolation_radius_of_influence?, colorbar*,legend_text?, max_day_zen_ang?,
+<!ELEMENT externalalg_args         (source+, dataset?, datasets?, day_night?,min_cover?,interpmethod?, cmap?, interpolation_radius_of_influence?, colorbar*,legend_text?, max_day_zen_ang?, min_ngt_zen_ang?,
                                  coastcolor?, gridcolor?, best_possible_pixel_height?,best_possible_pixel_width?)>
 <!ELEMENT rgb_args              (source+, dataset?, red, grn, blu, day_night,min_cover?,interpmethod?, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?, coastcolor?,
                                  gridcolor?,best_possible_pixel_height?,best_possible_pixel_width?)>
@@ -139,8 +139,12 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 <!ATTLIST product plotmethod    CDATA #IMPLIED>
 <!-- display_name is how the product name is displayed in titles, legends, etc. Defaults to "name" if not specified.
      name is the short name for the product - used in filenames, driver calls, internal to code to reference products, etc
+     finalonly specifies we should NOT produce any imagery/data in GEOIPSTEMP - really only for testing purposes (to speed 
+        things up), or perhaps if we KNOW a certain product will never need any overlays (temporary imagery 
+        without coastlines, gridlines, etc is required for overlays or any combined products)
 -->
 <!ATTLIST product name          CDATA #IMPLIED>
+<!ATTLIST product finalonly     CDATA "no">
 <!ATTLIST product display_name          CDATA "False">
 <!ATTLIST possiblesource platforms          CDATA "False">
 <!ATTLIST productlayer name          CDATA #IMPLIED>
@@ -155,10 +159,14 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 <!-- normalize/min/max/units/outbounds deprecated for var attlist
     zenith still used to specify solar zenith correction for specific variables
         possibly this should be specified at the equation level?
+    mark_terminator allows for specifying to plot a line along the terminator,
+        based on solar zenith angle.  Again, this should probably be specified 
+        at the equation level ?
     eq_name used for ExternalImg types, to specify something? may or may not 
         actually be used at this point ?
 -->
 <!ATTLIST var zenith            CDATA "no">
+<!ATTLIST var mark_terminator   CDATA "no">
 <!ATTLIST var eq_name           CDATA #IMPLIED>
 
 <!-- eq_name used when specifying multiple equations, so you can reference 
