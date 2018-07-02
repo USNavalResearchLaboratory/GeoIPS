@@ -28,7 +28,7 @@ def winds_plot(gi, imgkey=None):
         pres = gi.image[imgkey]['pres']
         lats = gi.image[imgkey]['lats']
         lons = gi.image[imgkey]['lons']
-        gi.basemap.barbs(lons,lats,u,v,speed,ax=gi.axes,cmap=get_cmap('tropix_no_white'))
+        gi.basemap.barbs(lons.data,lats.data,u,v,speed,ax=gi.axes,cmap=get_cmap('tropix_no_white'))
     elif 'grid' in imgkey:
         speed = gi.image[imgkey]['gridspeed']
         u = gi.image[imgkey]['gridu']
