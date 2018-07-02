@@ -21,25 +21,25 @@ from IPython import embed as shell
 
 paths = {}
 
-dynamic_subdir = '/dynamic'
-static_subdir = '/static'
-tctemplate = '/template_tc_sectors.xml'
-volcanotemplate = '/template_volcano_sectors.xml'
+dynamic_subdir = os.path.join('dynamic')
+static_subdir = os.path.join('static')
+tctemplate = os.path.join('template_tc_sectors.xml')
+volcanotemplate = os.path.join('template_volcano_sectors.xml')
 
 subdirs = {}
 # These are all relative to GeoIPS by default.
-subdirs['SECTORFILEPATHS']='/geoips/sectorfiles'
-subdirs['PRODUCTFILEPATHS']='/geoips/productfiles'
-subdirs['STATIC_SECTORFILEPATHS'] = '/geoips/sectorfiles'+static_subdir
-subdirs['TEMPLATEPATHS'] = '/geoips/sectorfiles'+dynamic_subdir
-subdirs['TC_TEMPLATEFILES'] = '/geoips/sectorfiles'+dynamic_subdir+tctemplate
-subdirs['VOLCANO_TEMPLATEFILES'] = '/geoips/sectorfiles'+dynamic_subdir+volcanotemplate
-subdirs['PALETTEPATHS']='/geoips/geoimg/ascii_palettes'
-subdirs['TESTPALETTEPATHS']='/geoips/geoimg/test_palettes'
-subdirs['XMLPALETTEPATHS']='/geoips/geoimg/xml_palettes'
-subdirs['DOWNLOADSITEPATHS']='/geoips/downloaders/Sites'
-subdirs['READERPATHS']='/geoips/scifile/readers'
-subdirs['GEOALGSPATHS']='/geoips/geoalgs/src'
+subdirs['SECTORFILEPATHS']=os.path.join('geoips','sectorfiles')
+subdirs['PRODUCTFILEPATHS']=os.path.join('geoips','productfiles')
+subdirs['STATIC_SECTORFILEPATHS'] = os.path.join('geoips','sectorfiles',static_subdir)
+subdirs['TEMPLATEPATHS'] = os.path.join('geoips','sectorfiles',dynamic_subdir)
+subdirs['TC_TEMPLATEFILES'] = os.path.join('geoips','sectorfiles',dynamic_subdir,tctemplate)
+subdirs['VOLCANO_TEMPLATEFILES'] = os.path.join('geoips','sectorfiles',dynamic_subdir,volcanotemplate)
+subdirs['PALETTEPATHS']=os.path.join('geoips','geoimg','ascii_palettes')
+subdirs['TESTPALETTEPATHS']=os.path.join('geoips','geoimg','test_palettes')
+subdirs['XMLPALETTEPATHS']=os.path.join('geoips','geoimg','xml_palettes')
+subdirs['DOWNLOADSITEPATHS']=os.path.join('geoips','downloaders','Sites')
+subdirs['READERPATHS']=os.path.join('geoips','scifile','readers')
+subdirs['GEOALGSPATHS']=os.path.join('geoips','geoalgs','src')
 
 
 # At a minimum, GEOIPS_OUTDIRS must be defined.
@@ -49,19 +49,19 @@ paths['GEOIPS_OUTDIRS'] = os.getenv('GEOIPS_OUTDIRS')
 if os.getenv('PRESECTORED_DATA_PATH'):
     paths['PRESECTORED_DATA_PATH'] = os.getenv('PRESECTORED_DATA_PATH')
 else:
-    paths['PRESECTORED_DATA_PATH'] = paths['GEOIPS_OUTDIRS']+'/preprocessed/sectored'
+    paths['PRESECTORED_DATA_PATH'] = os.path.join(paths['GEOIPS_OUTDIRS'],'preprocessed','sectored')
 
 # Location for writing out preread, but unsectored, data files
 if os.getenv('PREREAD_DATA_PATH'):
     paths['PREREAD_DATA_PATH'] = os.getenv('PREREAD_DATA_PATH')
 else:
-    paths['PREREAD_DATA_PATH'] = paths['GEOIPS_OUTDIRS']+'/preprocessed/unsectored'
+    paths['PREREAD_DATA_PATH'] = os.path.join(paths['GEOIPS_OUTDIRS'],'preprocessed','unsectored')
 
 # Location for writing out preregistered data files
 if os.getenv('PREREGISTERED_DATA_PATH'):
     paths['PREREGISTERED_DATA_PATH'] = os.getenv('PREREGISTERED_DATA_PATH')
 else:
-    paths['PREREGISTERED_DATA_PATH'] = paths['GEOIPS_OUTDIRS']+'/preprocessed/registered'
+    paths['PREREGISTERED_DATA_PATH'] = os.path.join(paths['GEOIPS_OUTDIRS'],'preprocessed','registered')
 
 
 # GEOIPS_COPYRIGHT determines what organization name displays in imagery titles, etc.
@@ -73,7 +73,7 @@ if os.getenv('GEOIPS_COPYRIGHT'):
 # Set GEOIPS to current path (get rid of utils/plugin_paths.py)
 paths['GEOIPS'] = os.getenv('GEOIPS')
 if not os.getenv('GEOIPS'):
-    paths['GEOIPS'] = os.path.split(os.path.dirname(__file__))[0]+'/..'
+    paths['GEOIPS'] = os.path.join(os.path.split(os.path.dirname(__file__))[0],'..')
 
 paths['GEOIPS_SCRIPTS'] = ''
 if os.getenv('GEOIPS_SCRIPTS'):
@@ -88,12 +88,14 @@ if os.getenv('GEOIPS_RCFILE'):
 
 
 paths['BOXNAME'] = socket.gethostname()
-
-
+paths['HOME'] = os.getenv('HOME')
+if not os.getenv('HOME'):
+    # Windows
+    paths['HOME'] = os.getenv('HOMEDRIVE')+os.getenv('HOMEPATH')
 
 paths['SCRATCH'] = os.getenv('SCRATCH')
 if not os.getenv('SCRATCH'):
-    paths['SCRATCH'] = os.getenv('GEOIPS_OUTDIRS')+'/scratch'
+    paths['SCRATCH'] = os.path.join(os.getenv('GEOIPS_OUTDIRS'),'scratch')
 paths['LOCALSCRATCH'] = os.getenv('LOCALSCRATCH')
 if not os.getenv('LOCALSCRATCH'):
     paths['LOCALSCRATCH'] = paths['SCRATCH']
@@ -106,7 +108,7 @@ if not os.getenv('SHAREDSCRATCH'):
 # SATOPS is the default intermediate and ancillary data location.
 paths['SATOPS'] = os.getenv('SATOPS')
 if not os.getenv('SATOPS'):
-    paths['SATOPS'] = os.getenv('GEOIPS_OUTDIRS')+'/satops'
+    paths['SATOPS'] = os.path.join(os.getenv('GEOIPS_OUTDIRS'),'satops')
 
 paths['STANDALONE_GEOIPS'] = os.getenv('STANDALONE_GEOIPS')
 if not os.getenv('STANDALONE_GEOIPS'):
@@ -118,19 +120,19 @@ if not os.getenv('EXTERNAL_GEOIPS'):
 
 paths['LOGDIR'] = os.getenv('LOGDIR')
 if not os.getenv('LOGDIR'):
-    paths['LOGDIR'] = paths['GEOIPS_OUTDIRS']+'/logs'
+    paths['LOGDIR'] = os.path.join(paths['GEOIPS_OUTDIRS'],'logs')
 
 
 paths['GEOIPSTEMP'] = os.getenv('GEOIPSTEMP')
 if not os.getenv('GEOIPSTEMP'):
-    paths['GEOIPSTEMP'] = paths['SATOPS']+'/intermediate_files/GeoIPStemp'
+    paths['GEOIPSTEMP'] = os.path.join(paths['SATOPS'],'intermediate_files','GeoIPStemp')
 paths['GEOIPSFINAL'] = os.getenv('GEOIPSFINAL')
 if not os.getenv('GEOIPSFINAL'):
-    paths['GEOIPSFINAL'] = paths['SATOPS']+'/intermediate_files/GeoIPSfinal'
+    paths['GEOIPSFINAL'] = os.path.join(paths['SATOPS'],'intermediate_files','GeoIPSfinal')
 
 
 # NOTE THIS IS NOT A LIST
-paths['AUTOGEN_DYNAMIC_SECTORFILEPATH'] = paths['SATOPS']+'/longterm_files/sectorfiles/dynamic'
+paths['AUTOGEN_DYNAMIC_SECTORFILEPATH'] = os.path.join(paths['SATOPS'],'longterm_files','sectorfiles','dynamic')
 
 # NOTE THIS IS NOT A LIST
 if os.getenv('EXTERNAL_AUTOGEN_DYNAMIC_SECTORFILEPATH'):
@@ -153,11 +155,11 @@ for envvar in ['SECTORFILEPATH','PRODUCTFILEPATH','STATIC_SECTORFILEPATH',
     paths_varname = envvar+'S'
 
     # Default for paths_varname
-    paths[paths_varname] = [paths['GEOIPS']+subdirs[paths_varname]]
+    paths[paths_varname] = [os.path.join(paths['GEOIPS'],subdirs[paths_varname])]
 
     # Default to STANDALONE_GEOIPS if defined in bashrc
     if standalone_geoips:
-        paths[paths_varname] = [paths['STANDALONE_GEOIPS']+subdirs[paths_varname]]
+        paths[paths_varname] = [os.path.join(paths['STANDALONE_GEOIPS'],subdirs[paths_varname])]
 
     # Set to explicit EXTERNAL paths defined in bashrc to paths_varname
     # This REPLACES the default list, so everything you want must be listed 
@@ -177,19 +179,18 @@ for envvar in ['SECTORFILEPATH','PRODUCTFILEPATH','STATIC_SECTORFILEPATH',
             # Set these relative to SECTORFILEPATHS (will get overwritten 
             # with env vars later if they are explicitly set).
             if envvar == 'SECTORFILEPATH':
-                paths['STATIC_SECTORFILEPATHS'] += [path+static_subdir]
-                paths['TEMPLATEPATHS'] += [path+dynamic_subdir]
-                paths['TC_TEMPLATEFILE'] += [path+dynamic_subdir+tctemplate]
-                paths['VOLCANO_TEMPLATEFILE'] += [path+dynamic_subdir+volcanotemplate]
+                paths['STATIC_SECTORFILEPATHS'] += [os.path.join(path,static_subdir)]
+                paths['TEMPLATEPATHS'] += [os.path.join(path,dynamic_subdir)]
+                paths['TC_TEMPLATEFILE'] += [os.path.join(path,dynamic_subdir,tctemplate)]
+                paths['VOLCANO_TEMPLATEFILE'] += [os.path.join(path,dynamic_subdir,volcanotemplate)]
     # If EXTERNAL_GEOIPS is defined, use the appropriate relative path there
     # But ONLY if ext_envvar is not set (ext_envvar OVERRIDES).
     elif extgeoips:
         for path in extgeoips.split(':'):
-            extgeoipspath = path+subdirs[paths_varname]
+            extgeoipspath = os.path.join(path,subdirs[paths_varname])
             #print 'EXTERNAL_GEOIPS path '+extgeoipspath
             if os.path.isdir(extgeoipspath) and extgeoipspath not in paths[paths_varname]:
                 paths[paths_varname] += [extgeoipspath]
     else:
         #print 'DEFAULT '+envvar+' GEOIPS path '+str(paths[paths_varname])
         pass
-
