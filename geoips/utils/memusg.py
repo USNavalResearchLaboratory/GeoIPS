@@ -23,16 +23,19 @@ from argparse import ArgumentParser
 from subprocess import Popen, PIPE
 from time import sleep
 from datetime import datetime
+
 try:
     import resource
 except ImportError:
-    print 'Failed resource import in memusg.py.'
-try: 
+    print('Failed resource import in memusg.py.')
+
+try:
     import psutil
-except ImportError: 
-    print 'Failed psutil import in memusg.py.'
+except ImportError:
+    print('Failed psutil import in memusg.py.')
+
 import socket
-import logging 
+import logging
 
 
 # Installed Libraries
