@@ -59,19 +59,33 @@ stdpathfillvalue = 'x'
 GeoIPSnameformat = '<date{%Y%m%d}>.<time{%H%M%S}>.<satname>.<sensorname>.<productname>.<sectorname>.<coverage>.<dataprovider>.<extra>'
 # These are the standard path name formats for the FINAL output imagery
 # They are used in initializing the ProductFileName subclasses at the end of productfilename.py
-GeoIPSpathnameformat='<basedir>/<continent>-<country>-<area>/<subarea>-<state>-<city>/<productname>/<sensorname>/<resolution>'
-GeoIPSTCpathnameformat='<basedir>/<continent>/<area>/<subarea>/<productname>/<sensorname>/<resolution>'
+GeoIPSpathnameformat=os.path.join('<basedir>','<continent>-<country>-<area>',
+                                  '<subarea>-<state>-<city>','<productname>',
+                                  '<sensorname>','<resolution>')
+GeoIPSTCpathnameformat=os.path.join('<basedir>','<continent>','<area>',
+                                    '<subarea>','<productname>','<sensorname>',
+                                    '<resolution>')
 # These are the standard path name formats for the temporary granule imagery. 
 # They are used in initializing the ProductFileName subclasses at the end of productfilename.py
 # Note the extra subdirectory for optime. This allows easy merging of all granules in a single swath.
 # Also note the extra subdirectory for ext. This allows different intermediate output types - 
 #       including data (h5), imagery (png, jpg), etc.
-GeoIPSTEMPpathnameformat='<basedir>/<continent>-<country>-<area>/<subarea>-<state>-<city>/<productname>/<sensorname>/<ext>/<resolution>/<optime>'
+GeoIPSTEMPpathnameformat=os.path.join('<basedir>',
+                                      '<continent>-<country>-<area>',
+                                      '<subarea>-<state>-<city>',
+                                      '<productname>',
+                                      '<sensorname>',
+                                      '<ext>',
+                                      '<resolution>',
+                                      '<optime>')
 # NOTE - merging files for overlays does not work with differing GeoIPSTEMP paths. For now make them all
 # the same. Need to rethink this at some point, maybe? (what if some formats don't have the same fields...)
 # this will not be a problem when we have a database (we won't rely on directory structure to list files, 
 # we can query the database for them), but in the meantime, hopefully this will work.
-#GeoIPSTEMPTCpathnameformat='<basedir>/<continent>/<area>/<subarea>/<productname>/<sensorname>/<ext>/<resolution>/<optime>'
+#GeoIPSTEMPTCpathnameformat=os.path.join('<basedir>','<continent>','<area>',
+                                        #'<subarea>','<productname>',
+                                        #'<sensorname>','<ext>','<resolution>',
+                                        #'<optime>')
 
 
 atcffieldsep = '_'
@@ -88,25 +102,37 @@ atcffieldsep = '_'
 #       getting database working.
 #ATCFnameformat = '<date{%Y%m%d%H%M}>_<atcfid>_<sensorname>_<productname>_<intensity>_<coverage>'
 ATCFnameformat = '<date{%Y%m%d%H%M}>_<state>_<sensorname>_<productname>_<intensity>_<coverage>_<extra>'
-#ATCFpathnameformat='<basedir>/<tcyear>/<basin>/<atcfid>/<ext>/<productname>'
-ATCFpathnameformat='<basedir>/<continent>/<subarea>/<state>/<ext>/<productname>'
+#ATCFpathnameformat='<basedir>','<tcyear>','<basin>','<atcfid>','<ext>','<productname>'
+ATCFpathnameformat=os.path.join('<basedir>','<continent>','<subarea>',
+                                '<state>','<ext>','<productname>')
 
 # JTWC requested filename format
 Metoctiffnameformat = '<date{%Y%m%d}>.<time{%H%M%S}>.<sensorname>.<productname>.<sectorname>.<coverage>'
-metoctiffpathnameformat='<basedir>/<continent>/<area>/<subarea>/<dirproductname>'
+metoctiffpathnameformat=os.path.join('<basedir>','<continent>','<area>',
+                                     '<subarea>','<dirproductname>')
 
 # Uses GeoIPSnameformat
-TCWebIRVispathnameformat='<basedir>/<continent>/<area>/<subarea>/<dirproductname>/<sensorname>/<resolution>'
+TCWebIRVispathnameformat=os.path.join('<basedir>','<continent>','<area>',
+                                      '<subarea>','<dirproductname>',
+                                      '<sensorname>','<resolution>')
 # Uses GeoIPSnameformat
-nexsatpathnameformat='<basedir>/<continent>-<country>-<area>/<subarea>-<state>-<city>/<dirproductname>/<dirsensorname>'
+nexsatpathnameformat=os.path.join('<basedir>','<continent>-<country>-<area>',
+                                  '<subarea>-<state>-<city>',
+                                  '<dirproductname>','<dirsensorname>')
 
 # Uses GeoIPSnameformat
 pyrocb_pathfieldsep = '-'
-pyrocbpathnameformat='<basedir>/<continent>-<country>-<area>/<subarea>-<state>-<city>/<dirproductname>/<sensorname>-<satname>'
+pyrocbpathnameformat=os.path.join('<basedir>','<continent>-<country>-<area>',
+                                  '<subarea>-<state>-<city>',
+                                  '<dirproductname>','<sensorname>-<satname>')
 
 # Uses GeoIPSnameformat
 atmosriver_pathfieldsep = '-'
-atmosriverpathnameformat='<basedir>/<continent>-<country>-<area>/<subarea>-<state>-<city>/<dirproductname>/<sensorname>-<satname>'
+atmosriverpathnameformat=os.path.join('<basedir>',
+                                      '<continent>-<country>-<area>',
+                                      '<subarea>-<state>-<city>',
+                                      '<dirproductname>',
+                                      '<sensorname>-<satname>')
 
 # Allow for different internal paths within GeoIPS.
 # Josh wants internal paths to vary for TCs
@@ -172,7 +198,8 @@ sensor_dir_names = { 'public' : nexsat_sensor_dir_names }
 
 
 lognameformat=GeoIPSnameformat+'.<prefix>.<script>.<pid>.<timestamp>'
-logpathnameformat = gpaths['LOGDIR']+'/<sensorname>/<prefix>/<date{%Y%m%d}>/<sectorname>'
+logpathnameformat = os.path.join(gpaths['LOGDIR'],'<sensorname>','<prefix>',
+                                 '<date{%Y%m%d}>','<sectorname>')
 
 class ProductFileName(object):
     '''
@@ -238,7 +265,7 @@ class ProductFileName(object):
             #print currpathnameformat
             #print currfillvalue
             #print 'full empty stdpath from ProductFileName(): '+stdpath+'/'+stdfn
-            obj = GeoIPSProductFileName(stdpath+'/'+stdfn,
+            obj = GeoIPSProductFileName(os.path.join(stdpath,stdfn),
                     nameformat=currnameformat,
                     fieldsep=currfieldsep,
                     fillvalue=currfillvalue,
@@ -509,7 +536,7 @@ class ProductFileName(object):
     @staticmethod
     def create_empty_dirname(pathnameformat,pathfieldsep,pathfillvalue):
         stdpathparts = []
-        for pathpart in pathnameformat.split('/'):
+        for pathpart in pathnameformat.split(os.path.sep):
             pathpart = pathpart.strip()
             if not pathpart:
                 stdpathpart = ''
@@ -518,7 +545,7 @@ class ProductFileName(object):
                 stdpathpart = (pathfieldsep.join([pathfillvalue for field in (pathpart.split(pathfieldsep))]))
                 #print '    stdpathpart: '+str(pathpart)
             stdpathparts += [stdpathpart]
-        return '/'.join(stdpathparts)
+        return os.path.sep.join(stdpathparts)
 
     # geoipsfinal_product and external_product can not both be set
     # We are only returning one filename...
@@ -602,7 +629,6 @@ class ProductFileName(object):
 
         else:
             curr_basedir = gpaths['GEOIPSTEMP']
-
         if not curr_basedir:
             return None
 
