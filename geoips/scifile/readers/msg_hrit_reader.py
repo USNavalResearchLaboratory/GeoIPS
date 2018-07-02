@@ -64,7 +64,7 @@ class MSG_XRIT_Reader(Reader):
         cwd = os.getcwd()
         os.chdir(outdir)
         log.info('Decompressing to '+outdir)
-        for filename in glob(fname+'/*'):
+        for filename in glob(os.path.join(fname, '*')):
             needchan = False
             #if os.path.isfile(filename) and filename.split('-')[-1] == '__' and 'PRO' not in filename and 'EPI' not in filename:
             #    log.info('Original file already decompressed: '+filename)
@@ -77,11 +77,13 @@ class MSG_XRIT_Reader(Reader):
                             needchan = True
                 if chans == None or 'PRO' in filename or 'EPI' in filename or needchan:
                     # Changes from -C_ to -__ for decompressed version. PRO and EPI still -__
-                    outfile = outdir+'/'+os.path.basename(filename[0:-2]+'__')
+                    outfile = os.path.join(outdir,os.path.basename(filename[0:-2]+'__'))
 
                     # If the outfile doesn't already exists, XRIT_DECOMPRESS_PATH is set, 
                     # and XRIT_DECOMPRESS_PATH actually points to a file, then 
-                    if not os.path.isfile(outfile) and os.getenv('XRIT_DECOMPRESS_PATH') and os.path.isfile(os.getenv('XRIT_DECOMPRESS_PATH')):
+                    if not os.path.isfile(outfile) \
+                      and os.getenv('XRIT_DECOMPRESS_PATH') \
+                      and os.path.isfile(os.getenv('XRIT_DECOMPRESS_PATH')):
                         call([os.getenv('XRIT_DECOMPRESS_PATH'),filename]) 
 
                     # If the outfile already exists, skip
@@ -113,7 +115,7 @@ class MSG_XRIT_Reader(Reader):
         #
         if not os.path.isdir(fname):
             return False
-        singlefname = glob(fname+'/*')[0]
+        singlefname = glob(os.path.join(fname, '*'))[0]
         if singlefname.split('-')[-1] != '__' and singlefname.split('-')[-1] != 'C_' and os.path.splitext(singlefname)[-1] != '.hrit' :
             return False
 
@@ -123,7 +125,7 @@ class MSG_XRIT_Reader(Reader):
     def read(self,fname,datavars,gvars,metadata,chans=None,sector_definition=None):
 
         # Use filename field for filename_datetime if it is available.
-        dfn = DataFileName(os.path.basename(glob(fname+'/*')[0]))
+        dfn = DataFileName(os.path.basename(glob(os.path.join(fname, '*'))[0]))
         if dfn:
             sdfn = dfn.create_standard()
             metadata['top']['filename_datetime'] = sdfn.datetime
@@ -152,13 +154,13 @@ class MSG_XRIT_Reader(Reader):
             # platform/source combination we are using, etc.
             return
 
-        outdir = gpaths['LOCALSCRATCH']+'/'+os.path.dirname(sdfn.name)
+        outdir = os.path.join(gpaths['LOCALSCRATCH'],os.path.dirname(sdfn.name))
         self.decompress_msg(fname,outdir,chans)
         try:
             global_data = Scene(platform_name="Meteosat-8", sensor="seviri",reader="hrit_msg",
                     start_time = sdfn.datetime, base_dir=outdir)
         except TypeError:
-            global_data = Scene(filenames=glob(outdir+'/*'),reader="hrit_msg",
+            global_data = Scene(filenames=glob(os.path.join(outdir,'*')),reader="hrit_msg",
                 filter_parameters = { 'start_time': sdfn.datetime } )
         metadata['top']['start_datetime'] = global_data.start_time
         metadata['top']['end_datetime'] = global_data.end_time
