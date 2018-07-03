@@ -8,7 +8,7 @@ import numpy as np
 
 log = logging.getLogger(__name__)
 
-def dmv_coverage(gi, imgkey=None):
+def winds_coverage(gi, imgkey=None):
     '''
     I think this is overkill - it should either take
     imgkey, or not.  I think it loops through keys in 

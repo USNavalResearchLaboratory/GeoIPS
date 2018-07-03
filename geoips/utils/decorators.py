@@ -28,6 +28,10 @@ import signal
 # Installed Libraries
 from IPython import embed as shell
 
+try:
+    errmsg = os.strerror(errno.ETIME)
+except AttributeError:
+    errmsg = 'Timer ran out'
 
 # GeoIPS Libraries
 
@@ -84,7 +88,7 @@ class memoized(object):
 class TimeoutError(Exception):
     pass
 
-def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
+def timeout(seconds=10, error_message=errmsg):
     def decorator(func):
         def _handle_timeout(signum, frame):
             raise TimeoutError(error_message)
@@ -218,7 +222,10 @@ def doc_set(obj, extend=None):
     docstring on a new line.
     '''
     def wrap(func):
-        func.__doc__ = getattr(getattr(obj, func.__name__), '__doc__')
+        try:
+            func.__doc__ = getattr(getattr(obj, func.__name__), '__doc__')
+        except AttributeError:
+            pass
         if extend is not None:
             func.__doc__ += '\n\n'+extend
         return func

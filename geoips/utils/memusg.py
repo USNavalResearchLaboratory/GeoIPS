@@ -23,11 +23,19 @@ from argparse import ArgumentParser
 from subprocess import Popen, PIPE
 from time import sleep
 from datetime import datetime
-import resource
-try: import psutil
-except: pass
+
+try:
+    import resource
+except ImportError:
+    print('Failed resource import in memusg.py.')
+
+try:
+    import psutil
+except ImportError:
+    print('Failed psutil import in memusg.py.')
+
 import socket
-import logging 
+import logging
 
 
 # Installed Libraries
@@ -48,14 +56,18 @@ def print_mem_usage(logstr='',printmemusg=False):
         log.info('swap %:    '+str(psutil.swap_memory().percent)+' on '+str(socket.gethostname())+' '+logstr)
     except:
         pass
-    log.info('highest:   '+str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)+' on '+str(socket.gethostname())+' '+logstr)
+    try:
+        log.info('highest:   '+str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)+' on '+str(socket.gethostname())+' '+logstr)
+    except NameError:
+        log.info('resource not defined')
     #if printmemusg:
     #    print_resource_usage(logstr)
     pass
 
 def print_resource_usage(logstr=''):
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    for name, desc in [
+    try:
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        for name, desc in [
                ('ru_utime', 'RESOURCE '+logstr+' User time'),
                ('ru_stime', 'RESOURCE '+logstr+' System time'),
                ('ru_maxrss', 'RESOURCE '+logstr+' Max. Resident Set Size'),
@@ -65,7 +77,9 @@ def print_resource_usage(logstr=''):
                ('ru_inblock', 'RESOURCE '+logstr+' Block inputs'),
                ('ru_oublock', 'RESOURCE '+logstr+' Block outputs'),
                ]:
-        log.info('%-25s (%-10s) = %s' % (desc, name, getattr(usage, name)))
+            log.info('%-25s (%-10s) = %s' % (desc, name, getattr(usage, name)))
+    except NameError:
+        log.info('resource not defined')
 
 class MemUsg(object):
     def __init__(self):

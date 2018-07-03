@@ -15,12 +15,12 @@
 # relating to geoalgs)
 
 .PHONY: extalg extalg_plot extalg_coverage extalg_config
-extalg: config init $(LIB)/extalg.py $(LIB)/extalg_plot.py $(LIB)/extalg_coverage.py $(LIB)/extalg_config.py
+extalg: init $(LIB)/extalg.py $(LIB)/extalg_plot.py $(LIB)/extalg_coverage.py $(LIB)/extalg_config.py
 extalg_config: $(LIB)/extalg_config.py
 extalg_plot: $(LIB)/extalg_plot.py
 extalg_coverage: $(LIB)/extalg_coverage.py
 
-$(LIB)/extalg.py: $(SRC)/extalg/extalg.py config init $(SRC)/extalg/__init__.py
+$(LIB)/extalg.py: $(SRC)/extalg/extalg.py init $(SRC)/extalg/__init__.py
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
