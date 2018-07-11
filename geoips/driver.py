@@ -288,6 +288,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                    write_datafile determines appropriate paths and filename based
                     on all the datasets contained in the scifile object.
                 '''
+                log.info('Attempting to write out data file to  %s' % (gpaths['PRESECTORED_DATA_PATH']))
                 write_datafile(gpaths['PRESECTORED_DATA_PATH'],sectored,curr_sector, filetype='h5')
 
         log.info('{0} Checking products'.format(plog))
@@ -315,7 +316,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             # Pass rather than opening again.
             if separate_datasets:
                 dfnew = SciFile()
-                log.info('Running each dataset separately through driver')
+                log.info('Running each dataset separately through process')
                 dfnew.metadata = sectored.metadata.copy()
                 olddsname = None
                 for dsname in sectored.datasets.keys():
@@ -328,10 +329,10 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                                 dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname]['platform_name']
                                 dfnew.datasets[dsname].platform_name = dfnew.metadata['top']['platform_name']
                     olddsname = dsname
+                    process(dfnew, curr_sector, productlist, forcereprocess=forcereprocess,
+                        sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
+            else:
                 process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
-                    sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
-
-            process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
                     sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
             # MLS 20160126 Try this for memory usage ? Probably doesn't do anything
             gc.collect()
@@ -769,24 +770,25 @@ if __name__ == '__main__':
             log.info('Running each dataset separately through driver')
             dfnew.metadata = df.metadata.copy()
             olddsname = None
-            for dsname in sectored.datasets.keys():
+            for dsname in df.datasets.keys():
                 if olddsname:
                     dfnew.delete_dataset(olddsname)
-                dfnew.add_dataset(sectored.datasets[dsname])
+                dfnew.add_dataset(df.datasets[dsname])
                 if 'datasets' in dfnew.metadata and dsname in dfnew.metadata['datasets'].keys():
                     for key in dfnew._finfo.keys():
                         if key in dfnew.metadata['datasets'][dsname].keys():
                             dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname]['platform_name']
                             dfnew.datasets[dsname].platform_name = dfnew.metadata['top']['platform_name']
                 olddsname = dsname
-            driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
-               outdir=args['product_outpath'], call_next=args['next'],
-               forcereprocess=args['forcereprocess'], queue=args['queue'],
-               no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
-               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
-               write_sectored_datafile=args['write_sectored_datafile'])
+                driver(dfnew, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
+                   outdir=args['product_outpath'], call_next=args['next'],
+                   forcereprocess=args['forcereprocess'], queue=args['queue'],
+                   no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
+                   printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
+                   write_sectored_datafile=args['write_sectored_datafile'])
 
-        driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
+        else:
+            driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
                outdir=args['product_outpath'], call_next=args['next'],
                forcereprocess=args['forcereprocess'], queue=args['queue'],
                no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
