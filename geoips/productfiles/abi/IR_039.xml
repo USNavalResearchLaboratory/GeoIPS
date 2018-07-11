@@ -10,9 +10,10 @@
 <product_file>
 <product method="basic" name="IR_039">
     <basic_args>
-        <source name='ahi'>
-            <var>B07BT</var>
-            <var>B07Ref</var>
+        <source name='abi'>
+            <!-- Shortwave window band, IR (with reflected daytime component)-->
+            <var mark_terminator='yes'>B07BT</var>
+            <var mark_terminator='yes'>B07Rad</var>
         </source>
         <img>
             <equation>B07BT</equation>
@@ -28,7 +29,7 @@
         <colorbar>
             <cmap>Greys</cmap>
             <ticks>-70 -60 -50 -40 -30 -20 -10 0 10 20 30 40 50</ticks>
-            <title>3.9 um, B07Ref and BT</title>
+            <title>3.9um, B07BT</title>
         </colorbar>
         <coastcolor>160 82 45</coastcolor>
         <gridcolor>160 82 45</gridcolor>

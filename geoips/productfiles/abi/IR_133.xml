@@ -8,14 +8,14 @@
         Arunas 20140407 varged celcius to celsius
 -->
 <product_file>
-<product method="basic" name="IR_039">
+<product method="basic" name="IR_133">
     <basic_args>
-        <source name='ahi'>
-            <var>B07BT</var>
-            <var>B07Ref</var>
+        <source name='abi'>
+            <!-- CO2 Longwave infrared, IR-->
+            <var>B16BT</var>
         </source>
         <img>
-            <equation>B07BT</equation>
+            <equation>B16BT</equation>
             <range>
                 <min_value>203.15</min_value>
                 <max_value>323.15</max_value>
@@ -28,7 +28,7 @@
         <colorbar>
             <cmap>Greys</cmap>
             <ticks>-70 -60 -50 -40 -30 -20 -10 0 10 20 30 40 50</ticks>
-            <title>3.9 um, B07Ref and BT</title>
+            <title>13.3 um B16BT</title>
         </colorbar>
         <coastcolor>160 82 45</coastcolor>
         <gridcolor>160 82 45</gridcolor>
