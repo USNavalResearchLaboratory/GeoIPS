@@ -6,7 +6,7 @@
         is contained there.
 -->
 <sector_file xmlns:py="http://codespeak.net/lxml/objectify/pytype">
-  <sector name="Full" download="yes" active="yes" operational="no" dynamic_datetime="" dynamic="no" composite='yes'>
+  <sector name="Global" download="yes" active="yes" operational="no" dynamic_datetime="" dynamic="no" composite='yes'>
     <destinations />
     <name>
       <continent>Global</continent>
@@ -35,6 +35,15 @@
     </plot_info>
     <source name="seviri">
         <product name="Infrared-Gray"/>
+        <product name="IR_016"/>
+        <product name="IR_039"/>
+        <product name="IR_087"/>
+        <product name="IR_097"/>
+        <product name="IR_108"/>
+        <product name="IR_120"/>
+        <product name="IR_134"/>
+        <product name="VIS006"/>
+        <product name="VIS008"/>
     </source>
     <source name="multisource">
         <product name="Low-Winds-Over-IR"/>
@@ -43,10 +52,43 @@
         <product name="winds"/>
     </source>
     <source name="abi">
+        <product name="IR_039"/>
+        <product name="IR_062"/>
+        <product name="IR_069"/>
+        <product name="IR_073"/>
+        <product name="IR_084"/>
+        <product name="IR_096"/>
+        <product name="IR_103"/>
+        <product name="IR_112"/>
+        <product name="IR_123"/>
+        <product name="IR_133"/>
+        <product name="VIS047"/>
+        <product name="VIS064"/>
+        <product name="VIS086"/>
+        <product name="VIS137"/>
+        <product name="VIS160"/>
+        <product name="VIS220"/>
+        <product name="VIS390"/>
         <product name="Infrared-Gray"/>
+        <product name="Visible"/>
     </source>
     <source name="ahi">
         <product name="Infrared-Gray"/>
+        <product name="IR_039"/>
+        <product name="IR_062"/>
+        <product name="IR_069"/>
+        <product name="IR_073"/>
+        <product name="IR_086"/>
+        <product name="IR_096"/>
+        <product name="IR_104"/>
+        <product name="IR_112"/>
+        <product name="IR_124"/>
+        <product name="IR_132"/>
+        <product name="VIS047"/>
+        <product name="VIS051"/>
+        <product name="VIS064"/>
+        <product name="VIS086"/>
+        <product name="VIS390"/>
     </source>
   </sector>
 <!-- CONUS SECTORS -->

@@ -92,7 +92,7 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 <!ELEMENT beamwidth             (#PCDATA)>
 <!ELEMENT day_night             (#PCDATA)>
 <!ELEMENT min_cover             (#PCDATA)>
-<!ELEMENT colorbar              (cmap, ticks, ticklabels?, title?, bounds?, norm?)>
+<!ELEMENT colorbar              (cmap, ticks, ticklabels?, title?, bounds?, norm?, spacing?)>
 <!ELEMENT cmap                  (#PCDATA)>
 <!ELEMENT ticks                 (#PCDATA)>
 <!ELEMENT ticklabels            (#PCDATA)>
