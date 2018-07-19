@@ -1157,10 +1157,11 @@ def send_email_response(emailaddress,emailtxt,bodylines):
     msg['Subject'] = 'GeoIPS Dynamic Sector Creation'
     msg['From'] = fromemail
     msg['To'] = emailaddress+','+os.getenv('DYNAMICEMAILREPLYTO')
+    sendtoemails = msg['To'].split(',')
 
     s = smtplib.SMTP('localhost')
     log.info('Emailing response: \n'+msg.as_string())
-    s.sendmail(fromemail, [emailaddress], msg.as_string())
+    s.sendmail(fromemail, sendtoemails, msg.as_string())
     s.quit()
 
 def write_dynamic_xml_files(dynamic_templatefname,sfname,return_sectornames=False):
