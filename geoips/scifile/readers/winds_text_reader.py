@@ -75,7 +75,7 @@ class Winds_Text_Reader(Reader):
         scifile/containers.py at the beginning of the file.
         '''
         metadata['top']['platform_name'] = 'windvectors'
-        metadata['top']['source_name'] = 'dmv'
+        metadata['top']['source_name'] = 'winds'
         metadata['top']['dataprovider'] = 'cimss'
         metadata['top']['NON_SECTORABLE'] = True
         metadata['top']['NO_GRANULE_COMPOSITES'] = True
@@ -135,13 +135,15 @@ class Winds_Text_Reader(Reader):
                 if pre >= 100 and pre < 250:
                     key = sat+typ+'100to2501d'
                 elif pre >= 251 and pre < 399:
-                    key = sat+typ+'251to3501d'
+                    key = sat+typ+'251to3991d'
                 elif pre >= 400 and pre < 599:
                     key = sat+typ+'400to5991d'
                 elif pre >= 600 and pre < 799:
                     key = sat+typ+'600to7991d'
                 elif pre >= 800 and pre <= 950:
                     key = sat+typ+'800to9501d'
+                elif pre >= 950:
+                    key = sat+typ+'950to10141d'
                 else:
                     log.warning('Pressure outside allowable range: '+str(pre))
                     continue
