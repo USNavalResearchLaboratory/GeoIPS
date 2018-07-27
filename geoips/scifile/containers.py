@@ -2092,10 +2092,24 @@ class Variable(MaskedArray):
                 THIS COULD BE THE NOTORIOUS CUMULATIVE MASK PROBLEM!!!!!
                 It has now been removed, so either we broke something, 
                 or we never have to worry about doing the funky stuff with
-                setting things to "nomask" in the readers anymore... '''
-            #    # Share the mask
-            #    val._set_mask_inplace(self._mask | val.mask)
-            #    self._mask = val._mask
+            setting things to "nomask" in the readers anymore... '''
+            #
+            '''
+            BANUELOS 20180726:
+            Not sharing the mask breaks Pyresample for MODIS and VIIRS.
+            Masking, removes the corners, and allows us to use falser corners 
+            in boxdefinitions.py, these work well with pyresample and 
+            eliminate the lines at edge of scan for VIIRS.
+
+            As for MODIS, there seemed to be a mask that was making holes and 
+            were coming out as noise in the products. This does break some of
+            the masking by reverting back to the cumulative mask problem, 
+            but for now this will be okay. If you dont need the cumulative mask
+            you can remove tese two lines. 
+            '''
+            # Share the mask
+            val._set_mask_inplace(self._mask | val.mask)
+            self._mask = val._mask
             #else:
             #    for attr in self._dsinfo.keys():
             #        print '  Variable.dataset self: '+' '+str(attr)+' '+str(getattr(self,attr))
