@@ -29,7 +29,6 @@ __email__ = "geoips@nrlmry.navy.mil"
 __license__ = "NRLMMD"
 __copyright__ = "2017 %s" % __author__
 __requires__ = [ 'h5py', # Anaconda
-                'pygrib', # conda install -c conda-forge pygrib
                  # 'pyhdf',
                  'cftime', # Doesn't appear to automatically install for netCDF4
                  'netCDF4', # Anaconda - netcdf4 -- needs basemap first
@@ -44,7 +43,8 @@ __requires__ = [ 'h5py', # Anaconda
                  'matplotlib', # Anaconda
                  'lxml', # Anaconda
                  'ephem', # Anaconda. Didn't auto install ???
+                 'pygrib', # conda install -c conda-forge pygrib
                  'geos', # needed for basemap. Didn't auto-install?
-                 'numexpr',
+                 'numexpr', # failed for pip
                  'basemap', # conda install -c anaconda basemap
                ]
