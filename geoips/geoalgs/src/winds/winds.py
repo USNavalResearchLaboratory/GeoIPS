@@ -41,4 +41,4 @@ def winds(datafile, sector, product, workdir):
         for varname in datafile.datasets[dsname].variables.keys():
             outdata[dsname][varname] = datafile.datasets[dsname].variables[varname]
 
-    return outdata
+    return outdata, None
