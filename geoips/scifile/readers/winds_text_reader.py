@@ -132,13 +132,13 @@ class Winds_Text_Reader(Reader):
                 else:
                     log.error('Unsupported format for %s'%(parts))
                 pre = int(pre)
-                if pre >= 100 and pre < 250:
+                if pre >= 100 and pre <= 250:
                     key = sat+typ+'100to2501d'
-                elif pre >= 251 and pre < 399:
+                elif pre >= 251 and pre <= 399:
                     key = sat+typ+'251to3991d'
-                elif pre >= 400 and pre < 599:
+                elif pre >= 400 and pre <= 599:
                     key = sat+typ+'400to5991d'
-                elif pre >= 600 and pre < 799:
+                elif pre >= 600 and pre <= 799:
                     key = sat+typ+'600to7991d'
                 elif pre >= 800 and pre <= 950:
                     key = sat+typ+'800to9501d'
