@@ -30,16 +30,21 @@ __license__ = "NRLMMD"
 __copyright__ = "2017 %s" % __author__
 __requires__ = [ 'h5py', # Anaconda
                  # 'pyhdf',
-                 'netCDF4', # Anaconda - netcdf4
-                 'pyresample',
+                 'cftime', # Doesn't appear to automatically install for netCDF4
+                 'netCDF4', # Anaconda - netcdf4 -- needs basemap first
+                 'pyproj',
+                 'argparse', # Doesn't appear to automatically install for msgpack
+                 'msgpack', # Doesn't appear to automatically install for pyresample
+                 'pyresample', # conda install -c conda-forge pyresample -- couldn't compile pykdtreeimpo
                  'memory_profiler',
                  'numpy', # Anaconda
                  'scipy', # Anaconda
                  'Pillow', # Anaconda - pillow
                  'matplotlib', # Anaconda
                  'lxml', # Anaconda
-                 'ephem', # Anaconda
-                 'geos', # needed for basemap
-                 'basemap', # Anaconda ? install from source
-                 'numexpr',
+                 'ephem', # Anaconda. Didn't auto install ???
+                 'pygrib', # conda install -c conda-forge pygrib
+                 'geos', # needed for basemap. Didn't auto-install?
+                 'numexpr', # failed for pip
+                 'basemap', # conda install -c anaconda basemap
                ]

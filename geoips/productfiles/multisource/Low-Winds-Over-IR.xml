@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<product_file>
+<product method='multisource' name='Low-Winds-Over-IR' testonly='yes'>
+    <multisource_args>
+        <productlayer name='windsMET8IR800to950grid' order='1'>
+            <possiblesource>winds</possiblesource>
+        </productlayer>
+        <productlayer name='Infrared-Gray' runonreceipt='yes' order='2'>
+            <possiblesource>ahi</possiblesource>
+            <possiblesource>seviri</possiblesource>
+            <possiblesource>abi</possiblesource>
+        </productlayer>
+    </multisource_args>
+</product>
+</product_file>
+
