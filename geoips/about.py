@@ -21,7 +21,7 @@ __title__ = "geoips"
 __summary__ = "Geolocated Information Processing System (GeoIPS(TM))"
 __uri__ = "http://www.nrlmry.navy.mil/geoips"
 
-__version__ = "1.0.4"
+__version__ = "0.5.0"
 
 __author__ = "Naval Research Laboratory Marine Meteorology Division"
 __email__ = "geoips@nrlmry.navy.mil"
