@@ -22,11 +22,11 @@ from datetime import timedelta, datetime
 import multiprocessing
 
 # Installed Libraries
-try:
-    # Don't fail if this doesn't exist (not even used at the moment)
-    from IPython import embed as shell
-except:
-    print 'Failed IPython import in driver.py. If you need it, install it.'
+#try:
+#    # Don't fail if this doesn't exist (not even used at the moment)
+#    from IPython import embed as shell
+#except:
+#    print 'Failed IPython import in driver.py. If you need it, install it.'
 try:
     # Don't fail if this doesn't exist (not even used at the moment)
     from memory_profiler import profile
@@ -108,6 +108,15 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         didmem = True
     elif printmemusg and (datetime.utcnow().second % 5) != 0 and didmem:
         didmem = False
+
+    runfirst = []
+    runsecond = []
+    for sect in sects:
+        if sect.name in ['CONUSGulfOfMexico','CONUSCentralPlains','CONUSSouthCentral','Caribbean_large','CONUSSouthEast']:
+            runfirst += [sect]
+        else:
+            runsecond += [sect]
+    sects = runsecond + runfirst
 
     # pass max num cpus as option to ddriver.py. default to 1.
     if sects and len(mp_jobs) < int(mp_max_cpus):
