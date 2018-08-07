@@ -109,15 +109,6 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
     elif printmemusg and (datetime.utcnow().second % 5) != 0 and didmem:
         didmem = False
 
-    runfirst = []
-    runsecond = []
-    for sect in sects:
-        if sect.name in ['CONUSGulfOfMexico','CONUSCentralPlains','CONUSSouthCentral','Caribbean_large','CONUSSouthEast']:
-            runfirst += [sect]
-        else:
-            runsecond += [sect]
-    sects = runsecond + runfirst
-
     # pass max num cpus as option to ddriver.py. default to 1.
     if sects and len(mp_jobs) < int(mp_max_cpus):
         curr_sector = sects.pop()
@@ -541,6 +532,17 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     # for curr_sector in sector_file.itersectors():
     # Please excuse the polling loop.. Haven't gotten around to
     #   fixing this.
+
+    if sects:
+        runfirst = []
+        runsecond = []
+        for sect in sects:
+            if sect.name in ['CONUSGulfOfMexico','CONUSCentralPlains','CONUSSouthCentral','Caribbean_large','CONUSSouthEast']:
+                runfirst += [sect]
+            else:
+                runsecond += [sect]
+        sects = runsecond + runfirst
+
     while mp_jobs or sects:
         rs_ret = run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc,
                              mp_max_cpus, printmemusg, sects, mp_jobs, mp_waiting, geoips_only,
