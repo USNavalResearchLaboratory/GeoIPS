@@ -100,7 +100,7 @@ class GeoImgBase(object):
             else:
                 self._cmap = None
 
-    def set_colorbars(self, cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None, append=False):
+    def set_colorbars(self, cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None, spacing=None, append=False):
         ''' Method to allow setting the colorbars explicitly.  Previously boundaries was always
             None, and norm was always  norm = Normalize(vmin=img.min(), vmax=img.max()).
             In order to allow additional colorbar configurations, we are allowing the user
@@ -142,6 +142,10 @@ class GeoImgBase(object):
             |            |                        |       colorbarbase norm argument                      |
             |            | *Normalize*            | single matplotlib.colors Normalize instance           |
             +----------------+--------+-------------------------------------------------------------------+
+            | spacing:   | *list* of strings      | List of strings to be passed to ColorbarBase spacing  |
+            |            |                        |       arg                                             |
+            |            | *string*               | single string passed to ColorbarBase spacing arg
+            +----------------+--------+-------------------------------------------------------------------+
             | append:    | *bool*           | True: append specified colorbar(s) to self._colorbars       |
             |            |                  | False: Replace self._colorbars with passed values           |
             |            |                  | Default: False                                              |
@@ -156,13 +160,14 @@ class GeoImgBase(object):
         elif isinstance(cmap, list):
             if not append:
                 self._colorbars = []
-            for (ccmap, cticks, cticklabels, ctitles, cbounds, cnorm) in zip(cmap, ticks, ticklabels, titles, bounds, norm):
-                self._colorbars += [Colorbar.fromvals(ccmap, cticks, cticklabels, ctitle, cbounds, cnorm)]
+            for (ccmap, cticks, cticklabels, ctitles, cbounds, cnorm, cspacing) in zip(cmap, ticks, ticklabels, titles,
+                    bounds, norm, spacing):
+                self._colorbars += [Colorbar.fromvals(ccmap, cticks, cticklabels, ctitle, cbounds, cnorm, cspacing)]
         else:
             if append:
-                self._colorbars += [Colorbar.fromvals(cmap, ticks, ticklabels, title, bounds, norm)]
+                self._colorbars += [Colorbar.fromvals(cmap, ticks, ticklabels, title, bounds, norm, spacing)]
             else:
-                self._colorbars = [Colorbar.fromvals(cmap, ticks, ticklabels, title, bounds, norm)]
+                self._colorbars = [Colorbar.fromvals(cmap, ticks, ticklabels, title, bounds, norm, spacing)]
         return self._colorbars
 
     def register_data(self, interp_method='nearest'):
@@ -1095,6 +1100,7 @@ class GeoImgBase(object):
                     cbar_norm = None
                     ticks = None
                     bounds = None
+                    spacing = None
                     if len(cbarinfo.ticks) != 0:
                         ticks = cbarinfo.ticks
                         vmin = min(ticks)
@@ -1103,11 +1109,11 @@ class GeoImgBase(object):
                     if cbarinfo.norm:
                         cbar_norm = cbarinfo.norm
                     if cbarinfo.bounds:
-                        bounds = cbarinfo.bounds
-                        ticks = bounds
+                        ticks = cbarinfo.bounds
+                        bounds = [ticks[0]-1] + ticks + [ticks[-1]+1]
                     cbar = ColorbarBase(cbar_axes, cmap=cmap, extend='both',
                                  orientation='horizontal', ticks=ticks, norm=cbar_norm,
-                                 boundaries = bounds)
+                                 boundaries = bounds, spacing = spacing)
                     if len(cbarinfo.ticklabels) != 0:
                         cbar.set_ticklabels(cbarinfo.ticklabels)
                     # MLS 20151202 This sets the font size for the color bar 

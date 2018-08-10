@@ -55,16 +55,16 @@ class ExternalAlg(GeoImgBase):
 
         In order to handle the arbitrary output formats, an <alg>_plot
         and <alg>_coverage external algorithm must be created in addition
-        to <alg>.  So there will be 
+        to <alg>.  So there will be:
 
-            geoalgs/src/<algname>, 
-            geoalgs/src/<algname>_plot, 
-            geoalgs/src/<algname>_coverage, 
+            geoalgs/src/<algname>/<algname>.py, 
+            geoalgs/src/<algname>/<algname>_plot.py, 
+            geoalgs/src/<algname>/<algname>_coverage.py, 
 
             ie
-            geoalgs/src/amv
-            geoalgs/src/amv_plot
-            geoalgs/src/amv_coverage
+            geoalgs/src/winds/winds.py
+            geoalgs/src/winds/winds_plot.py
+            geoalgs/src/winds/winds_coverage.py
         '''
     
         
@@ -104,7 +104,7 @@ class ExternalAlg(GeoImgBase):
             both handle data outputs as well as imagery output...) But I 
             am not ready to make that change just yet.
             '''
-            outdata = algorithm(self.datafile,
+            outdata, metadata = algorithm(self.datafile,
                                 self.sector,
                                 self.product,
                                 '',
@@ -119,6 +119,7 @@ class ExternalAlg(GeoImgBase):
             Put flipud in the individual algorithms if needed.
             '''
             self._image = outdata
+            self.image_metadata = metadata
 
         return self._image
 

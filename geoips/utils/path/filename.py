@@ -710,12 +710,12 @@ class FileName(object):
             #log.info('obj: '+obj.name)
 
             for base_dir in obj.check_dirs_for_files():
-                if base_dir+curr_fn.name not in checked_dirs:
+                if os.path.join(base_dir, curr_fn.name) not in checked_dirs:
                     wildfn.base_dir = base_dir
                     if not quiet:
                         log.info('Checking '+wildfn.name+' for '+str(num_minutes)+': '+str(startfn.datetime)+' to '+str(endfn.datetime))
                     allfiles += obj.find_all_files(wildfn,fn,startfn,endfn,extra=extra,quiet=True)
-                    checked_dirs += [base_dir+curr_fn.name]
+                    checked_dirs += [os.path.join(base_dir,curr_fn.name)]
 
         if not quiet:
             log.info('    Cleaning up list')
@@ -882,8 +882,8 @@ def parse(name, nameformat, fieldsep='.', fillvalue='_',ext=None):
 
     # Do these backwards, so if we are doing paths, the beginning of the
     # path can be reserved for a base directory (the extra '/'s throw it off)
-    nameformat_paths = nameformat.split('/')
-    name_paths = name.split('/')
+    nameformat_paths = nameformat.split(os.path.sep)
+    name_paths = name.split(os.path.sep)
     name_paths.reverse()
     nameformat_paths.reverse()
 
@@ -894,7 +894,14 @@ def parse(name, nameformat, fieldsep='.', fillvalue='_',ext=None):
         startind = len(nameformat_paths) - 1
         #print '    parse name_paths[startind:]: '+str(name_paths[startind:])
         #print '    parse name_paths[startind+1:]: '+str(name_paths[startind+1:])
-        name_paths[startind] = '/'.join(reversed(name_paths[startind+1:]))+'/'+name_paths[startind]
+        try:
+            name_paths[startind] = os.path.sep.join(
+                    list(reversed(name_paths[startind+1:])) + 
+                    [name_paths[startind]]
+                    )
+        except:
+            log.warning('failed')
+            #raise
         name_paths = name_paths[0:startind+1]
         #print '    parse name_paths now: '+str(name_paths)
         #print '    parse len(name_parts): '+str(len(name_paths))+' len(name_paths): '+str(len(nameformat_paths))
@@ -960,9 +967,9 @@ def make_new_name(nameformat, fieldsep, parts,dt=None,ext=None,fillvalue=None,pa
     #print '    make_new_name parts: '+str(parts)
     #shell()
     isdir = False
-    if '/' in nameformat:
+    if os.path.sep in nameformat:
         isdir = True
-    for dirname in reversed(nameformat.split('/')):
+    for dirname in reversed(nameformat.split(os.path.sep)):
         for format_part in reversed(dirname.split(fieldsep)):
             dtstring = None
             #print '    make_new_name format_part: '+str(format_part)
@@ -976,7 +983,10 @@ def make_new_name(nameformat, fieldsep, parts,dt=None,ext=None,fillvalue=None,pa
                 #print '    make_new_name: no <>, so static field'
                 continue
             if '{' in format_part:
-                format_part_name,dtformatstring = format_part_name.split('{',2)
+                try:
+                    format_part_name,dtformatstring = format_part_name.split('{',2)
+                except:
+                    log.warning('failed')
                 dtformatstring = dtformatstring.replace('}','')
                 #print '    make_new_name{: '+format_part_name
                 #print '    make_new_name parts[format_part_name]:'+parts[format_part_name]
@@ -994,9 +1004,13 @@ def make_new_name(nameformat, fieldsep, parts,dt=None,ext=None,fillvalue=None,pa
 
             escaped_format_part = re.escape(format_part)
             escaped_fieldsep = re.escape(fieldsep)
+            escaped_ospathsep = re.escape(os.path.sep)
 
-            regex_pattern = (r'((?<=/)|(?<=^)|(?<=%s))%s((?=%s)|(?=$)|(?=/))' % 
-                             (escaped_fieldsep, escaped_format_part, escaped_fieldsep))
+            regex_pattern =  (
+                r'((?<=/)|(?<=^)|(?<=%s)|(?<=%s))%s((?=%s)|(?=$)|(?=/)|(?=%s))' % 
+                (escaped_fieldsep, escaped_ospathsep, 
+                 escaped_format_part, 
+                 escaped_fieldsep, escaped_ospathsep))
             try:
                 if dtstring:
                     repl_string = dtstring
@@ -1017,7 +1031,13 @@ def make_new_name(nameformat, fieldsep, parts,dt=None,ext=None,fillvalue=None,pa
                     raise PathFormatError('Filename does not conform to format string: %s' % nameformat)
             # replace current format name with actual name in format string.
             #print '    make_new_name regex_pattern: '+regex_pattern+' repl_string: '+repl_string
-            tempname = re.sub(regex_pattern, repl_string, tempname)
+            if '\\' in repl_string:
+                repl_string = repl_string.replace('\\','\\\\')                
+            try:
+                tempname = re.sub(regex_pattern, repl_string, tempname)
+            except:
+                log.warning('failed')
+                raise
             #print '    tempname: '+tempname
         #print 'leaving make_new_name tempname: '+str(tempname)
     return tempname

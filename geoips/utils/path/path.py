@@ -18,7 +18,11 @@ from os import getenv
 from os import path as p
 from os import unlink
 from os import makedirs
-from os import chmod,chown
+from os import chmod
+try:
+    from os import chown
+except ImportError:
+    print 'os.chown not available'
 from os import pardir 
 import logging
 
@@ -31,6 +35,7 @@ import logging
 from geoips.utils.decorators import doc_set
 from geoips.utils.log_setup import interactive_log_setup
 from .exceptions import PathFormatError
+from geoips.utils.plugin_paths import paths as gpaths
 
 
 log = interactive_log_setup(logging.getLogger(__name__))
@@ -44,7 +49,10 @@ def chmodown(path,uid=5029,gid=4959,mod=0o775):
     # satuser UID = 5029
     # linux command id tells you these.
     if getenv('USER') == 'satuser':
-        chown(path,uid,gid)
+        try:
+            chown(path,uid,gid)
+        except NameError:
+            log.warning('Chown not defined, skipping')
         #log.info('chown '+str(uid)+' '+str(gid)+' '+path)
 
 class Path(object):
@@ -346,7 +354,7 @@ class Path(object):
                     log.error('Failed creating directory '+path)
                     #print('Failed creating directory '+path)
                     raise
-            if not path.startswith(getenv('HOME')):
+            if not path.startswith(gpaths['HOME']):
                 #log.info('        *** Created directory '+path+' changing permissions on all parent directories...')
                 # MLS 20170127 Rely on umask for permissions - should be 775 now.
                 pass
