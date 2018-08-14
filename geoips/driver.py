@@ -22,11 +22,6 @@ from datetime import timedelta, datetime
 import multiprocessing
 
 # Installed Libraries
-#try:
-#    # Don't fail if this doesn't exist (not even used at the moment)
-#    from IPython import embed as shell
-#except:
-#    print 'Failed IPython import in driver.py. If you need it, install it.'
 try:
     # Don't fail if this doesn't exist (not even used at the moment)
     from memory_profiler import profile
@@ -269,6 +264,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 
         # MLS This is a good place to enter iPython in order to interrogate
         #       the SECTORED data file for development purposes.
+        # from IPython import embed as shell
         # shell()
 
         '''If user requested write_sectored_datafile command line, then see if this is not
