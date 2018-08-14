@@ -27,7 +27,7 @@ def get_filename(basedir, source_name, secclass, sectorname, sdt, edt, platform_
     baseoutfilename = '%s/%s_%s-%s_%s_%s_%03d'%(dirname,
                         sectorname,    
                         sdtstr,
-                        edtstr
+                        edtstr,
                         platform_name,
                         sector_name,
                         numfilesstr,
