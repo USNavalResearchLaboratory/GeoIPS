@@ -99,10 +99,12 @@ for destbase in destinations:
             print gitignore_fname+' exists! Delete it if you want a new one.'
             continue
         fileobj = open(gitignore_fname,'w')
-        if os.path.exists(destbase+'/gitignore'):
-            fileobj.write('# Adding gitignore from '+destbase+'/gitignore\n')
-            for line in open(destbase+'/gitignore'):
-                fileobj.write(line.strip()+'\n')
+        # Add base gitignore information from all locations
+        for currdirname in pluginbases+[destbase]:
+            if os.path.exists(currdirname+'/gitignore'):
+                fileobj.write('# Adding gitignore from '+currdirname+'/gitignore\n')
+                for line in open(currdirname+'/gitignore'):
+                    fileobj.write(line.strip()+'\n')
     else:
         print('# Adding gitignore from '+destbase+'/gitignore\n')
 
