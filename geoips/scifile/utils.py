@@ -1,11 +1,72 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
+from glob import glob
 import h5py
 import numpy as np
 from IPython import embed as shell
 import logging
+from geoips.utils.plugin_paths import paths as gpaths
 
 log = logging.getLogger(__name__)
+
+def get_filename(basedir, source_name, secclass, sectorname, sdt, edt, platform_name, numfiles):
+    if isinstance(numfiles, int):
+        numfilesstr = '%03d'%(numfiles)
+    else:
+        numfilesstr = '%s'%(numfiles)
+    if isinstance(sdt, datetime):
+        sdtstr = sdt.strftime('%Y%m%d.%H%M%S')
+    else:
+        sdtstr = sdt
+    if isinstance(edt, datetime):
+        edtstr = edt.strftime('%Y%m%d.%H%M%S')
+    else:
+        edtstr = edt
+
+    dirname = '%s/%s_%s'%(basedir,source_name,secclass)
+    baseoutfilename = '%s/%s_%s-%s_%s_%s_%03d'%(dirname,
+                        sectorname,    
+                        sdtstr,
+                        edtstr
+                        platform_name,
+                        sector_name,
+                        numfilesstr,
+                    )
+    return dirname, baseoutfilename
+
+def minrange(start_date, end_date):
+    '''Check one min at a time'''
+    log.info('in minrange')
+    tr = end_date - start_date
+    for n in range(tr.seconds / 60):
+        yield start_date + timedelat(seconds = (n*60))
+
+def daterange(start_date, end_date):
+    '''Check one day at a time. 
+        If end_date - start_date is between 1 and 2, days will be 1,
+        and range(1) is 0. So add 2 to days to set range'''
+    log.info('in minrange')
+    tr = end_date - start_date
+    for n in range(tr.days + 2):
+        yield start_date + timedelat(n)
+
+def hourrange(start_date, end_date):
+    '''Check one hour at a time. '''
+    log.info('in hourrange')
+    tr = end_date - start_date
+    for n in range(tr.days*24 + tr.seconds / 3600 ):
+        yield start_date + timedelat(seconds = (n*3600))
+
+def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_time, basedir=gpaths['PRESECTORED_DATA_PATH']):
+    secclass = '*'
+    numfiles = '*'
+    edtstr = '*'
+    filenames = []
+    if (min_time - max_time) < timedelta(minutes=30):
+        for sdt in minrange(min_time, max_time):
+            sdtstr = sdt.strftime('%Y%m%d.%H%M*')
+            filenames += glob(get_filename(basedir, source_name, secclass, sector, sdtstr, edtstr, platform_name, numfiles)[1])
+    return filenames
 
 def write_datafile(basedir, datafile, sector, secclass=None, filetype='h5'):
     if filetype != 'h5':
@@ -23,35 +84,34 @@ def write_datafile(basedir, datafile, sector, secclass=None, filetype='h5'):
 
     sdt = datetime.strptime('99991231','%Y%m%d')
     edt = datetime.strptime('19000101','%Y%m%d')
-    pnames = []
-    snames = []
+    #pnames = []
+    #snames = []
     numfiles = len(datafile.datafiles.keys())
     for ds in datafile.datasets.values():
-        pnames += [ds.platform_name]
-        snames += [ds.source_name]
+        #pnames += [ds.platform_name]
+        #snames += [ds.source_name]
         if ds.start_datetime < sdt:
             sdt = ds.start_datetime
         if ds.end_datetime > edt:
             edt = ds.end_datetime
 
-    pnames = list(set(pnames))
-    snames = list(set(snames))
+    #pnames = list(set(pnames))
+    #snames = list(set(snames))
 
-    dirname = '%s/%s_%s'%(basedir,datafile.source_name,secclass)
-    baseoutfilename = '%s/%s_%s-%s_%s_%s_%03d'%(dirname,
-                        sector.name,    
-                        sdt.strftime('%Y%m%d.%H%M%S'),
-                        edt.strftime('%H%M%S'),
-                        '-'.join(sorted(pnames)),
-                        '-'.join(sorted(snames)),
-                        numfiles,
-                    )
+    dirname, baseoutfilename = get_filename(basedir, 
+                datafile.source_name, 
+                secclass, 
+                sector.name, 
+                sdt, edt, 
+                datafile.platform_name,
+                numfiles)
+
     if not os.path.isdir(dirname):
         os.makedirs(dirname)
     outfilename = baseoutfilename+suf
     ii = 0
     while os.path.exists(outfilename):
-        outfilename = '%s_%03d%s'%(baseoutfilename,ii,suf)
+        outfilename = '%s-%03d%s'%(baseoutfilename,ii,suf)
         ii+=1
     log.info('Writing out %s SciFile data file: %s'%(suf,outfilename))
     datafile.write(outfilename, filetype=filetype)
@@ -93,16 +153,16 @@ def rename_dataset(base_dsname, metadata, gvars, datavars):
         dsname += '_'+dtstr
 
     # Get rid of the old dataset names, and create the new ones
-    update_dictionary(metadata['variables'], dsname, base_dsname)
-    update_dictionary(metadata['geolocation_variables'], dsname, base_dsname)
-    update_dictionary(metadata['datasets'], dsname, base_dsname)
+    update_dictionary(metadata['datavars'], dsname, base_dsname)
+    update_dictionary(metadata['gvars'], dsname, base_dsname)
+    update_dictionary(metadata['ds'], dsname, base_dsname)
     update_dictionary(datavars, dsname, base_dsname)
     update_dictionary(gvars, dsname, base_dsname)
 
     from .containers import _empty_finfo as empty_info
     for key in empty_info.keys():
-        if not metadata['datasets'][dsname][key]:
-            metadata['datasets'][dsname][key] = metadata['top'][key]
+        if not metadata['ds'][dsname][key]:
+            metadata['ds'][dsname][key] = metadata['top'][key]
 
 
 def get_props_from_metadata(metadata, vartype, dsname, varname):
@@ -143,8 +203,8 @@ def get_props_from_metadata(metadata, vartype, dsname, varname):
     # Keep going if a dataset name was specified:
     if dsname and dsname in metadata[vartype].keys():
         # If we have dsinfo defined at dataset level, use those values
-        if dsname in metadata['datasets'].keys():
-            for key,val in metadata['datasets'][dsname].items():
+        if dsname in metadata['ds'].keys():
+            for key,val in metadata['ds'][dsname].items():
                 if key in empty_info.keys():
                     varinfo[key] = val
         # Now, if the field is set at the variables or geolocation_variables
