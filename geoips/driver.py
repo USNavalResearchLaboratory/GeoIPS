@@ -189,6 +189,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         log.interactive('{0} Using variables from products: {1}'.format(plog, curr_productlist))
         try:
             required_vars = curr_sector.get_required_vars(data_file.source_name, curr_productlist)
+            required_vars += curr_sector.get_optional_vars(data_file.source_name, curr_productlist)
         # This portion needs to be rethought.  Currently will skip an entire sector any time a single product file
         #   is missing.  Correct behavior would be to remove the offending product from the product list.
         except productfile.ProductFileError.ProductFileError, resp:
@@ -690,6 +691,7 @@ if __name__ == '__main__':
         log.info('\n\n')
         # Get list of all possible channels required based on sectorfile and productlist
         chans += sectfile.get_required_vars(ds.source_name, args['productlist'])
+        chans += sectfile.get_optional_vars(ds.source_name, args['productlist'])
     log.info('\tRequired channels: {0}'.format(sorted(chans)))
     log.info('\n')
     log.info('\tRequired sectors: {0}'.format(sorted(sectfile.sectornames())))
