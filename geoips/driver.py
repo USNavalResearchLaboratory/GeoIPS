@@ -22,11 +22,11 @@ from datetime import timedelta, datetime
 import multiprocessing
 
 # Installed Libraries
-try:
-    # Don't fail if this doesn't exist (not even used at the moment)
-    from IPython import embed as shell
-except:
-    print 'Failed IPython import in driver.py. If you need it, install it.'
+#try:
+#    # Don't fail if this doesn't exist (not even used at the moment)
+#    from IPython import embed as shell
+#except:
+#    print 'Failed IPython import in driver.py. If you need it, install it.'
 try:
     # Don't fail if this doesn't exist (not even used at the moment)
     from memory_profiler import profile
@@ -533,6 +533,17 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     # for curr_sector in sector_file.itersectors():
     # Please excuse the polling loop.. Haven't gotten around to
     #   fixing this.
+
+    if sects:
+        runfirst = []
+        runsecond = []
+        for sect in sects:
+            if sect.name in ['CONUSGulfOfMexico','CONUSCentralPlains','CONUSSouthCentral','Caribbean_large','CONUSSouthEast']:
+                runfirst += [sect]
+            else:
+                runsecond += [sect]
+        sects = runsecond + runfirst
+
     while mp_jobs or sects:
         rs_ret = run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc,
                              mp_max_cpus, printmemusg, sects, mp_jobs, mp_waiting, geoips_only,
