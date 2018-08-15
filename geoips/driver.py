@@ -264,6 +264,10 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 
         # MLS This is a good place to enter iPython in order to interrogate
         #       the SECTORED data file for development purposes.
+        #   sectored.datasets.keys()
+        #   sectored.datasets[<dsname>].variables.keys()
+        #   sectored.datasets[<dsname>].variables[<varname>].min()
+        #   sectored.datasets[<dsname>].variables[<varname>].max()
         # from IPython import embed as shell
         # shell()
 
