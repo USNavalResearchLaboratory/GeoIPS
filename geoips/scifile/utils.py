@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from glob import glob
 import h5py
 import numpy as np
-from IPython import embed as shell
 import logging
 from geoips.utils.plugin_paths import paths as gpaths
 
@@ -205,14 +204,16 @@ def get_props_from_metadata(metadata, vartype, dsname, varname):
         # If we have dsinfo defined at dataset level, use those values
         if dsname in metadata['ds'].keys():
             for key,val in metadata['ds'][dsname].items():
-                if key in empty_info.keys():
+                if key in empty_info.keys() and val is not None:
                     varinfo[key] = val
         # Now, if the field is set at the variables or geolocation_variables
         # level, use the value from that level
         if varname and varname in metadata[vartype][dsname].keys():
             for key,val in metadata[vartype][dsname][varname].items():
-                if key in empty_info.keys():
+                if key in empty_info.keys() and val is not None:
                     varinfo[key] = val
+    #from IPython import embed as shell
+    #shell()
 
     return varinfo
 
