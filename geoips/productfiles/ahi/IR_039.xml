@@ -12,7 +12,6 @@
     <basic_args>
         <source name='ahi'>
             <var>B07BT</var>
-            <var>B07Ref</var>
         </source>
         <img>
             <equation>B07BT</equation>

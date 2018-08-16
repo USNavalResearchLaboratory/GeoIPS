@@ -101,6 +101,14 @@ class XMLProductFile(object):
             variables.update(set(prod.get_required_source_vars(source)))
         return list(variables)
 
+    def get_optional_source_vars(self, source):
+        '''Returns a list containing the names of the variables required for the current set of products
+        for the provided data source name.'''
+        variables = set()
+        for prod in self.iterproducts(source):
+            variables.update(set(prod.get_optional_source_vars(source)))
+        return list(variables)
+
     def get_required_source_geolocation_vars(self, source):
         '''Returns a list containing the names of the variables required for the current set of products
         for the provided data source name.'''
@@ -225,7 +233,12 @@ class Product(object):
     def get_required_source_vars(self, source):
         '''Return a list containing the names of the variables required for the current product
         for the given data source name.'''
-        return self.sources[source].variables.keys()
+        return [xx.name for xx in self.sources[source].variables.values() if not xx.optional]
+
+    def get_optional_source_vars(self, source):
+        '''Return a list containing the names of the variables required for the current product
+        for the given data source name.'''
+        return [xx.name for xx in self.sources[source].variables.values() if xx.optional]
 
     def get_required_source_geolocation_vars(self, source):
         '''Return a list containing the names of the geolocation variables required for the current product
@@ -932,6 +945,12 @@ class Variable(object):
         if not hasattr(self, '_mark_terminator'):
             self._mark_terminator = test_attrib_bool(self.node, 'mark_terminator')
         return self._mark_terminator
+
+    @property
+    def optional(self):
+        if not hasattr(self, '_optional'):
+            self._optional= test_attrib_bool(self.node, 'optional')
+        return self._optional
 
     @property
     def units(self):

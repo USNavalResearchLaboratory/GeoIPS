@@ -167,6 +167,7 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 -->
 <!ATTLIST var zenith            CDATA "no">
 <!ATTLIST var mark_terminator   CDATA "no">
+<!ATTLIST var optional 		CDATA "no">
 <!ATTLIST var eq_name           CDATA #IMPLIED>
 
 <!-- eq_name used when specifying multiple equations, so you can reference 

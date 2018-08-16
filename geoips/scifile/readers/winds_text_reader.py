@@ -5,7 +5,7 @@ from datetime import datetime
 # Installed Libraries
 from IPython import embed as shell
 try: import netCDF4 as ncdf
-except: print 'Failed import netCDF4 in scifile/readers/knmirscat_ncdf3_reader.py. If you need it, install it.'
+except: print 'Failed import netCDF4 in scifile/readers/winds_text_reader.py. If you need it, install it.'
 import numpy as np
 from scipy.interpolate import griddata
 import logging

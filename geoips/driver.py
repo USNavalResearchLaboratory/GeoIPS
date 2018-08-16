@@ -24,11 +24,6 @@ import multiprocessing
 # Installed Libraries
 try:
     # Don't fail if this doesn't exist (not even used at the moment)
-    from IPython import embed as shell
-except:
-    print 'Failed IPython import in driver.py. If you need it, install it.'
-try:
-    # Don't fail if this doesn't exist (not even used at the moment)
     from memory_profiler import profile
 except:
     print 'Failed memory_profiler import in driver.py. If you need it, install it.'
@@ -189,6 +184,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         log.interactive('{0} Using variables from products: {1}'.format(plog, curr_productlist))
         try:
             required_vars = curr_sector.get_required_vars(data_file.source_name, curr_productlist)
+            required_vars += curr_sector.get_optional_vars(data_file.source_name, curr_productlist)
         # This portion needs to be rethought.  Currently will skip an entire sector any time a single product file
         #   is missing.  Correct behavior would be to remove the offending product from the product list.
         except productfile.ProductFileError.ProductFileError, resp:
@@ -268,6 +264,11 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 
         # MLS This is a good place to enter iPython in order to interrogate
         #       the SECTORED data file for development purposes.
+        #   sectored.datasets.keys()
+        #   sectored.datasets[<dsname>].variables.keys()
+        #   sectored.datasets[<dsname>].variables[<varname>].min()
+        #   sectored.datasets[<dsname>].variables[<varname>].max()
+        # from IPython import embed as shell
         # shell()
 
         '''If user requested write_sectored_datafile command line, then see if this is not
@@ -532,6 +533,17 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     # for curr_sector in sector_file.itersectors():
     # Please excuse the polling loop.. Haven't gotten around to
     #   fixing this.
+
+    if sects:
+        runfirst = []
+        runsecond = []
+        for sect in sects:
+            if sect.name in ['CONUSGulfOfMexico','CONUSCentralPlains','CONUSSouthCentral','Caribbean_large','CONUSSouthEast']:
+                runfirst += [sect]
+            else:
+                runsecond += [sect]
+        sects = runsecond + runfirst
+
     while mp_jobs or sects:
         rs_ret = run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc,
                              mp_max_cpus, printmemusg, sects, mp_jobs, mp_waiting, geoips_only,
@@ -690,6 +702,7 @@ if __name__ == '__main__':
         log.info('\n\n')
         # Get list of all possible channels required based on sectorfile and productlist
         chans += sectfile.get_required_vars(ds.source_name, args['productlist'])
+        chans += sectfile.get_optional_vars(ds.source_name, args['productlist'])
     log.info('\tRequired channels: {0}'.format(sorted(chans)))
     log.info('\n')
     log.info('\tRequired sectors: {0}'.format(sorted(sectfile.sectornames())))

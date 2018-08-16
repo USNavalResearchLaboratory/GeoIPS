@@ -95,11 +95,12 @@ def create_imagery(data_file, sector, productlist, outdir,
         # Check whether required channels exist in data file, do this before 
         # day/night check.
         req_vars = curr_product.get_required_source_vars(data_file.source_name)
+        opt_vars = curr_product.get_optional_source_vars(data_file.source_name)
 
         # Skip if no required variables available for the current product
-        if not data_file.has_all_vars(req_vars):
-            log.warning(pplog+' SKIPPING: No required variables available')
-            log.interactive('SKIPPING: No required variables available')
+        if not data_file.has_all_vars(req_vars) and not data_file.has_any_vars(opt_vars):
+            log.warning(pplog+' SKIPPING: All required variables not available')
+            log.interactive('SKIPPING: All required variables not available')
             return None
 
         # Skip if appropriate data is not found (day vs night)
