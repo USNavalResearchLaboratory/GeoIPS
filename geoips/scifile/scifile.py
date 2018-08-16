@@ -31,7 +31,6 @@ from lxml import objectify
 #Probably because h5py has an in-built version of lxml that is not supported by
 #   the system libraries, but I'm not entirely sure.
 import h5py
-from IPython import embed as shell
 
 # GeoIPS Libraries
 #from geoips.utils.decorators import deprecated
@@ -546,7 +545,7 @@ class SciFile(object):
             except ValueError,resp:
                 log.warning(str(resp)+' SKIPPING DATASET '+dataset.name+'!!')
                 continue
-    
+
         if datasets and self.platform_name and self.source_name and self.runfulldir == None:
             self._finfo['runfulldir'] = DataFileName.from_satsensor(self.platform_name,self.source_name,wildcards=True).sensorinfo.FName['runfulldir']
 
