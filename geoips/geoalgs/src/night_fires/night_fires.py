@@ -32,7 +32,7 @@ sensor_var_maps = {'viirs': viirs_var_map,
 def night_fires(datafile, sector, product, workpath):
 
     # Make sure the input datafile has been registered and get the area definition
-    if not datafile.registered and len(datafile.variables) > 1:
+    if len(datafile.datasets) > 1:
         raise ValueError('Multiple data resolutions encountered.  Data must be registered.')
 
     # Get the appropriate variable name map for the input datafile based on sensor name
