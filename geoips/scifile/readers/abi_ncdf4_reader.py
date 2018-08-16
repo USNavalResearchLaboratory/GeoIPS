@@ -957,34 +957,42 @@ class ABI_NCDF4_Reader(Reader):
                 except KeyError:
                     pass
 
+        # NOTE: Moved zoom and subsample to get_data, but still need to move data
+        #       to correct dataset and drop extra datasets
         if self_register:
             # Determine which resolution has geolocation
             log.info('Registering to {}'.format(self_register))
             if self_register == 'HIGH':
                 datavars[adname] = datavars.pop('HIGH')
                 for varname, var in datavars['LOW'].items():
-                    datavars[adname][varname] = zoom(var, 4, order=0)
+                    datavars[adname][varname] = var
+                    # datavars[adname][varname] = zoom(var, 4, order=0)
                 datavars.pop('LOW')
                 for varname, var in datavars['MED'].items():
-                    datavars[adname][varname] = zoom(var, 2, order=0)
+                    datavars[adname][varname] = var
+                    # datavars[adname][varname] = zoom(var, 2, order=0)
                 datavars.pop('MED')
 
             elif self_register == 'MED':
                 datavars[adname] = datavars.pop('MED')
                 for varname, var in datavars['LOW'].items():
-                    datavars[adname][varname] = zoom(var, 2, order=0)
+                    datavars[adname][varname] = var
+                    # datavars[adname][varname] = zoom(var, 2, order=0)
                 datavars.pop('LOW')
                 for varname, var in datavars['HIGH'].items():
-                    datavars[adname][varname] = var[::2, ::2]
+                    datavars[adname][varname] = var
+                    # datavars[adname][varname] = var[::2, ::2]
                 datavars.pop('HIGH')
 
             elif self_register == 'LOW':
                 datavars[adname] = datavars.pop('LOW')
                 for varname, var in datavars['MED'].items():
-                    datavars[adname][varname] = var[::2, ::2]
+                    datavars[adname][varname] = var
+                    # datavars[adname][varname] = var[::2, ::2]
                 datavars.pop('MED')
                 for varname, var in datavars['HIGH'].items():
-                    datavars[adname][varname] = var[::4, ::4]
+                    datavars[adname][varname] = var
+                    # datavars[adname][varname] = var[::4, ::4]
                 datavars.pop('HIGH')
 
             else:
@@ -995,14 +1003,16 @@ class ABI_NCDF4_Reader(Reader):
             try:
                 gvars[res].pop('Lines')
                 gvars[res].pop('Samples')
+                for varname, var in gvars.items():
+                    gvars[varname] = np.ma.array(var, mask=gvars['SatZenith'])
             except KeyError:
                 pass
         for ds in datavars.keys():
             if not datavars[ds]:
                 datavars.pop(ds)
-            else:
-                for varname in datavars[ds].keys():
-                    datavars[ds][varname] = np.ma.masked_less(datavars[ds][varname], -999.1)
+            # else:
+            #     for varname in datavars[ds].keys():
+            #         datavars[ds][varname] = np.ma.masked_less(datavars[ds][varname], -999.0)
         log.interactive('Done reading ABI data for ' + adname)
         log.info('')
         return
@@ -1031,11 +1041,74 @@ class ABI_NCDF4_Reader(Reader):
         # Have to read ALL of the data, then subset.
         # Need to find a solution for this.
         if not full_disk:
-            data = {'Rad': np.float64(df.variables['Rad'][...][line_inds, sample_inds])}
+            rad_data = np.float64(df.variables['Rad'][...][line_inds, sample_inds])
             qf = df.variables['DQF'][...][line_inds, sample_inds]
         else:
-            data = {'Rad': np.float64(df.variables['Rad'][...])}
-            qf = df.variables['DQF'][...]
+            # Here we need to determine which indexes to read based on the size of the
+            # input geolocation data.  We assume that the geolocation data and the variable
+            # data cover the same domain, just at a different resolution.
+            geoloc_shape = np.array(gvars['SunZenith'].shape, dtype=np.float64)
+            data_shape = np.array(df.variables['Rad'].shape, dtype=np.float64)
+            # If the geolocation shape matches the data shape, just read the data
+            if np.all(geoloc_shape == data_shape):
+                rad_data = np.float64(df.variables['Rad'][...])
+                qf = df.variables['DQF'][...]
+            # Upscaling data to match geolocation shape
+            elif np.all(np.maximum(geoloc_shape, data_shape) == geoloc_shape):
+                # Data shape is smaller, so it is the denominator
+                zoom_factor, remainder = np.divmod(geoloc_shape, data_shape)
+                # Ensure that all elements of the zoom factor are whole numbers
+                if np.any(remainder):
+                    raise ValueError('Zoom factor is not a whole number.  '
+                                     'This section of code needs to be reexamined.')
+                # Ensure that all elements of the zoom factor are equal
+                if not np.all(zoom_factor == zoom_factor[0]):
+                    raise ValueError('Zoom factor must be equal for both dimensions.  '
+                                     'This section of code needs to be reexamined.')
+                # Perform the actual zoom
+                zoom_factor = zoom_factor.astype(np.int)
+                rad_data = zoom(np.float64(df.variables['Rad'][...]), zoom_factor[0], order=0)
+                qf = zoom(df.variables['DQF'][...], zoom_factor[0], order=0)
+            # Downscaling data to match geolocation shape
+            elif np.all(np.maximum(geoloc_shape, data_shape) == data_shape):
+                # Geoloc shape is smaller, so it is the denominator
+                zoom_factor, remainder = np.divmod(data_shape, geoloc_shape)
+                # Ensure that all elements of the zoom factor are whole numbers
+                if np.any(remainder):
+                    raise ValueError('Zoom factor is not a whole number.  '
+                                     'This section of code needs to be reexamined.')
+                # Ensure that all elements of the zoom factor are equal
+                if not np.all(zoom_factor == zoom_factor[0]):
+                    raise ValueError('Zoom factor must be equal for both dimensions.  '
+                                     'This section of code needs to be reexamined.')
+                # Perform the actual subsampling
+                log.info('Before zoom')
+                zoom_factor = zoom_factor.astype(np.int)
+
+                # NOTE: Strides are broken for netCDF4 library version < 4.6.2.
+                #       At present, the most recent stable release is 4.6.1.
+                #       Once 4.6.2 is released, this should be retested.
+                #       See https://github.com/Unidata/netcdf4-python/issues/680
+
+                rad_data = np.float64(df.variables['Rad'][...][::zoom_factor[0], ::zoom_factor[0]])
+                qf = df.variables['DQF'][...][::zoom_factor[0], ::zoom_factor[0]]
+                # rad_data = np.float64(df.variables['Rad'][::zoom_factor[0], ::zoom_factor[0]])
+                # qf = df.variables['DQF'][::zoom_factor[0], ::zoom_factor[0]]
+                log.info('After zoom')
+            else:
+                raise ValueError('Zoom factor cannot be computed.  '
+                                 'All either both dimensions of geolocation data must be '
+                                 'larger than the data dimensions or vice versa.')
+
+        data = {'Rad': rad_data}
+        data['Rad'][np.where(qf == -1)] = BADVALS['Off_Of_Disk']
+        data['Rad'][np.where(qf == 1)] = BADVALS['Conditional']
+        data['Rad'][np.where(qf == 2)] = BADVALS['Out_Of_Valid_Range']
+        data['Rad'][np.where(qf == 3)] = BADVALS['No_Value']
+        data['Rad'] = np.ma.masked_less(data['Rad'], -999.0)
+
+        # Get the bad data mask from radiances to reuse
+        bad_data_mask = data['Rad'].mask
 
         # If reflectance is requested
         # Note, weird memory manipulations to save memory when radiances are not requested
@@ -1045,39 +1118,39 @@ class ABI_NCDF4_Reader(Reader):
 
             # Get the radiance data
             # Have to do this when using numexpr
-            rad_data = data['Rad']  # NOQA
+            rad_data = data['Rad'][~bad_data_mask]  # NOQA
 
             # If we don't need radiances, then reuse the memory
             if not rad:
                 data['Ref'] = data.pop('Rad')
             else:
-                data['Ref'] = np.empty_like(rad_data)
+                data['Ref'] = np.empty_like(data['Rad'])
 
             k0 = md['var_info']['kappa0']  # NOQA
-            sun_zenith = gvars['SunZenith']  # NOQA
-            zoom_info = np.array(rad_data.shape, dtype=np.float) / np.array(sun_zenith.shape, dtype=np.float)
-            if zoom_info[0] == zoom_info[1] and int(zoom_info[0]) == zoom_info[0]:
-                if zoom_info[0] > 1 and int(zoom_info[0]) == zoom_info[0]:
-                    sun_zenith = zoom(sun_zenith, zoom_info[0])
-                elif zoom_info[0] < 1 and int(zoom_info[0]**-1) == zoom_info[0]**-1:
-                    sun_zenith = sun_zenith[::zoom_info[0]**-1, :: zoom_info[0]**-1]
-                elif zoom_info[0] == 1:
-                    pass
-                else:
-                    ValueError('Inappropriate zoom level calculated.')
-            else:
-                ValueError('Inappropriate zoom level calculated.')
+            sun_zenith = gvars['SunZenith'][~bad_data_mask]  # NOQA
+            # zoom_info = np.array(rad_data.shape, dtype=np.float) / np.array(sun_zenith.shape, dtype=np.float)
+            # if zoom_info[0] == zoom_info[1] and int(zoom_info[0]) == zoom_info[0]:
+            #     if zoom_info[0] > 1 and int(zoom_info[0]) == zoom_info[0]:
+            #         sun_zenith = zoom(sun_zenith, zoom_info[0])
+            #     elif zoom_info[0] < 1 and int(zoom_info[0]**-1) == zoom_info[0]**-1:
+            #         sun_zenith = sun_zenith[::zoom_info[0]**-1, :: zoom_info[0]**-1]
+            #     elif zoom_info[0] == 1:
+            #         pass
+            #     else:
+            #         ValueError('Inappropriate zoom level calculated.')
+            # else:
+            #     ValueError('Inappropriate zoom level calculated.')
 
             deg2rad = np.pi / 180.0  # NOQA
-            ne.evaluate('k0 * rad_data / cos(deg2rad * sun_zenith)', out=data['Ref'])
+            data['Ref'][~bad_data_mask] = ne.evaluate('k0 * rad_data / cos(deg2rad * sun_zenith)')
 
         if bt:
             if band_num not in range(7, 17):
                 raise ValueError('Unable to calculate brightness temperatures for band #{0}'.format(band_num))
 
-            # Get teh radiance data
+            # Get the radiance data
             # Have to do this when using numexpr
-            rad_data = data['Rad']  # NOQA
+            rad_data = data['Rad'][~bad_data_mask]
 
             # If we don't need radiances, then reuse the memory
             if not rad:
@@ -1090,12 +1163,6 @@ class ABI_NCDF4_Reader(Reader):
             bc1 = md['var_info']['planck_bc1']  # NOQA
             bc2 = md['var_info']['planck_bc2']  # NOQA
 
-            data['BT'] = ne.evaluate('(fk2 / log(fk1 / rad_data + 1) - bc1) / bc2')
-
-        for val in data.values():
-            val[np.where(qf == -1)] = BADVALS['Off_Of_Disk']
-            val[np.where(qf == 1)] = BADVALS['Conditional']
-            # val[np.where(qf == 2)] = BADVALS['Out_Of_Valid_Range']
-            val[np.where(qf == 3)] = BADVALS['No_Value']
+            data['BT'][~bad_data_mask] = ne.evaluate('(fk2 / log(fk1 / rad_data + 1) - bc1) / bc2')
 
         return data
