@@ -268,6 +268,8 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         #   sectored.datasets[<dsname>].variables.keys()
         #   sectored.datasets[<dsname>].variables[<varname>].min()
         #   sectored.datasets[<dsname>].variables[<varname>].max()
+        # print 'SECTORED scifile object in driver: sectored.datasets'
+        # print 'sectored.datasets[<dsname>].variables[<varname>]'
         # from IPython import embed as shell
         # shell()
 
@@ -769,6 +771,9 @@ if __name__ == '__main__':
         #   df.datasets[<dsname>].variables.keys()
         #   df.datasets[<dsname>].variables[<varname>].min()
         #   df.datasets[<dsname>].variables[<varname>].max()
+        # print 'UNSECTORED scifile object in driver: df.datasets'
+        # print 'df.datasets[<dsname>].variables[<varname>]'
+        # from IPython import embed as shell
         # shell()
 
         log.info('SciFile information:')

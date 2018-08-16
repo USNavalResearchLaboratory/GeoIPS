@@ -28,7 +28,6 @@ import numpy as np
 from numpy.ma import MaskedArray
 from pyresample import kd_tree
 from pyresample.geometry import GridDefinition
-from IPython import embed as shell
 import scipy
 
 # GeoIPS Libraries
