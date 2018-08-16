@@ -24,11 +24,6 @@ import multiprocessing
 # Installed Libraries
 try:
     # Don't fail if this doesn't exist (not even used at the moment)
-    from IPython import embed as shell
-except:
-    print 'Failed IPython import in driver.py. If you need it, install it.'
-try:
-    # Don't fail if this doesn't exist (not even used at the moment)
     from memory_profiler import profile
 except:
     print 'Failed memory_profiler import in driver.py. If you need it, install it.'
@@ -55,6 +50,7 @@ from geoips.utils.log_setup import interactive_log_setup, root_log_setup
 from geoips.utils.path.filename import _FileNameBase
 from geoips.utils.memusg import print_mem_usage
 from geoips.pass_prediction.pass_prediction import pass_prediction
+from geoips.utils.plugin_paths import paths as gpaths
 
 
 SHAREDSCRATCH = os.getenv('SHAREDSCRATCH')
@@ -100,7 +96,8 @@ __doc__ = '''
 # @profile
 def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc, mp_max_cpus,
                 printmemusg, sects, mp_jobs, mp_waiting, geoips_only, sectors_run, mp_num_procs,
-                mp_max_num_jobs, mp_num_waits, mp_num_times_cleared, waittimes, didmem, separate_datasets):
+                mp_max_num_jobs, mp_num_waits, mp_num_times_cleared, waittimes, didmem, separate_datasets,
+                write_sectored_datafile):
     if printmemusg and (datetime.utcnow().second % 5) == 0 and not didmem:
         print_mem_usage('drmainloop ', printmemusg)
         didmem = True
@@ -187,6 +184,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         log.interactive('{0} Using variables from products: {1}'.format(plog, curr_productlist))
         try:
             required_vars = curr_sector.get_required_vars(data_file.source_name, curr_productlist)
+            required_vars += curr_sector.get_optional_vars(data_file.source_name, curr_productlist)
         # This portion needs to be rethought.  Currently will skip an entire sector any time a single product file
         #   is missing.  Correct behavior would be to remove the offending product from the product list.
         except productfile.ProductFileError.ProductFileError, resp:
@@ -266,7 +264,35 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 
         # MLS This is a good place to enter iPython in order to interrogate
         #       the SECTORED data file for development purposes.
+        #   sectored.datasets.keys()
+        #   sectored.datasets[<dsname>].variables.keys()
+        #   sectored.datasets[<dsname>].variables[<varname>].min()
+        #   sectored.datasets[<dsname>].variables[<varname>].max()
+        # print 'SECTORED scifile object in driver: sectored.datasets'
+        # print 'sectored.datasets[<dsname>].variables[<varname>]'
+        # from IPython import embed as shell
         # shell()
+
+        '''If user requested write_sectored_datafile command line, then see if this is not
+            already a PRESECTORED data file, and write if necessary
+        '''
+        if write_sectored_datafile:
+            write_file = False
+            '''Currently we will not rewrite if all datafiles are already
+                in PRESECTORED_DATA_PATH (meaning it was already written out)
+            '''
+            for dfname in sectored.datafiles.keys():
+                if gpaths['PRESECTORED_DATA_PATH'] not in dfname:
+                    write_file = True
+            if write_file:
+                from geoips.scifile.utils import write_datafile
+                '''Currently only h5 is supported.  Will have to write new def write for additional
+                    filetypes
+                   write_datafile determines appropriate paths and filename based
+                    on all the datasets contained in the scifile object.
+                '''
+                log.info('Attempting to write out data file to  %s' % (gpaths['PRESECTORED_DATA_PATH']))
+                write_datafile(gpaths['PRESECTORED_DATA_PATH'],sectored,curr_sector, filetype='h5')
 
         log.info('{0} Checking products'.format(plog))
 
@@ -293,7 +319,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             # Pass rather than opening again.
             if separate_datasets:
                 dfnew = SciFile()
-                log.info('Running each dataset separately through driver')
+                log.info('Running each dataset separately through process')
                 dfnew.metadata = sectored.metadata.copy()
                 olddsname = None
                 for dsname in sectored.datasets.keys():
@@ -306,10 +332,10 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                                 dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname]['platform_name']
                                 dfnew.datasets[dsname].platform_name = dfnew.metadata['top']['platform_name']
                     olddsname = dsname
+                    process(dfnew, curr_sector, productlist, forcereprocess=forcereprocess,
+                        sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
+            else:
                 process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
-                    sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
-
-            process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
                     sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
             # MLS 20160126 Try this for memory usage ? Probably doesn't do anything
             gc.collect()
@@ -382,7 +408,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 
 def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=None, call_next=True,
            forcereprocess=False, queue=None, no_multiproc=False, mp_max_cpus=1, 
-           printmemusg=False, separate_datasets=False):
+           printmemusg=False, separate_datasets=False, write_sectored_datafile=False):
     '''
     Produce imagery from a single input data file for any number of sectors and products.
 
@@ -435,6 +461,19 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     |                |        | subsequent processing stages.                                     |
     |                |        |                                                                   |
     |                |        | **Default:** None                                                 |
+    +----------------+--------+-------------------------------------------------------------------+
+    | separate_datasets | *bool* | **True:** run on each dataset individually                     |
+    |                   |        |                                                                |
+    |                   |        | ** False:** run all datasets concurrently                      |
+    |                   |        |                                                                |
+    |                   |        | **Default:** False                                             |
+    +----------------+--------+-------------------------------------------------------------------+
+    | write_sectored_datafile| *bool* | **True:** write sectored datafile out to                  |
+    |                        |        |                 $PRESECTORED_DATA_PATH                    |
+    |                        |        |                                                           |
+    |                        |        | ** False:** do not write out datafile                     |
+    |                        |        |                                                           |
+    |                        |        | **Default:** False                                        |
     +----------------+--------+-------------------------------------------------------------------+
     '''
     # If we are not calling this from driver.py, set these times
@@ -496,11 +535,22 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     # for curr_sector in sector_file.itersectors():
     # Please excuse the polling loop.. Haven't gotten around to
     #   fixing this.
+
+    if sects:
+        runfirst = []
+        runsecond = []
+        for sect in sects:
+            if sect.name in ['CONUSGulfOfMexico','CONUSCentralPlains','CONUSSouthCentral','Caribbean_large','CONUSSouthEast']:
+                runfirst += [sect]
+            else:
+                runsecond += [sect]
+        sects = runsecond + runfirst
+
     while mp_jobs or sects:
         rs_ret = run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc,
                              mp_max_cpus, printmemusg, sects, mp_jobs, mp_waiting, geoips_only,
                              sectors_run, mp_num_procs, mp_max_num_jobs, mp_num_waits, mp_num_times_cleared,
-                             waittimes, didmem, separate_datasets)
+                             waittimes, didmem, separate_datasets, write_sectored_datafile)
         mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem = rs_ret
     if not sects and not mp_jobs:
         log.info('MPLOG All jobs completed')
@@ -567,7 +617,7 @@ def predict_sectors(platform_name, source_name, start_dt, end_dt):
 def _get_argument_parser():
     '''Create an argument parser with all of the correct arguments.'''
     parser = ArgParse()
-    parser.add_arguments(['paths', 'separate_datasets', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
+    parser.add_arguments(['paths', 'separate_datasets', 'write_sectored_datafile', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
                           'forcereprocess', 'all', 'allstatic', 'alldynamic', 'tc', 'volcano', 'sectorfiles',
                           'templatefiles', 'no_multiproc', 'mp_max_cpus', 'queue', 'printmemusg'])
     return parser
@@ -654,6 +704,7 @@ if __name__ == '__main__':
         log.info('\n\n')
         # Get list of all possible channels required based on sectorfile and productlist
         chans += sectfile.get_required_vars(ds.source_name, args['productlist'])
+        chans += sectfile.get_optional_vars(ds.source_name, args['productlist'])
     log.info('\tRequired channels: {0}'.format(sorted(chans)))
     log.info('\n')
     log.info('\tRequired sectors: {0}'.format(sorted(sectfile.sectornames())))
@@ -720,6 +771,9 @@ if __name__ == '__main__':
         #   df.datasets[<dsname>].variables.keys()
         #   df.datasets[<dsname>].variables[<varname>].min()
         #   df.datasets[<dsname>].variables[<varname>].max()
+        # print 'UNSECTORED scifile object in driver: df.datasets'
+        # print 'df.datasets[<dsname>].variables[<varname>]'
+        # from IPython import embed as shell
         # shell()
 
         log.info('SciFile information:')
@@ -734,25 +788,28 @@ if __name__ == '__main__':
             log.info('Running each dataset separately through driver')
             dfnew.metadata = df.metadata.copy()
             olddsname = None
-            for dsname in sectored.datasets.keys():
+            for dsname in df.datasets.keys():
                 if olddsname:
                     dfnew.delete_dataset(olddsname)
-                dfnew.add_dataset(sectored.datasets[dsname])
+                dfnew.add_dataset(df.datasets[dsname])
                 if 'datasets' in dfnew.metadata and dsname in dfnew.metadata['datasets'].keys():
                     for key in dfnew._finfo.keys():
                         if key in dfnew.metadata['datasets'][dsname].keys():
                             dfnew.metadata['top'][key] = dfnew.metadata['datasets'][dsname]['platform_name']
                             dfnew.datasets[dsname].platform_name = dfnew.metadata['top']['platform_name']
                 olddsname = dsname
+                driver(dfnew, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
+                   outdir=args['product_outpath'], call_next=args['next'],
+                   forcereprocess=args['forcereprocess'], queue=args['queue'],
+                   no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
+                   printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
+                   write_sectored_datafile=args['write_sectored_datafile'])
+
+        else:
             driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
                outdir=args['product_outpath'], call_next=args['next'],
                forcereprocess=args['forcereprocess'], queue=args['queue'],
                no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
-               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'])
-
-        driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
-               outdir=args['product_outpath'], call_next=args['next'],
-               forcereprocess=args['forcereprocess'], queue=args['queue'],
-               no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
-               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'])
+               printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
+               write_sectored_datafile=args['write_sectored_datafile'])
 

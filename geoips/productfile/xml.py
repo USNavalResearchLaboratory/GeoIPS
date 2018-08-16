@@ -101,6 +101,14 @@ class XMLProductFile(object):
             variables.update(set(prod.get_required_source_vars(source)))
         return list(variables)
 
+    def get_optional_source_vars(self, source):
+        '''Returns a list containing the names of the variables required for the current set of products
+        for the provided data source name.'''
+        variables = set()
+        for prod in self.iterproducts(source):
+            variables.update(set(prod.get_optional_source_vars(source)))
+        return list(variables)
+
     def get_required_source_geolocation_vars(self, source):
         '''Returns a list containing the names of the variables required for the current set of products
         for the provided data source name.'''
@@ -225,7 +233,12 @@ class Product(object):
     def get_required_source_vars(self, source):
         '''Return a list containing the names of the variables required for the current product
         for the given data source name.'''
-        return self.sources[source].variables.keys()
+        return [xx.name for xx in self.sources[source].variables.values() if not xx.optional]
+
+    def get_optional_source_vars(self, source):
+        '''Return a list containing the names of the variables required for the current product
+        for the given data source name.'''
+        return [xx.name for xx in self.sources[source].variables.values() if xx.optional]
 
     def get_required_source_geolocation_vars(self, source):
         '''Return a list containing the names of the geolocation variables required for the current product
@@ -241,6 +254,15 @@ class Product(object):
         if not hasattr(self, '_method'):
             self._method = self.node.attrib['method']
         return self._method
+
+    @property
+    def finalonly(self):
+        if not hasattr(self, '_finalonly'):
+            self._finalonly = test_attrib_bool(self.node, 'finalonly')
+        return self._finalonly
+    @finalonly.setter
+    def finalonly(self, val):
+        self._finalonly = val
 
     @property
     def testonly(self):
@@ -835,6 +857,15 @@ class Possiblesource(object):
         return etree.tostring(self.node, pretty_print=True)
 
     @property
+    def platforms(self):
+        if not hasattr(self, '_platforms'):
+            if self.node.attrib['platforms'] == False:
+                self._platforms = False
+            else:
+                self._platforms= self.node.attrib['platforms'].split(' ')
+        return self._platforms
+
+    @property
     def name(self):
         if not hasattr(self, '_name'):
             self._name = self.node.pyval
@@ -908,6 +939,18 @@ class Variable(object):
     def zenith_correct(self):
         self._zenith_correct = test_attrib_bool(self.node, 'zenith')
         return self._zenith_correct
+
+    @property
+    def mark_terminator(self):
+        if not hasattr(self, '_mark_terminator'):
+            self._mark_terminator = test_attrib_bool(self.node, 'mark_terminator')
+        return self._mark_terminator
+
+    @property
+    def optional(self):
+        if not hasattr(self, '_optional'):
+            self._optional= test_attrib_bool(self.node, 'optional')
+        return self._optional
 
     @property
     def units(self):

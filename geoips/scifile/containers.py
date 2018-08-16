@@ -28,7 +28,6 @@ import numpy as np
 from numpy.ma import MaskedArray
 from pyresample import kd_tree
 from pyresample.geometry import GridDefinition
-from IPython import embed as shell
 import scipy
 
 # GeoIPS Libraries
@@ -177,6 +176,8 @@ class VariableContainer(BaseContainer):
         Add a new variable to the container.
         This will fail if a variable with the same name already exists.
         '''
+        if not isinstance(var, Variable):
+            raise TypeError('Expected %s, got %s.' % (Variable, type(var)))
         if var.name in self._contents:
             raise ValueError("%s already contains variable named '%s'" % (self.obj.__class__, var.name))
         self._force_append(var)
@@ -498,8 +499,11 @@ class DataSet(object):
                 raise ValueError('Input data must either be a Variable instance or name keyword must be provided.')
         # NOTE:  When adding a new variable in this method, we should try to create a clean variable
         #       with no additional references in order to avoid backward propagation of changes.
+        if not isinstance(data, Variable):
+            data = Variable(name, data=data)
         if copy:
-            data = data._create_similar(data, name=name)
+            if hasattr(data, '_create_similar'):
+                data = data._create_similar(data, name=name)
         if _force:
             self.variables._force_append(data)
         else:
@@ -1060,10 +1064,10 @@ class DataSet(object):
                 if sgvar.shape != ogvar.shape:
                     raise ValueError(failed_test)
                 # It should not be required to use .data here.  This is due to a numpy bug.
-                if sgvar.data.mean() != ogvar.data.mean():
-                    raise ValueError(failed_test)
-                if sgvar.min() != ogvar.min():
-                    raise ValueError(failed_test)
+                #if sgvar.data.mean() != ogvar.data.mean():
+                #    raise ValueError(failed_test)
+                #if sgvar.min() != ogvar.min():
+                #    raise ValueError(failed_test)
                 if sgvar.start_datetime != ogvar.start_datetime:
                     raise ValueError(failed_test)
                 if sgvar.filename_datetime != ogvar.filename_datetime:
@@ -1719,7 +1723,7 @@ class Variable(MaskedArray):
     def write(self, group):
         ##########################################################################
         #### MLS 20180416 Why not use badval from the actual variable info ?
-        if self_varinfo['badval']:
+        if self._varinfo['badval']:
             badval = self._varinfo['badval']
         else:
             badval = -999.9
@@ -2091,10 +2095,24 @@ class Variable(MaskedArray):
                 THIS COULD BE THE NOTORIOUS CUMULATIVE MASK PROBLEM!!!!!
                 It has now been removed, so either we broke something, 
                 or we never have to worry about doing the funky stuff with
-                setting things to "nomask" in the readers anymore... '''
-            #    # Share the mask
-            #    val._set_mask_inplace(self._mask | val.mask)
-            #    self._mask = val._mask
+            setting things to "nomask" in the readers anymore... '''
+            #
+            '''
+            BANUELOS 20180726:
+            Not sharing the mask breaks Pyresample for MODIS and VIIRS.
+            Masking, removes the corners, and allows us to use falser corners 
+            in boxdefinitions.py, these work well with pyresample and 
+            eliminate the lines at edge of scan for VIIRS.
+
+            As for MODIS, there seemed to be a mask that was making holes and 
+            were coming out as noise in the products. This does break some of
+            the masking by reverting back to the cumulative mask problem, 
+            but for now this will be okay. If you dont need the cumulative mask
+            you can remove tese two lines. 
+            '''
+            # Share the mask
+            val._set_mask_inplace(self._mask | val.mask)
+            self._mask = val._mask
             #else:
             #    for attr in self._dsinfo.keys():
             #        print '  Variable.dataset self: '+' '+str(attr)+' '+str(getattr(self,attr))

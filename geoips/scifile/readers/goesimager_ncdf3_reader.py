@@ -294,7 +294,7 @@ class GOESImager_TDFNC_Reader(Reader):
         metadata['top']['source_name'] = 'gvar'
         metadata['top']['NO_GRANULE_COMPOSITES'] = True
         # Not sure why I added this.  
-        #metadata['top']['NON_SECTORABLE'] = True
+        metadata['top']['NON_SECTORABLE'] = True
 
         # Create dummy dataset with metadata if we specifically requested no channels
         if chans == []:

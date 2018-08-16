@@ -151,6 +151,10 @@ class ArgParse(argparse.ArgumentParser):
                         help='''If separate_datasets is included command line, run driver on each
                                 dataset separately''')
 
+        if 'write_sectored_datafile' in arglist: self.add_argument('--write_sectored_datafile', action='store_true',
+                        help='''If write_sectored_datafile is included command line, write out the sectored
+                                datafile to plugin_paths.paths['PRESECTORED_DATA_PATH'] before processing''')
+
         if 'sectorlist' in arglist: self.add_argument('-s', '--sectorlist', nargs='?', default=None,
                         help='''A list of short sector names over which the data file should be processed.
                              Short sector names are available in the "name" attribute of the "sector"

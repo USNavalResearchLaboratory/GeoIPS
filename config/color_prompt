@@ -28,4 +28,8 @@ if [[ ! -z $PS1 ]]; then
     fi
     export prompt="\n\! $color_branchorops\u@\h:$BRANCHOROPS$color_bw \d \t \w \nbash\$ "
     PS1=$prompt
+    # NOTE sometimes this clobbers screens titles if PROMPT_COMMAND is set
+    # Unsetting it here, so at least if we start screen from a GEOIPS env,
+    # it will work
+    unset PROMPT_COMMAND
 fi

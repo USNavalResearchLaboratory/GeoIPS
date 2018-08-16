@@ -74,16 +74,17 @@ class SciFile_Reader(Reader):
         Read the metadata dictionary stored in hdf5 file into metadata attribute
             on scifile object
         '''
-        log.info('Reading metadata dictionary from hdf5 file')
-        currmetadata = load_dict_from_hdf5(fileobj, 'METADATA')
-        log.info('Done reading metadata dictionary from hdf5 file')
-        '''
-        HAVE TO POPULATE EXISTING KEYS. If you just do metadata = currmetadata
-            it overwrites at the top level, so we lose the "reader" metadata 
-            level in scifile
-        '''
-        for key in currmetadata.keys():
-            metadata[key] = currmetadata[key]
+        if 'METADATA' in fileobj.keys():
+            log.info('Reading metadata dictionary from hdf5 file')
+            currmetadata = load_dict_from_hdf5(fileobj, 'METADATA')
+            log.info('Done reading metadata dictionary from hdf5 file')
+            '''
+            HAVE TO POPULATE EXISTING KEYS. If you just do metadata = currmetadata
+                it overwrites at the top level, so we lose the "reader" metadata 
+                level in scifile
+            '''
+            for key in currmetadata.keys():
+                metadata[key] = currmetadata[key]
 
         '''
         If chans was explicitly an empty list, we just want metadata

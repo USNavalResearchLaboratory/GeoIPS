@@ -13,10 +13,11 @@
 # included license for more details.
 
 # Python Standard Libraries
-import os
 import logging
 from datetime import datetime
 from datetime import timedelta
+
+from geoips.utils.plugin_paths import paths as gpaths
 
 try:
     from IPython import embed as shell
@@ -25,10 +26,7 @@ except:
 
 log = logging.getLogger(__name__)
 
-COPYRIGHT = os.getenv('GEOIPS_COPYRIGHT')
-if COPYRIGHT is None:
-    COPYRIGHT = 'NRL-Monterey'
-
+COPYRIGHT = gpaths['GEOIPS_COPYRIGHT']
 
 class Title(object):
     def __init__(self, lines=None, satellite=None, sensor=None, product=None, date=None,
@@ -161,10 +159,33 @@ class Title(object):
                       self.sensor.upper(),
                       self.product,
                       self.time_range,
-                      self.copyright]
+                      self.copyright,
+                      ]
         line = ' '.join(line_parts)
         self._first_line = line
         return self._first_line
+
+    @property
+    def second_line(self):
+        '''
+        Get the second line of the title constructed from the object's attributes.
+
+        Returns a string of the form:
+        >>> self.time_range self.copyright
+
+        This is not actually currently used, but a placeholder to try to decide 
+        how to handle user configurable titles. May not want everything in one
+        line, and may not want everything that is there by default, but also
+        may not want to explicitly set the title when creating the geoimg obj.
+
+        '''
+        line_parts = [
+                      self.time_range,
+                      self.copyright,
+                      ]
+        line = ' '.join(line_parts)
+        self._second_line = line
+        return self._second_line
 
     @property
     def lines(self):
@@ -172,6 +193,14 @@ class Title(object):
         Get the title as an array of lines.
 
         '''
+
+        '''
+        This is not actually currently used, but a placeholder to try to decide 
+        how to handle user configurable titles. May not want everything in one
+        line, and may not want everything that is there by default, but also
+        may not want to explicitly set the title when creating the geoimg obj.
+        '''
+        #self._lines = [self.first_line, self.second_line]
         self._lines = [self.first_line]
         if self.extra_lines is not None:
             self._lines.extend(self.extra_lines)
@@ -332,7 +361,7 @@ class Title(object):
                      date=currdate, start_time=currtime, end_time=currtime, tau=tau, extra_lines=extra_lines)
 
     @staticmethod
-    def from_objects(datafile, sector, product, extra_lines=None):
+    def from_objects(datafile, sector, product, extra_lines=None, display_platform=True, display_source=True):
         '''
         Creates a title line given an input utils.path.ProductFileName object.
 
@@ -354,6 +383,14 @@ class Title(object):
             sourcename = sect_sourcename
         if sect_platformname != "False" and sect_platformname != platformname:
             platformname = sect_platformname
+
+
+        # If specifically requested to not display platform and source, set 
+        # to empty strings here.
+        if not display_platform:
+            platformname = ''
+        if not display_source:
+            sourcename = ''
 
         return Title(satellite=platformname, sensor=sourcename,
                      product=product.product_name_display, date=currdate, start_time=currtime,

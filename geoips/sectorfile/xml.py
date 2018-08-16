@@ -161,6 +161,12 @@ class AllSectorFiles(object):
             allvars.update(set(sf.get_required_vars(source,products)))
         return list(allvars)
 
+    def get_optional_vars(self,source,products=None):
+        allvars = set()
+        for sf in self.sectorfiles:
+            allvars.update(set(sf.get_optional_vars(source,products)))
+        return list(allvars)
+
     def itersectors(self):
         '''Iterates over all sector elements in the current object.'''
         for sf in self.sectorfiles:
@@ -376,6 +382,12 @@ class XMLSectorFile(object):
         allvars = set()
         for sect in self.getsectors():
             allvars.update(set(sect.get_required_vars(source,products)))
+        return list(allvars)
+
+    def get_optional_vars(self,source,products=None):
+        allvars = set()
+        for sect in self.getsectors():
+            allvars.update(set(sect.get_optional_vars(source,products)))
         return list(allvars)
 
     def getsectors(self,checksector=True):
@@ -804,6 +816,20 @@ class Sector(object):
             pf = productfile.open2(source, requested)
             if pf:
                 return pf.get_required_source_vars(source)
+            else:
+                raise productfile.ProductFileError.ProductFileError
+        else:
+            return []
+
+    def get_optional_vars(self, source, products=None):
+        '''Returns a list of the variables required from the input data source
+        for all of the products it can produce for the current sector.'''
+        requested = self.get_requested_products(source,products)
+        
+        if requested:
+            pf = productfile.open2(source, requested)
+            if pf:
+                return pf.get_optional_source_vars(source)
             else:
                 raise productfile.ProductFileError.ProductFileError
         else:

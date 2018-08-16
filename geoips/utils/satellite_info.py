@@ -523,7 +523,7 @@ class MODELSatInfo(SatInfo):
 
 class WindVectorsSatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['dmv']
+        self.sensornames = ['winds']
         #self.orbital_period = 107.1 * 60.0
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -843,7 +843,8 @@ class SensorInfo(object):
         self.LogFName['nameformat'] = standard_nameformat + '.<prefix>.<script>.<pid>.<timestamp>'
         self.LogFName['fieldsep'] = '.'
         self.LogFName['fillvalue'] = 'x'
-        self.LogFName['pathnameformat'] = gpaths['LOGDIR'] + '/<sensorname>/<prefix>/<date{%Y%m%d}>/<area>'
+        self.LogFName['pathnameformat'] = os.path.join(gpaths['LOGDIR'],
+                     '<sensorname>', '<prefix>', '<date{%Y%m%d}>', '<area>')
         self.LogFName['pathfieldsep'] = '-'
         self.LogFName['pathfillvalue'] = 'x'
         self.LogFName['noextension'] = False
@@ -853,7 +854,10 @@ class SensorInfo(object):
         self.ScratchFName['nameformat'] = standard_nameformat
         self.ScratchFName['fieldsep'] = '.'
         self.ScratchFName['fillvalue'] = 'x'
-        self.ScratchFName['pathnameformat'] = gpaths['SCRATCH'] + '/GeoIPS/<satname>.<sensorname>.<dataprovider>/<date{%Y%m%d}>.<time{%H%M%S}>.<pid>/<producttype>.<subdir>.<timestamp>'
+        self.ScratchFName['pathnameformat'] = os.path.join(gpaths['SCRATCH'],
+                         'GeoIPS', '<satname>.<sensorname>.<dataprovider>',
+                         '<date{%Y%m%d}>.<time{%H%M%S}>.<pid>',
+                         '<producttype>.<subdir>.<timestamp>')
         self.ScratchFName['pathfieldsep'] = '.'
         self.ScratchFName['pathfillvalue'] = 'x'
         self.ScratchFName['noextension'] = False
@@ -868,11 +872,14 @@ class SensorInfo(object):
         self.FName['default_producttype'] = None
         if self.sensorname and os.getenv('SATDATROOT'):
             #print 'setting base_dir in setSensorInfoAtts'
-            self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/' + self.sensorname]
+            self.FName['base_dirs'] = [os.path.join(os.getenv('SATDATROOT'),
+                                          self.sensorname)]
         elif self.sensorname:
-            self.FName['base_dirs'] = [gpaths['GEOIPS_OUTDIRS'] + '/data/' + self.sensorname]
+            self.FName['base_dirs'] = [os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                       'data', self.sensorname)]
         else:
-            self.FName['base_dirs'] = [gpaths['GEOIPS_OUTDIRS'] + '/data/undefined_sensorname']
+            self.FName['base_dirs'] = [os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                       'data', 'undefined_sensorname')]
         self.FName['pathfieldsep'] = '-'
         self.FName['pathfillvalue'] = 'x'
 
@@ -890,7 +897,8 @@ class SensorInfo(object):
                         self.FName['base_dirs'].append(base_dir.replace(os.getenv('SATDATROOT'), os.getenv('OpsSATDATROOT')))
                     if os.getenv('NPPDATA') and os.getenv('NPPDATA') in base_dir and os.getenv('OpsNPPDATA'):
                         self.FName['base_dirs'].append(base_dir.replace(os.getenv('NPPDATA'), os.getenv('OpsNPPDATA')))
-            self.FName['pathnameformat'] = '<base_dir>/' + self.pathnameformat
+            self.FName['pathnameformat'] = os.path.join('<base_dir>',
+                                          self.pathnameformat)
         else:
             self.FName['pathnameformat'] = None
 #        if satellite:
@@ -997,10 +1005,10 @@ class AMSR2SensorInfo(SensorInfo):
         self.OrigFName['nameformat'] = '<amsr2prod>_<vers>_<satname>_<date{s%Y%m%d%H%M%S%!}>_<endtime>_<creationtime>'
         self.OrigFName['fieldsep'] = '_'
         self.OrigFName['fillvalue'] = 'x'
-        self.pathnameformat = '<ext>/<producttype>'
+        self.pathnameformat = os.path.join('<ext>','<producttype>')
         self.OrigFNames = [self.OrigFName]
         # Defaults to SATDATROOT/<sensorname>, don't need to set.
-        #self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/amsr2']
+        #self.FName['base_dirs'] = [os.path.join(os.getenv('SATDATROOT'), 'amsr2')]
         self.FName['default_producttype'] = 'mbt'
         self.swath_width_km = 1450
         #self.num_lines = 2030
@@ -1051,7 +1059,8 @@ class ATMSSensorInfo(SensorInfo):
         if os.getenv('FROMBERYLDIR'):
             OrigFName2['base_dir'] = os.getenv('FROMBERYLDIR')
         else:
-            OrigFName2['base_dir'] = gpaths['GEOIPS_OUTDIRS'] + '/npp/atms'
+            OrigFName2['base_dir'] = os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                                  'npp','atms')
         self.OrigFNames = [self.OrigFName, OrigFName2]
 
         sdr_geo = ['GATMO']
@@ -1075,8 +1084,10 @@ class ATMSSensorInfo(SensorInfo):
         self.num_samples = 96
         self.mins_per_file = 1
         if os.getenv('NPPDATA'):
-            self.FName['base_dirs'] = [os.getenv('NPPDATA') + '/atms']
-        self.pathnameformat = '<dataprovider>-<ext>/<date{%Y%m%d}>/<time{%H%M%S}>'
+            self.FName['base_dirs'] = [os.path.join(os.getenv('NPPDATA'),'atms')]
+        self.pathnameformat = os.path.join('<dataprovider>-<ext>',
+                                           '<date{%Y%m%d}>',
+                                           '<time{%H%M%S}>')
 
 class CLAVRXSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
@@ -1112,7 +1123,7 @@ class GMISensorInfo(SensorInfo):
         self.OrigFName['fieldsep'] = '.'
         self.OrigFName['fillvalue'] = 'x'
         self.OrigFName['noextension'] = True
-        self.pathnameformat = '<channel>/<date{%Y%m%d}>'
+        self.pathnameformat = os.path.join('<channel>','<date{%Y%m%d}>')
         OrigFName1 = self.OrigFName.copy()
         OrigFName1['cls'] = 'GPMFileName'
         # #! Only works to remove characters from the end of a datetime format string!
@@ -1125,14 +1136,19 @@ class GMISensorInfo(SensorInfo):
         self.mins_per_file = 5
         # self.FName defaults to None if SATDATROOT not defined.
         if os.getenv('SATDATROOT'):
-            self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/gpm']
+            self.FName['base_dirs'] = [os.path.join(os.getenv('SATDATROOT'),
+                                          'gpm')]
         self.interpolation_radius_of_influence = 10000
 
 class GLMSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         self.interpolation_radius_of_influence = 10000
         self.mins_per_file = 10
-        self.LogFName['pathnameformat'] = gpaths['LOGDIR'] + '/<sensorname>/<prefix>/<date{%Y%m%d}>/all'
+        self.LogFName['pathnameformat'] = os.path.join(gpaths['LOGDIR'],
+                     '<sensorname>',
+                     '<prefix>',
+                     '<date{%Y%m%d}>',
+                     'all')
         self.OrigFName['cls'] = 'ABIFileName'
         # OR_ABI-L1b-RadF-M3C02_G16_s20170642036100_e20170642046467_c20170642046500.nc
         # OR_ABI-L1b-RadC-M3C03_G16_s20171070042189_e20171070044562_c20171070045005.nc
@@ -1156,7 +1172,7 @@ class GPROFSensorInfo(SensorInfo):
         # #! Only works to remove characters from the end of a datetime format string!
         #    don't use it in the middle of the string unless you fix the code in utils.path.filename.py!!
         self.OrigFName['nameformat'] = '<level>.<satname>.<sensorname>.<algyear>.<date{%Y%m%d-S%H%M%S-E%!%!%!%!%!%!}>.<version>.<exttype>'
-        self.pathnameformat = '<channel>/<date{%Y%m%d}>'
+        self.pathnameformat = os.path.join('<channel>','<date{%Y%m%d}>')
         OrigFName['fieldsep'] = '.'
         OrigFName['fillvalue'] = 'x'
         OrigFName['noextension'] = True
@@ -1167,7 +1183,8 @@ class GPROFSensorInfo(SensorInfo):
         self.mins_per_file = 5
         # self.FName set in SensorInfo class above if SATDATROOT not defined.
         if os.getenv('SATDATROOT'):
-            self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/gpm']
+            self.FName['base_dirs'] = [os.path.join(os.getenv('SATDATROOT'),
+                                      'gpm')]
 
 
 class GOESImagerSensorInfo(SensorInfo):
@@ -1175,6 +1192,7 @@ class GOESImagerSensorInfo(SensorInfo):
         # MOD021KM.P2014290.0415.hdf
         # This must match appropriate DataFileName class name in utils/path/datafilename.py
         OrigFNameDish = self.OrigFName.copy()
+        OrigFNameDish2 = self.OrigFName.copy()
         OrigFNameDishNC = self.OrigFName.copy()
         OrigFNameCLASS = self.OrigFName.copy()
 
@@ -1183,6 +1201,12 @@ class GOESImagerSensorInfo(SensorInfo):
         OrigFNameDish['fieldsep'] = '.'
         OrigFNameDish['fillvalue'] = 'x'
         OrigFNameDish['noextension'] = True
+
+        OrigFNameDish2['cls'] = 'GOESFileName'
+        OrigFNameDish2['nameformat'] = '<date{%Y%m%d}>.<time{%H%M%S}>.<satname>'
+        OrigFNameDish2['fieldsep'] = '.'
+        OrigFNameDish2['fillvalue'] = 'x'
+        OrigFNameDish2['noextension'] = True
 
         OrigFNameDishNC['cls'] = 'GOESFileName'
         OrigFNameDishNC['nameformat'] = '<date{%Y%m%d}>.<time{%H%M}>.<satname>.<dataset>'
@@ -1195,7 +1219,7 @@ class GOESImagerSensorInfo(SensorInfo):
         OrigFNameCLASS['fieldsep'] = '.'
         OrigFNameCLASS['fillvalue'] = 'x'
 
-        self.pathnameformat = '<satname>/<date{%Y%m%d.%H%M}>'
+        self.pathnameformat = os.path.join('<satname>','<date{%Y%m%d.%H%M}>')
         # This tells the downloader and process_overpass to kick off processing on
         # the directory name, not the full filename.
         self.FName['runfulldir'] = True
@@ -1216,7 +1240,7 @@ class GOESImagerSensorInfo(SensorInfo):
         # This is used in scifile/containers.py register. Has to match biggest possible
         # pixel size (at edge of scan)
         self.interpolation_radius_of_influence = 15000
-        self.OrigFNames = [OrigFNameDish, OrigFNameDishNC, OrigFNameCLASS]
+        self.OrigFNames = [OrigFNameDish, OrigFNameDish2, OrigFNameDishNC, OrigFNameCLASS]
 
 
 class ABISensorInfo(SensorInfo):
@@ -1242,7 +1266,9 @@ class ABISensorInfo(SensorInfo):
         #######################################################################
 
         # The default Log pathnameformat includes "area", which we don't want, so override log path here.
-        self.LogFName['pathnameformat'] = gpaths['LOGDIR'] + '/<sensorname>/<prefix>/<date{%Y%m%d}>/all'
+        self.LogFName['pathnameformat'] = os.path.join(gpaths['LOGDIR'],
+                                     '<sensorname>','<prefix>',
+                                     '<date{%Y%m%d}>','all')
 
 
         #######################################################################
@@ -1268,12 +1294,13 @@ class ABISensorInfo(SensorInfo):
         # downloader looks for them.
         # DO NOT specify OrigFName1['pathnameformat']  if you want DataFileName to
         # just match files directly in OrigFName1['base_dir']
-        self.OrigFName['base_dir'] = '/big_data/realtime/incoming'
         if os.getenv('BIGDATA'):
-            self.OrigFName['base_dir'] = os.getenv('BIGDATA') + '/incoming'
+            self.OrigFName['base_dir'] = os.path.join(os.getenv('BIGDATA'),
+                                                      'incoming')
         else:
             # USER_OUTDIRS must always be defined.
-            self.OrigFName['base_dir'] = gpaths['GEOIPS_OUTDIRS'] + '/data/incoming'
+            self.OrigFName['base_dir'] = os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                          'data', 'incoming')
 
         # If there are multiple possible OrigFNames, list them in self.OrigFNames
         # DataFileName loops through all self.OrigFNames when trying to match.
@@ -1289,7 +1316,9 @@ class ABISensorInfo(SensorInfo):
         # The list of base_dirs is used to automatically find files in process_overpass.py,
         # and self.FName['base_dirs'][0] is the "primary" location where the
         # downloader automatically puts files.
-        self.pathnameformat = '<satname>/<sensorname>/<area>/<date{%Y%m%d}>/<date{%H%M%S}>'
+        self.pathnameformat = os.path.join('<satname>', '<sensorname>',
+                                           '<area>', '<date{%Y%m%d}>',
+                                           '<date{%H%M%S}>')
         if os.getenv('OpsBIGDATA'):
             self.FName['base_dirs'] = [os.getenv('BIGDATA'), os.getenv('OpsBIGDATA')]
         elif os.getenv('BIGDATA'):
@@ -1308,9 +1337,15 @@ class AHISensorInfo(SensorInfo):
         # create exact same filename...
         # New convention - make formats of date/time fields in paths EXACTLY the same as date/time fields in
         # filenames...
-        self.pathnameformat = '<dataprovider>/<date{%Y%m%d}>/<time{%H%M%S}>'
+        self.pathnameformat = os.path.join('<dataprovider>',
+                                           '<date{%Y%m%d}>',
+                                           '<time{%H%M%S}>')
 
-        self.LogFName['pathnameformat'] = gpaths['LOGDIR'] + '/<sensorname>/<prefix>/<date{%Y%m%d}>/all'
+        self.LogFName['pathnameformat'] = os.path.join(gpaths['LOGDIR'],
+                                                 '<sensorname>',
+                                                 '<prefix>',
+                                                 '<date{%Y%m%d}>',
+                                                 'all')
 
         OrigFName1 = self.OrigFName.copy()
         OrigFName1['cls'] = 'AHIDATFileName'
@@ -1324,8 +1359,10 @@ class AHISensorInfo(SensorInfo):
             OrigFName1['base_dir'] = os.getenv('AHIDATA')
         else:
             # USER_OUTDIRS must always be defined.
-            OrigFName1['base_dir']  =  gpaths['GEOIPS_OUTDIRS'] + '/data/himawari/ahi'
-        OrigFName1['pathnameformat'] = '<base_dir>/' + self.pathnameformat
+            OrigFName1['base_dir']  =  os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                                  'data', 'himawari', 'ahi')
+        OrigFName1['pathnameformat'] = os.path.join('<base_dir>',
+                                                  self.pathnameformat)
 
         OrigFName2 = self.OrigFName.copy()
         OrigFName2['cls'] = 'AHIHPCtgzFileName'
@@ -1336,9 +1373,11 @@ class AHISensorInfo(SensorInfo):
         OrigFName2['pathfillvalue'] = 'x'
         OrigFName2['noextension'] = False
         if os.getenv('FTPROOT'):
-            OrigFName2['base_dir'] = os.getenv('FTPROOT') + '/satdata/himawari'
+            OrigFName2['base_dir'] = os.path.join(os.getenv('FTPROOT'),
+                                                  'satdata', 'himawari')
         else:
-            OrigFName2['base_dir'] = gpaths['GEOIPS_OUTDIRS'] + '/data/himawari/ahi'
+            OrigFName2['base_dir'] = os.path.join(gpaths['GEOIPS_OUTDIRS'], 
+                                                  'data', 'himawari', 'ahi')
         OrigFName2['pathnameformat'] = '<base_dir>'
 
         OrigFName3 = self.OrigFName.copy()
@@ -1353,8 +1392,10 @@ class AHISensorInfo(SensorInfo):
             OrigFName3['base_dir'] = os.getenv('AHIDATA')
         else:
             # USER_OUTDIRS must always be defined.
-            OrigFName3['base_dir'] = gpaths['GEOIPS_OUTDIRS'] + '/data/himawari/ahi'
-        OrigFName3['pathnameformat'] = '<base_dir>/' + self.pathnameformat
+            OrigFName3['base_dir'] = os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                                  'data', 'himawari', 'ahi')
+        OrigFName3['pathnameformat'] = os.path.join('<base_dir>',
+                                                      self.pathnameformat)
 
         self.swath_width_km = 12000
         self.mins_per_file = 10
@@ -1446,7 +1487,10 @@ class MODISSensorInfo(SensorInfo):
         self.num_lines = 2030
         self.num_samples = 1354
         self.mins_per_file = 5
-        self.pathnameformat = '<dataprovider>/<satname>/<date{%Y%m%d}>/<time{%H%M%S}>'
+        self.pathnameformat = os.path.join('<dataprovider>', 
+                                           '<satname>',
+                                           '<date{%Y%m%d}>',
+                                           '<time{%H%M%S}>')
 
 
 class NAVGEMForecastSensorInfo(SensorInfo):
@@ -1463,7 +1507,7 @@ class NAVGEMForecastSensorInfo(SensorInfo):
         #self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/amsub/global']
         #self.pathnameformat = ''
 
-class DMVSensorInfo(SensorInfo):
+class WINDSSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         self.interpolation_radius_of_influence = 56000
         #### This must match appropriate DataFileName class name in utils/path/datafilename.py
@@ -1524,7 +1568,9 @@ class MODELSensorInfo(SensorInfo):
             #print 'setting base_dir in setSensorInfoAtts'
             self.FName['base_dirs'] = [os.getenv('SATDATROOT')]
         # resolution is the tau, extra is the level
-        self.pathnameformat = '<satname>/<sensorname>/<area>/<date{%Y%m%d%H}>/<resolution>-<extra>'
+        self.pathnameformat = os.path.join('<satname>', '<sensorname>',
+                                           '<area>','<date{%Y%m%d%H}>',
+                                           '<resolution>-<extra>')
         #self.num_lines = 2030
         #self.num_samples = 1354
         #self.mins_per_file = 60
@@ -1694,7 +1740,10 @@ class SEVIRISensorInfo(SensorInfo):
         self.swath_width_km = 12000
         # Don't think legacy path is used anymore, can't run tdfs, and not downloading them.
         #self.pathnameformat = ''
-        self.pathnameformat = '<satname>/<dataprovider>-<ext>/<date{%Y%m%d}>/<time{%H%M%S}>'
+        opsep = os.path.sep
+        self.pathnameformat = opsep.join(
+                ['<satname>','<dataprovider>-<ext>',
+                 '<date{%Y%m%d}>','<time{%H%M%S}>'])
         #self.data_types = {}
 
 
@@ -2012,7 +2061,7 @@ SensorInfo_classes = {
         'navgem': MODELSensorInfo,
         'coamps': MODELSensorInfo,
         'icap': ICAPSensorInfo,
-        'dmv': DMVSensorInfo,
+        'winds': WINDSSensorInfo,
         'naapsaot': NAAPSAOTSensorInfo,
         'seviri':  SEVIRISensorInfo,
         'tmi':  TMISensorInfo,
