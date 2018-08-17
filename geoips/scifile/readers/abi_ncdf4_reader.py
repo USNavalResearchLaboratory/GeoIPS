@@ -35,10 +35,11 @@ log = interactive_log_setup(logging.getLogger(__name__))
 # For now must include this string for automated importing of classes.
 reader_class_name = 'ABI_NCDF4_Reader'
 nprocs = 6
+
 try:
     ne.set_num_threads(nprocs)
 except Exception:
-    print 'Failed numexpr.set_num_threads. If numexpr is not installed and you need it, install it.'
+    print 'Failed numexpr.set_num_threads in {}. If numexpr is not installed and you need it, install it.'.format(__file__)
 
 DONT_AUTOGEN_GEOLOCATION = False
 if os.getenv('DONT_AUTOGEN_GEOLOCATION'):
