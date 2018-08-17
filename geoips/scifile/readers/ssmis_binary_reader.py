@@ -2,37 +2,23 @@
 import logging
 import os
 from datetime import datetime
-from subprocess import Popen, PIPE
-from operator import mul
-from math import floor, ceil
-import sys
-import string
-
 
 # Installed Libraries
-from IPython import embed as shell
-# If this reader is not installed on the system, don't fail altogether, just skip this import. This reader will
-# not work if the import fails, and the package will have to be installed to process data of this type.
-try: import pygrib as pg
-except: print 'Failed import netCDF4 in scifile/readers/amsr2_ncdf4_reader.py. If you need it, install it.'
 import numpy as np
 
 
 # GeoIPS Libraries
 from .reader import Reader
-from ..containers import _empty_varinfo
 from geoips.utils.path.datafilename import DataFileName
 from geoips.utils.satellite_info import SatSensorInfo
 
 log = logging.getLogger(__name__)
 
 
-
-
-
-
 # For now must include this string for automated importing of classes.
 reader_class_name = 'SSMIS_BINARY_Reader'
+
+
 class SSMIS_BINARY_Reader(Reader):
 
     dataset_info = { 'IMAGER': {'ch08':'ch08',
