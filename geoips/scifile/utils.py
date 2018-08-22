@@ -8,7 +8,7 @@ from geoips.utils.plugin_paths import paths as gpaths
 
 log = logging.getLogger(__name__)
 
-def get_filename(basedir, source_name, secclass, sectorname, sdt, edt, platform_name, numfiles):
+def get_filename(basedir, source_name, secclass, sector, sdt, edt, platform_name, numfiles, filetype='h5'):
     if isinstance(numfiles, int):
         numfilesstr = '%03d'%(numfiles)
     else:
@@ -22,23 +22,28 @@ def get_filename(basedir, source_name, secclass, sectorname, sdt, edt, platform_
     else:
         edtstr = edt
 
+    suf = '.'+filetype
+
+    uniq_hash = sector.uniq_hash
+
     dirname = '%s/%s_%s'%(basedir,source_name,secclass)
-    baseoutfilename = '%s/%s_%s-%s_%s_%s_%03d'%(dirname,
-                        sectorname,    
+    baseoutfilename = '%s_%s-%s_%s_%s_%s_%s'%(
+                        sector.name,    
                         sdtstr,
                         edtstr,
                         platform_name,
-                        sector_name,
+                        source_name,
                         numfilesstr,
+                        uniq_hash,
                     )
-    return dirname, baseoutfilename
+    return dirname, baseoutfilename, suf
 
 def minrange(start_date, end_date):
     '''Check one min at a time'''
     log.info('in minrange')
     tr = end_date - start_date
     for n in range(tr.seconds / 60):
-        yield start_date + timedelat(seconds = (n*60))
+        yield start_date + timedelta(seconds = (n*60))
 
 def daterange(start_date, end_date):
     '''Check one day at a time. 
@@ -47,16 +52,16 @@ def daterange(start_date, end_date):
     log.info('in minrange')
     tr = end_date - start_date
     for n in range(tr.days + 2):
-        yield start_date + timedelat(n)
+        yield start_date + timedelta(n)
 
 def hourrange(start_date, end_date):
     '''Check one hour at a time. '''
     log.info('in hourrange')
     tr = end_date - start_date
     for n in range(tr.days*24 + tr.seconds / 3600 ):
-        yield start_date + timedelat(seconds = (n*3600))
+        yield start_date + timedelta(seconds = (n*3600))
 
-def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_time, basedir=gpaths['PRESECTORED_DATA_PATH']):
+def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_time, basedir=gpaths['PRESECTORED_DATA_PATH'], filetype='h5'):
     secclass = '*'
     numfiles = '*'
     edtstr = '*'
@@ -64,14 +69,14 @@ def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_ti
     if (min_time - max_time) < timedelta(minutes=30):
         for sdt in minrange(min_time, max_time):
             sdtstr = sdt.strftime('%Y%m%d.%H%M*')
-            filenames += glob(get_filename(basedir, source_name, secclass, sector, sdtstr, edtstr, platform_name, numfiles)[1])
+            dirname, baseoutfilename, suf =  get_filename(basedir, source_name, secclass, sector, sdtstr, edtstr, platform_name, numfiles, filetype)
+            filenames += glob(os.path.join(dirname,baseoutfilename+suf))
     return filenames
 
 def write_datafile(basedir, datafile, sector, secclass=None, filetype='h5'):
     if filetype != 'h5':
         raise TypeError('Currently only h5 filetypes supported for write')
 
-    suf = '.'+filetype
 
     if not secclass and datafile.security_classification:
         secclass = datafile.security_classification.replace('/','-')
@@ -97,20 +102,21 @@ def write_datafile(basedir, datafile, sector, secclass=None, filetype='h5'):
     #pnames = list(set(pnames))
     #snames = list(set(snames))
 
-    dirname, baseoutfilename = get_filename(basedir, 
+    dirname, baseoutfilename, suf = get_filename(basedir, 
                 datafile.source_name, 
                 secclass, 
-                sector.name, 
+                sector, 
                 sdt, edt, 
                 datafile.platform_name,
                 numfiles)
 
     if not os.path.isdir(dirname):
         os.makedirs(dirname)
-    outfilename = baseoutfilename+suf
+    outfilename = os.path.join(dirname,baseoutfilename+suf)
     ii = 0
     while os.path.exists(outfilename):
-        outfilename = '%s-%03d%s'%(baseoutfilename,ii,suf)
+        newbaseoutfilename = '%s-%03d%s'%(baseoutfilename,ii,suf)
+        outfilename = os.path.join(dirname, newbaseoutfilename)
         ii+=1
     log.info('Writing out %s SciFile data file: %s'%(suf,outfilename))
     datafile.write(outfilename, filetype=filetype)

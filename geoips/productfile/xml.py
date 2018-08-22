@@ -21,7 +21,6 @@ import logging
 
 # Installed Libraries
 from lxml import etree
-from IPython import embed as shell
 
 
 # GeoIPS Libraries
@@ -209,11 +208,14 @@ class Product(object):
     def __str__(self):
         return etree.tostring(self.node, pretty_print=True)
 
-    def eval_att(self,path):
+    def eval_str(self,val):
         try:
-            return eval(self.node.xpath(path)[0])
+            return eval(val)
         except:
-            return self.node.xpath(path)[0]
+            return val
+
+    def eval_att(self,path):
+        return self.eval_str(self.node.xpath(path)[0])
 
     @property
     def name(self):
@@ -263,6 +265,15 @@ class Product(object):
     @finalonly.setter
     def finalonly(self, val):
         self._finalonly = val
+
+    @property
+    def granule_composites(self):
+        if not hasattr(self, '_granule_composites'):
+            self._granule_composites = test_attrib_bool(self.node, 'granule_composites')
+        return self._granule_composites
+    @granule_composites.setter
+    def granule_composites(self, val):
+        self._granule_composites= val
 
     @property
     def testonly(self):
@@ -431,7 +442,7 @@ class Product(object):
                     textstr = None
             else:
                 textstr = None
-            self._text_below_colorbars = textstr
+            self._text_below_colorbars = self.eval_str(textstr)
         return self._text_below_colorbars
     @property
     def text_above_colorbars(self):
@@ -444,7 +455,7 @@ class Product(object):
                     textstr = None
             else:
                 textstr = None
-            self._text_above_colorbars = textstr
+            self._text_above_colorbars = self.eval_str(textstr)
         return self._text_above_colorbars
     @property
     def text_below_title(self):
@@ -457,7 +468,7 @@ class Product(object):
                     textstr = None
             else:
                 textstr = None
-            self._text_below_title = textstr
+            self._text_below_title = self.eval_str(textstr)
         return self._text_below_title
 
     @property
@@ -799,6 +810,12 @@ class Source(object):
         if not hasattr(self, '_name'):
             self._name = self.node.attrib['name']
         return self._name
+
+    @property
+    def granule_composites(self):
+        if not hasattr(self, '_granule_composites'):
+            self._granule_composites = test_attrib_bool(self.node, 'granule_composites')
+        return self._granule_composites
 
     @property
     def variables(self):

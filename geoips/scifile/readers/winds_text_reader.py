@@ -3,7 +3,6 @@ import os
 from datetime import datetime
 
 # Installed Libraries
-from IPython import embed as shell
 try: import netCDF4 as ncdf
 except: print 'Failed import netCDF4 in scifile/readers/winds_text_reader.py. If you need it, install it.'
 import numpy as np
@@ -17,6 +16,20 @@ from ..containers import DataSet,Variable,_empty_varinfo
 from geoips.utils.path.datafilename import DataFileName
 
 log = logging.getLogger(__name__)
+
+dsdictkey = 'ds'
+#dsdictkey = 'datasets'
+
+channel_dict = { 
+                'GOES16' : {
+                            'sensor': 'ABI',
+                            'WVCA'  : 'B08Rad', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCT'  : 'B10Rad', # 7.3um, Lower-level tropospheric Water Vapor band, IR
+                            'VIS'   : 'B04Ref', # 1.37um, Cirrus band, near-IR 
+                            'IR'    : 'B11Rad', # 8.4um, Cloud-Top Phase band, IR
+                            'SWIR'  : 'B07Rad', # 3.9um, Shortwave window band, IR (with reflected daytime component)
+                           }
+                }
 
 # For now must include this string for automated importing of classes.
 reader_class_name = 'Winds_Text_Reader'
@@ -151,6 +164,9 @@ class Winds_Text_Reader(Reader):
                     log.info('Starting dataset %s'%(key))
                     dat[key] = self.get_empty_datfields()
                     datavars[key] = {}
+                    metadata['top']['alg_platform'] = sat
+                    metadata['top']['alg_source'] = channel_dict[sat]['sensor']
+                    metadata[dsdictkey][key] = {}
                 dat[key]['days'] += [day]
                 dat[key]['hms']+= [hms]
                 dat[key]['lats'] += [lat]
@@ -161,6 +177,9 @@ class Winds_Text_Reader(Reader):
                 dat[key]['rffs'] += [rff]
                 dat[key]['qis']+= [qi]
                 dat[key]['intervs'] += [interv]
+                metadata[dsdictkey][key]['alg_platform'] = sat
+                metadata[dsdictkey][key]['alg_wavelength'] = typ
+                metadata[dsdictkey][key]['alg_channel'] = channel_dict[sat][typ]
 
 
         minlat = 999
@@ -194,45 +213,45 @@ class Winds_Text_Reader(Reader):
                 elif key in ['days','hms']:
                     datavars[typ][key] = np.array(map(int, arr)) 
 
-        nx,ny = (500,500)
-        x = np.linspace(minlon, maxlon, nx)
-        y = np.linspace(maxlat, minlat, ny)
-        gridlons,gridlats = np.meshgrid(x,y)
+        #nx,ny = (500,500)
+        #x = np.linspace(minlon, maxlon, nx)
+        #y = np.linspace(maxlat, minlat, ny)
+        #gridlons,gridlats = np.meshgrid(x,y)
 
-        for typ in datavars.keys():
-            dsname = typ.replace('1d','grid')
-            if datavars[typ]['speed'].size >= 4:
-                log.info('Interpolating data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
-            else:
-                log.info('Not enough points to interpolate data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
-                continue
+        #for typ in datavars.keys():
+        #    dsname = typ.replace('1d','grid')
+        #    if datavars[typ]['speed'].size >= 4:
+        #        log.info('Interpolating data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
+        #    else:
+        #        log.info('Not enough points to interpolate data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
+        #        continue
 
-            speed = datavars[typ]['speed']
-            direction = datavars[typ]['direction']
-            lats = datavars[typ]['lats']
-            lons = datavars[typ]['lons']
-            pres = datavars[typ]['pres']
-            u = (speed * np.cos(np.radians(direction)))#*1.94384
-            v = (speed * np.sin(np.radians(direction)))#*1.94384
+        #    speed = datavars[typ]['speed']
+        #    direction = datavars[typ]['direction']
+        #    lats = datavars[typ]['lats']
+        #    lons = datavars[typ]['lons']
+        #    pres = datavars[typ]['pres']
+        #    u = (speed * np.cos(np.radians(direction)))#*1.94384
+        #    v = (speed * np.sin(np.radians(direction)))#*1.94384
 
-            # interpolate
-            gridpres = np.ma.masked_invalid(griddata((lats,lons),pres,(gridlats,gridlons),method='linear'))
-            gridu = np.ma.masked_invalid(griddata((lats,lons),u,(gridlats,gridlons),method='linear'))
-            gridv = np.ma.masked_invalid(griddata((lats,lons),v,(gridlats,gridlons),method='linear'))
-            gridspeed = np.ma.masked_invalid(griddata((lats,lons),speed,(gridlats,gridlons),method='linear'))
-            gvars[dsname] = {}
-            datavars[dsname] = {}
-            datavars[dsname]['gridpres'] = np.ma.masked_invalid(gridpres)
-            datavars[dsname]['gridu'] = np.ma.masked_invalid(gridu)
-            datavars[dsname]['gridv'] = np.ma.masked_invalid(gridv)
-            datavars[dsname]['gridspeed'] = np.ma.masked_invalid(gridspeed)
+        #    # interpolate
+        #    gridpres = np.ma.masked_invalid(griddata((lats,lons),pres,(gridlats,gridlons),method='linear'))
+        #    gridu = np.ma.masked_invalid(griddata((lats,lons),u,(gridlats,gridlons),method='linear'))
+        #    gridv = np.ma.masked_invalid(griddata((lats,lons),v,(gridlats,gridlons),method='linear'))
+        #    gridspeed = np.ma.masked_invalid(griddata((lats,lons),speed,(gridlats,gridlons),method='linear'))
+        #    gvars[dsname] = {}
+        #    datavars[dsname] = {}
+        #    datavars[dsname]['gridpres'] = np.ma.masked_invalid(gridpres)
+        #    datavars[dsname]['gridu'] = np.ma.masked_invalid(gridu)
+        #    datavars[dsname]['gridv'] = np.ma.masked_invalid(gridv)
+        #    datavars[dsname]['gridspeed'] = np.ma.masked_invalid(gridspeed)
 
-            gvars[dsname]['Latitude'] = gridlats
-            gvars[dsname]['Longitude'] = gridlons
-            clat= 30
-            clon = 10
-            gridinds = np.where((gridlons>clon) & (gridlons<clon+1) & (gridlats>clat) & (gridlats<clat+1))
-            inds = np.where((lons>clon) & (lons<clon+1) & (lats>clat) & (lats<clat+1))
+        #    gvars[dsname]['Latitude'] = gridlats
+        #    gvars[dsname]['Longitude'] = gridlons
+        #    clat= 30
+        #    clon = 10
+        #    gridinds = np.where((gridlons>clon) & (gridlons<clon+1) & (gridlats>clat) & (gridlats<clat+1))
+        #    inds = np.where((lons>clon) & (lons<clon+1) & (lats>clat) & (lats<clat+1))
 
-                
-        # datavars, gvars, and metadata are passed by reference, so we do not have to return anything.
+        #        
+        ## datavars, gvars, and metadata are passed by reference, so we do not have to return anything.
