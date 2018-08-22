@@ -643,6 +643,17 @@ class Sector(object):
     #     self.area_info.area_dict = val
 
     @property
+    def uniq_hash(self):
+        ''' Returns a unique hash of the currently defined sector.
+            This will provide a fully unique identifier for the current 
+            sector, so if elements of the sector are changed, the 
+            uniq_hash will be updated accordingly. This can be used
+            for creating fully unique intermediate files.'''
+        if not hasattr(self, '_uniq_hash'):
+            self._uniq_hash = hash(frozenset(self.area_definition.proj_dict.items()))
+        return self._uniq_hash 
+
+    @property
     def basemap(self):
         '''Returns a basemap for the sector instance.'''
         # MLS we need to pass the old arguments to basemap - resolution
