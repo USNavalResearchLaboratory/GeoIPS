@@ -11,7 +11,7 @@
     <basic_args>
         <source name='abi'>
             <!-- Cirrus band, Near-IR-->
-            <var zenith='yes'>B04Ref</var>
+            <var zenith='no'>B04Ref</var>
         </source>
         <img>
             <equation>B04Ref</equation>

@@ -1037,7 +1037,7 @@ class ABI_NCDF4_Reader(Reader):
                 gvars[res].pop('Lines')
                 gvars[res].pop('Samples')
                 for varname, var in gvars.items():
-                    gvars[varname] = np.ma.array(var, mask=gvars['SatZenith'])
+                    gvars[varname] = np.ma.array(var, mask=gvars['SatZenith'].mask)
             except KeyError:
                 pass
         for ds in datavars.keys():
@@ -1134,11 +1134,14 @@ class ABI_NCDF4_Reader(Reader):
                                  'larger than the data dimensions or vice versa.')
 
         data = {'Rad': rad_data}
-        data['Rad'][np.where(qf == -1)] = BADVALS['Off_Of_Disk']
+        # Originally was using -1, but this is a uint8 and set to 255 for off of disk
+        data['Rad'][np.where(qf == 255)] = BADVALS['Off_Of_Disk']
         data['Rad'][np.where(qf == 1)] = BADVALS['Conditional']
-        data['Rad'][np.where(qf == 2)] = BADVALS['Out_Of_Valid_Range']
+        # This flag is ignored for now.  It masks good data that is useful for imagery.
+        # I am unsure if this should be used in digital products.
+        # data['Rad'][np.where(qf == 2)] = BADVALS['Out_Of_Valid_Range']
         data['Rad'][np.where(qf == 3)] = BADVALS['No_Value']
-        data['Rad'] = np.ma.masked_less(data['Rad'], -999.0)
+        data['Rad'] = np.ma.masked_less_equal(data['Rad'], -999.0)
 
         # Get the bad data mask from radiances to reuse
         bad_data_mask = data['Rad'].mask
@@ -1179,7 +1182,7 @@ class ABI_NCDF4_Reader(Reader):
             #        since some algorithms (e.g. Fire-Temperature RGB) required uncorrected
             #        data, we will not do this here, instead leaving it to the algorithm
             #        developer to handle.
-            data['Ref'][~bad_data_mask] = ne.evaluate('k0 * rad_data')  # / cos(deg2rad * sun_zenith)')
+            data['Ref'][~bad_data_mask] = ne.evaluate('k0 * rad_data / cos(deg2rad * sun_zenith)')
 
         if bt:
             if band_num not in range(7, 17):

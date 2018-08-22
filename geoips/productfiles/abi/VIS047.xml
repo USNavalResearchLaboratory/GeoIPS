@@ -11,7 +11,7 @@
     <basic_args>
         <source name='abi'>
             <!-- Blue band, Visible -->
-            <var zenith='yes' mark_terminator='yes'>B01Ref</var>
+            <var zenith='no' mark_terminator='yes'>B01Ref</var>
         </source>
         <img>
             <equation>B01Ref</equation>
