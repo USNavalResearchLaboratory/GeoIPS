@@ -161,6 +161,12 @@ class AllSectorFiles(object):
             allvars.update(set(sf.get_required_vars(source,products)))
         return list(allvars)
 
+    def get_optional_vars(self,source,products=None):
+        allvars = set()
+        for sf in self.sectorfiles:
+            allvars.update(set(sf.get_optional_vars(source,products)))
+        return list(allvars)
+
     def itersectors(self):
         '''Iterates over all sector elements in the current object.'''
         for sf in self.sectorfiles:
@@ -376,6 +382,12 @@ class XMLSectorFile(object):
         allvars = set()
         for sect in self.getsectors():
             allvars.update(set(sect.get_required_vars(source,products)))
+        return list(allvars)
+
+    def get_optional_vars(self,source,products=None):
+        allvars = set()
+        for sect in self.getsectors():
+            allvars.update(set(sect.get_optional_vars(source,products)))
         return list(allvars)
 
     def getsectors(self,checksector=True):
@@ -631,6 +643,17 @@ class Sector(object):
     #     self.area_info.area_dict = val
 
     @property
+    def uniq_hash(self):
+        ''' Returns a unique hash of the currently defined sector.
+            This will provide a fully unique identifier for the current 
+            sector, so if elements of the sector are changed, the 
+            uniq_hash will be updated accordingly. This can be used
+            for creating fully unique intermediate files.'''
+        if not hasattr(self, '_uniq_hash'):
+            self._uniq_hash = hash(frozenset(self.area_definition.proj_dict.items()))
+        return self._uniq_hash 
+
+    @property
     def basemap(self):
         '''Returns a basemap for the sector instance.'''
         # MLS we need to pass the old arguments to basemap - resolution
@@ -804,6 +827,20 @@ class Sector(object):
             pf = productfile.open2(source, requested)
             if pf:
                 return pf.get_required_source_vars(source)
+            else:
+                raise productfile.ProductFileError.ProductFileError
+        else:
+            return []
+
+    def get_optional_vars(self, source, products=None):
+        '''Returns a list of the variables required from the input data source
+        for all of the products it can produce for the current sector.'''
+        requested = self.get_requested_products(source,products)
+        
+        if requested:
+            pf = productfile.open2(source, requested)
+            if pf:
+                return pf.get_optional_source_vars(source)
             else:
                 raise productfile.ProductFileError.ProductFileError
         else:

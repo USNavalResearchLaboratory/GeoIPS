@@ -36,7 +36,6 @@ except:
 from ..title import Title
 from ..shoot import shoot
 from ..mpl_utils import on_draw,parallels,meridians
-from ..output_formats.metoctiff import metoctiff
 import geoips.productfile as productfile
 from geoips.utils.gencolormap import get_cmap
 from geoips.utils.decorators import retry
@@ -56,6 +55,11 @@ rcParams = matplotlib.rcParams
 
 log = interactive_log_setup(logging.getLogger(__name__))
 
+def eval_str(val):
+    try:
+        return eval(val)
+    except:
+        return val
 
 
 plot_class_name = 'GeoImgBase'
@@ -266,6 +270,8 @@ class GeoImgBase(object):
     @property
     def sectorfile(self):
         return self._sectorfile
+
+    
     @property
     def product(self):
         return self._product
@@ -275,7 +281,9 @@ class GeoImgBase(object):
         #Otherwise use what we passed
         if not self._title:
             if self.product.text_below_title:
-                return Title.from_objects(self.datafile,self.sector,self.product,extra_lines=[self.product.text_below_title])
+                #from IPython import embed as shell
+                #shell()
+                return Title.from_objects(self.datafile,self.sector,self.product,extra_lines=[eval_str(self.product.text_below_title)])
             else:
                 return Title.from_objects(self.datafile,self.sector,self.product)
         return self._title
@@ -353,20 +361,26 @@ class GeoImgBase(object):
 
     def merge(self, otherimg, condition=None, other_top=False):
         #self.extend_lines(2)
-        #print 'in merge, finalimg otherimg self._image'
+        #print 'in merge, finalimg otherimg self.image'
         #shell()
+        # These all previously used self._image.  Not sure why, self.image
+        # should work fine, then you don't have to worry about self._image 
+        # being undefined. Should watch merged products to ensure they 
+        # are still being created properly, limited tests show no issues.
+        # self.image should be fine for accessing the current value, but 
+        # self._image must be used when setting the new value.
 
         if not self.intermediate_data_output:
-            #final = np.dsplit(np.flipud(self._image),4)
+            #final = np.dsplit(np.flipud(self.image),4)
 
             if other_top:
                 top_rgb = otherimg[...,:3]
                 top_a = otherimg[...,3]
-                bottom_rgb = np.flipud(self._image[...,:3])
-                bottom_a = np.flipud(self._image[...,3])
+                bottom_rgb = np.flipud(self.image[...,:3])
+                bottom_a = np.flipud(self.image[...,3])
             else:
-                top_rgb = np.flipud(self._image[...,:3])
-                top_a = np.flipud(self._image[...,3])
+                top_rgb = np.flipud(self.image[...,:3])
+                top_a = np.flipud(self.image[...,3])
                 bottom_rgb = otherimg[...,:3]
                 bottom_a = otherimg[...,3]
             bottom_fulla = np.ma.dstack([bottom_a,bottom_a,bottom_a])
@@ -376,7 +390,7 @@ class GeoImgBase(object):
             #other = np.dsplit(otherimg, 4)
 
             new = np.ma.empty(otherimg.shape)
-            #new = np.zeros_like(self._image)
+            #new = np.zeros_like(self.image)
 
 
             #if other_top:
@@ -412,11 +426,12 @@ class GeoImgBase(object):
             #        # (currently processed image - final - will be on top, so need to use it's alpha layer)
             #        #new[ind] = np.ma.where(alp > 0.4, final[ind], other[ind])
             #        #shell()
-            #        new[ind][:,:,0] = np.ma.where(final_a == 1, final[ind][:,:,0], (self._image[:,:,3] * final[ind][:,:,0] +  otherimg[:,:,3] * other[ind][:,:,0] * (1.0-final[ind][:,:,0]))/alp[:,:,0])
+            #        new[ind][:,:,0] = np.ma.where(final_a == 1, final[ind][:,:,0], (self.image[:,:,3] * final[ind][:,:,0] +  otherimg[:,:,3] * other[ind][:,:,0] * (1.0-final[ind][:,:,0]))/alp[:,:,0])
 
             #self.data = np.ma.dstack(new)
             #self._image = np.flipud(np.dstack([red.data, grn.data, blu.data, alp]))
             #self._image = np.flipud(np.dstack(new))
+            # This has to be self._image, not self.image! Can't set self.image.
             self._image = np.flipud(new)
         else:
             datasets = []
@@ -911,6 +926,7 @@ class GeoImgBase(object):
                 log.info('\n\n')
                 log.info(logstr+'Writing image file: '+external_product_filename.name)
                 if dest == 'metoctiff':
+                    from ..output_formats.metoctiff import metoctiff
                     metoctiff(self,self.sector,external_product_filename.name) 
                 else:
                     try:
@@ -1075,7 +1091,7 @@ class GeoImgBase(object):
                 #       axes fraction (on the actual plot)
                 #       others (look up pyplot annotate)
                 # 
-                ax.annotate(self.product.text_below_colorbars, xy=(0, 0), 
+                ax.annotate(eval_str(self.product.text_below_colorbars), xy=(0, 0), 
                             #xytext=(0.5, line_space*num_text_lines_below_colorbar), 
                             xytext=(0.5, title_line_space), 
                             xycoords='figure fraction', textcoords='figure fraction',horizontalalignment='center',

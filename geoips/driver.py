@@ -22,11 +22,6 @@ from datetime import timedelta, datetime
 import multiprocessing
 
 # Installed Libraries
-#try:
-#    # Don't fail if this doesn't exist (not even used at the moment)
-#    from IPython import embed as shell
-#except:
-#    print 'Failed IPython import in driver.py. If you need it, install it.'
 try:
     # Don't fail if this doesn't exist (not even used at the moment)
     from memory_profiler import profile
@@ -189,6 +184,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         log.interactive('{0} Using variables from products: {1}'.format(plog, curr_productlist))
         try:
             required_vars = curr_sector.get_required_vars(data_file.source_name, curr_productlist)
+            required_vars += curr_sector.get_optional_vars(data_file.source_name, curr_productlist)
         # This portion needs to be rethought.  Currently will skip an entire sector any time a single product file
         #   is missing.  Correct behavior would be to remove the offending product from the product list.
         except productfile.ProductFileError.ProductFileError, resp:
@@ -266,9 +262,54 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                                  'no coverage'.format(plog, curr_sector.name)))
                 return mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem
 
-        # MLS This is a good place to enter iPython in order to interrogate
-        #       the SECTORED data file for development purposes.
-        # shell()
+        #notes = 
+        '''
+         MLS This is a good place to enter iPython in order to interrogate
+               the SECTORED data file for development purposes.
+
+           sectored.datasets.keys()
+           sectored.datasets[<dsname>].variables.keys()
+           sectored.datasets[<dsname>].variables[<varname>].min()
+           sectored.datasets[<dsname>].variables[<varname>].max()
+
+           geolocation_variables must be named 'Latitude' and 'Longitude'
+           sectored.datasets[<dsname>].geolocation_variables['Latitude']
+           sectored.datasets[<dsname>].geolocation_variables['Longitude']
+
+           metadata is set in the readers - any arbitrary metadata field
+           can be set in the reader, but scifile only absolutely requires 
+           'start_datetime' 'source_name' and 'platform_name'
+           All other fields can be accessed throughout the processing, 
+           but are not required internally to scifile
+
+           metadata at the top scifile level, _finfo fields pulled from metadata['top']:
+           sectored.metadata['top']
+           sectored._finfo
+
+           metadata at the dataset level, _dsinfo fields pulled from metadata['ds']:
+           sectored.metadata['ds']
+           sectored.datasets[<dsname>]._dsinfo
+
+           metadata at the variable level, _varinfo fields pulled from metadata['datavars']:
+           sectored.metadata['datavars']
+           sectored.datasets[<dsname>].variables[<varname>]._varinfo
+
+           metadata at the geolocation_variable level, _varinfo fields pulled from metadata['gvars']:
+           sectored.metadata['datavars']
+           sectored.datasets[<dsname>].variables[<varname>]._varinfo
+
+           sectored.source_name, sectored.platform_name, sectored.start_datetime, etc pulled directly
+           from the ._*info dictionaries (which were originally specified in the metadata dictionary
+
+           At some point I want to rename 
+           'ds' to 'datasets', 
+           'datavars' to 'variables'
+           'gvars' to 'geolocation_variables' 
+           in the metadata dictionary, but we'll have to change a bunch of readers first.
+        '''
+        #print notes
+        #from IPython import embed as shell
+        #shell()
 
         '''If user requested write_sectored_datafile command line, then see if this is not
             already a PRESECTORED data file, and write if necessary
@@ -701,6 +742,7 @@ if __name__ == '__main__':
         log.info('\n\n')
         # Get list of all possible channels required based on sectorfile and productlist
         chans += sectfile.get_required_vars(ds.source_name, args['productlist'])
+        chans += sectfile.get_optional_vars(ds.source_name, args['productlist'])
     log.info('\tRequired channels: {0}'.format(sorted(chans)))
     log.info('\n')
     log.info('\tRequired sectors: {0}'.format(sorted(sectfile.sectornames())))
@@ -767,6 +809,9 @@ if __name__ == '__main__':
         #   df.datasets[<dsname>].variables.keys()
         #   df.datasets[<dsname>].variables[<varname>].min()
         #   df.datasets[<dsname>].variables[<varname>].max()
+        # print 'UNSECTORED scifile object in driver: df.datasets'
+        # print 'df.datasets[<dsname>].variables[<varname>]'
+        # from IPython import embed as shell
         # shell()
 
         log.info('SciFile information:')
