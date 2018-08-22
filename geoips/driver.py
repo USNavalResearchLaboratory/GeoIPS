@@ -262,16 +262,54 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                                  'no coverage'.format(plog, curr_sector.name)))
                 return mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem
 
-        # MLS This is a good place to enter iPython in order to interrogate
-        #       the SECTORED data file for development purposes.
-        #   sectored.datasets.keys()
-        #   sectored.datasets[<dsname>].variables.keys()
-        #   sectored.datasets[<dsname>].variables[<varname>].min()
-        #   sectored.datasets[<dsname>].variables[<varname>].max()
-        # print 'SECTORED scifile object in driver: sectored.datasets'
-        # print 'sectored.datasets[<dsname>].variables[<varname>]'
-        # from IPython import embed as shell
-        # shell()
+        #notes = 
+        '''
+         MLS This is a good place to enter iPython in order to interrogate
+               the SECTORED data file for development purposes.
+
+           sectored.datasets.keys()
+           sectored.datasets[<dsname>].variables.keys()
+           sectored.datasets[<dsname>].variables[<varname>].min()
+           sectored.datasets[<dsname>].variables[<varname>].max()
+
+           geolocation_variables must be named 'Latitude' and 'Longitude'
+           sectored.datasets[<dsname>].geolocation_variables['Latitude']
+           sectored.datasets[<dsname>].geolocation_variables['Longitude']
+
+           metadata is set in the readers - any arbitrary metadata field
+           can be set in the reader, but scifile only absolutely requires 
+           'start_datetime' 'source_name' and 'platform_name'
+           All other fields can be accessed throughout the processing, 
+           but are not required internally to scifile
+
+           metadata at the top scifile level, _finfo fields pulled from metadata['top']:
+           sectored.metadata['top']
+           sectored._finfo
+
+           metadata at the dataset level, _dsinfo fields pulled from metadata['ds']:
+           sectored.metadata['ds']
+           sectored.datasets[<dsname>]._dsinfo
+
+           metadata at the variable level, _varinfo fields pulled from metadata['datavars']:
+           sectored.metadata['datavars']
+           sectored.datasets[<dsname>].variables[<varname>]._varinfo
+
+           metadata at the geolocation_variable level, _varinfo fields pulled from metadata['gvars']:
+           sectored.metadata['datavars']
+           sectored.datasets[<dsname>].variables[<varname>]._varinfo
+
+           sectored.source_name, sectored.platform_name, sectored.start_datetime, etc pulled directly
+           from the ._*info dictionaries (which were originally specified in the metadata dictionary
+
+           At some point I want to rename 
+           'ds' to 'datasets', 
+           'datavars' to 'variables'
+           'gvars' to 'geolocation_variables' 
+           in the metadata dictionary, but we'll have to change a bunch of readers first.
+        '''
+        #print notes
+        #from IPython import embed as shell
+        #shell()
 
         '''If user requested write_sectored_datafile command line, then see if this is not
             already a PRESECTORED data file, and write if necessary
