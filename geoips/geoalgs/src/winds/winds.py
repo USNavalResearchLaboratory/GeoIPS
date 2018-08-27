@@ -46,8 +46,6 @@ def winds(datafile, sector, product, workdir):
         matching_file = SciFile()
         matching_file.import_data([matching_files[-1]])
 
-    datafile._finfo['platform_name'] = datafile.metadata['top']['alg_platform'].lower()
-    datafile._finfo['source_name'] = datafile.metadata['top']['alg_source'].lower()
 
     for dsname in datafile.datasets.keys():
         #if '1d' not in dsname or '800' not in dsname:
