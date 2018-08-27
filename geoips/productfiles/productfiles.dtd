@@ -97,6 +97,10 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 <!ELEMENT ticks                 (#PCDATA)>
 <!ELEMENT ticklabels            (#PCDATA)>
 <!ELEMENT title                 (#PCDATA)>
+<!ELEMENT bounds                (#PCDATA)>
+<!ELEMENT norm                  (#PCDATA)>
+<!ELEMENT spacing               (#PCDATA)>
+
 <!ELEMENT coastcolor            (#PCDATA)>
 <!ELEMENT gridcolor             (#PCDATA)>
 <!ELEMENT max_day_zen_ang       (#PCDATA)>
