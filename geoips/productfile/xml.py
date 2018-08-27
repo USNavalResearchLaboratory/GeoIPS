@@ -995,7 +995,7 @@ class Colorbar(object):
         self.scifile = scifile
 
     @staticmethod
-    def fromvals(cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None):
+    def fromvals(cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None, spacing=None):
         cbar = Colorbar()
         cbar._cmap = cmap
         cbar._ticks = ticks
@@ -1007,6 +1007,7 @@ class Colorbar(object):
         cbar._title = title
         cbar._bounds = bounds
         cbar._norm = norm
+        cbar._spacing = spacing
         return cbar
 
     def __str__(self):
