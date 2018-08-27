@@ -76,6 +76,9 @@ class GeoImgBase(object):
         self._product = product
         self._title = title
         self._ticks = ticks
+        
+
+        
 
         self._req_vars = product.get_required_source_vars(datafile.source_name)
         if product:
@@ -1101,20 +1104,131 @@ class GeoImgBase(object):
                     ticks = None
                     bounds = None
                     spacing = None
+                    # CAB 20180822:
+                    # This is the most basic when normalize is set to default
                     if len(cbarinfo.ticks) != 0:
                         ticks = cbarinfo.ticks
                         vmin = min(ticks)
                         vmax = max(ticks)
                         cbar_norm = Normalize(vmin=vmin, vmax=vmax)
-                    if cbarinfo.norm:
-                        cbar_norm = cbarinfo.norm
+
                     if cbarinfo.bounds:
-                        ticks = cbarinfo.bounds
+                       # ticks = cbarinfo.bounds
+                        ticks = [int(i) for i in cbarinfo.bounds.split(' ')]
                         bounds = [ticks[0]-1] + ticks + [ticks[-1]+1]
+
+                    if cbarinfo.norm:
+                        # if norm exists we must determine type to build norm
+                        #cbar_norm = cbarinfo.norm
+
+                        # Currently only norm we are dealing with, but 
+                        # more can be added later, for now all modifications 
+                        # to set up colorbar are contained by each "norm type"
+                        import math
+                        if cbarinfo.norm == 'Boundary':
+                            # Need to know how many intervals the colormap is 
+                            # going to be divided into
+                            interval = cmap.N/len(bounds)
+                            index = 0
+                            colorlist = []
+                            newbounds = []
+
+                            
+                            # Want to proportionally divide the colormap
+                            # so we need to see the range of 
+                            
+                            # colors_minus_ends = cmap.N - 2*interval
+                            bounds_range = abs(bounds[0] - bounds[-1])
+                            bounds = [bounds[0]-1] + bounds + [bounds[-1]+1] 
+                            
+                            
+                            colorlist.append(cmap(index))
+                            newbounds.append(index)
+                            ticklabels_ints = [int(i) for i in cbarinfo.ticklabels]
+                            min_tick_index = ticks.index(ticklabels_ints[0])
+                            max_tick_index = ticks.index(ticklabels_ints[-1])
+
+                            bound_space = float(abs(bounds[0]-ticklabels_ints[0]))
+                            normalized_bound_space = int(math.ceil((bound_space*100)/float(bounds_range)))
+                            
+                            index += int(normalized_bound_space)
+                            newbounds.append(index)
+                            colorlist.append(cmap(index))
+                            
+                            # Colormap is normalized by the segments determined
+                            # in the bounds AKA divided into the specific 
+                            # regions specified in the bounds
+                            i = 2 
+                            bound_differences = []
+                            while i < len(bounds)-1:
+                                bound_space = float(abs(bounds[i]-bounds[i+1]))
+                                normalized_bound_space = int(math.ceil((bound_space*100)/float(bounds_range)))
+                                index += int(1.5*normalized_bound_space)
+                                colorlist.append(cmap(index))
+                                newbounds.append(index)
+                                bound_differences.append(normalized_bound_space)
+                                print '****************** i : {}, len:{} boundspace {}'.format(i,len(colorlist),bound_space)
+                                i +=1
+
+#                            for i in bound_differences:
+ #                               index += i
+ #                               colorlist.append(cmap(index))
+  #                              newbounds.append(index)
+     
+                            
+                           # index += interval
+                           # colorlist.append(cmap(index))
+                           # newbounds.append(index)
+                           # index += interval
+                           # colorlist.append(cmap(index))
+                           # newbounds.append(index)
+                            ticklabels_ints = [int(i) for i in cbarinfo.ticklabels]
+                            min_tick_index = ticks.index(ticklabels_ints[0])
+                            max_tick_index = ticks.index(ticklabels_ints[-1])
+                            ticklabels = cbarinfo.ticklabels
+                            colorlist_subset = []
+                            for item in ticklabels_ints:
+                                if item in bounds:
+                                    print '$$$$$$$$$$$$$$$$$$$$$$$$$ index {}'.format(bounds.index(item))
+                                    colorlist_subset.append(colorlist[bounds.index(item)])
+
+                            colorlist = [colorlist[0]] + colorlist_subset + [colorlist[-1]]
+                            
+
+                           # bounds = newbounds
+                            
+                            #if min_tick_index ==0 and max_tick_index == len(bounds)-1:
+                            #    bounds = bounds[min_tick_index:max_tick_index]
+                            #    ticks = bounds
+                            #   # colorlist = colorlist[min_tick_index:max_tick_index]
+                            #elif min_tick_index ==0:
+                            #    bounds = bounds[min_tick_index:max_tick_index+1]
+                            #    ticks = bounds
+                            #    #colorlist = colorlist[min_tick_index:max_tick_index+1]
+                            #elif max_tick_index == len(bounds)-1:
+                            #    bounds = bounds[min_tick_index-1:max_tick_index]
+                            #    ticks = bounds
+                            #    #colorlist = colorlist[min_tick_index-1:max_tick_index]
+                            #else:
+                            #    bounds = bounds[min_tick_index-1:max_tick_index+1]
+                            #    ticks = bounds
+                            #    #colorlist = colorlist[min_tick_index-1:max_tick_index+1]
+                            ticks = [ticklabels_ints[0]-1] + ticklabels_ints + [ticklabels_ints[-1]+1]
+                            bounds = ticks
+                            cmap = matplotlib.colors.ListedColormap(colorlist,N=len(colorlist))
+                            cbar_norm = matplotlib.colors.BoundaryNorm(ticks, cmap.N)
+                            #cbar_norm = matplotlib.colors.Normalize(bounds, cmap.N)
+                            
+                            # CAB 20180822:
+                            # for some reason GeoIPS isnt seeing  the XML tag 
+                            # "spacing". So I have hardcoded it into "uniform" 
+                            spacing = 'uniform'
+                        else:
+                            cbar_norm = None
                     cbar = ColorbarBase(cbar_axes, cmap=cmap, extend='both',
                                  orientation='horizontal', ticks=ticks, norm=cbar_norm,
                                  boundaries = bounds, spacing = spacing)
-                    if len(cbarinfo.ticklabels) != 0:
+                    if len(cbarinfo.ticklabels) != 0 :
                         cbar.set_ticklabels(cbarinfo.ticklabels)
                     # MLS 20151202 This sets the font size for the color bar 
                     # tick labels. Lots of available tick params for tweaking
