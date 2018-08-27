@@ -1114,12 +1114,11 @@ class GeoImgBase(object):
 
                     if cbarinfo.bounds:
                        # ticks = cbarinfo.bounds
-                        ticks = [int(i) for i in cbarinfo.bounds.split(' ')]
+                        ticks = [float(i) for i in cbarinfo.bounds.split(' ')]
                         bounds = [ticks[0]-1] + ticks + [ticks[-1]+1]
 
                     if cbarinfo.norm:
                         # if norm exists we must determine type to build norm
-                        #cbar_norm = cbarinfo.norm
 
                         # Currently only norm we are dealing with, but 
                         # more can be added later, for now all modifications 
@@ -1131,93 +1130,84 @@ class GeoImgBase(object):
                             interval = cmap.N/len(bounds)
                             index = 0
                             colorlist = []
-                            newbounds = []
-
                             
                             # Want to proportionally divide the colormap
-                            # so we need to see the range of 
+                            # so we need to see the range of bounds
                             
-                            # colors_minus_ends = cmap.N - 2*interval
                             bounds_range = abs(bounds[0] - bounds[-1])
+                            # Need to add the two "ends" to the bounds
                             bounds = [bounds[0]-1] + bounds + [bounds[-1]+1] 
                             
-                            
+                            # Append the first color to the list
+                            # we are going to make a new colormap out
+                            # of this list
                             colorlist.append(cmap(index))
-                            newbounds.append(index)
-                            ticklabels_ints = [int(i) for i in cbarinfo.ticklabels]
-                            min_tick_index = ticks.index(ticklabels_ints[0])
-                            max_tick_index = ticks.index(ticklabels_ints[-1])
-
+                            # See which ticklabels are actually going to be used
+                            # These should be a subset of the bounds
+                            ticklabels_ints = [float(i) for i in cbarinfo.ticklabels]
+                            # Gets the "space"/difference between the first
+                            # item in bounds and the first utilized bound 
+                            # which is identified in the subset ticklabels
                             bound_space = float(abs(bounds[0]-ticklabels_ints[0]))
+                            # In order to convert this difference into a 
+                            # normalized percentage of how much this difference
+                            # is out of a total 100% of the entire colormap we
+                            # convert it to the nearest percentage point.
+                            # This closest percentage point is due to the fact
+                            # that cmap only takes ints
                             normalized_bound_space = int(math.ceil((bound_space*100)/float(bounds_range)))
-                            
+                            # We offset the first space utilized so we are now
+                            # at the first utilized bound
                             index += int(normalized_bound_space)
-                            newbounds.append(index)
+                            # Utilizing this normalized bound we can then 
+                            # append the color tuple from the cmap to a list
+                            # from which we will make the new colormap
                             colorlist.append(cmap(index))
                             
                             # Colormap is normalized by the segments determined
                             # in the bounds AKA divided into the specific 
                             # regions specified in the bounds
+                            # We already have the endbar and the first segment
                             i = 2 
-                            bound_differences = []
+
                             while i < len(bounds)-1:
+                                # do the same operations as above but now for
+                                # every bound_space
                                 bound_space = float(abs(bounds[i]-bounds[i+1]))
                                 normalized_bound_space = int(math.ceil((bound_space*100)/float(bounds_range)))
+                                # This is not very intuitive
+                                # The reason we do this is because colormaps
+                                # are on a gradient, and we want the color 
+                                # in the middle of that gradient.
+                                # *************************************
+
+                                # IF COLORS ARENT LINING UP, COME HERE!!
+
+                                # **************************************
                                 index += int(1.5*normalized_bound_space)
                                 colorlist.append(cmap(index))
-                                newbounds.append(index)
-                                bound_differences.append(normalized_bound_space)
-                                print '****************** i : {}, len:{} boundspace {}'.format(i,len(colorlist),bound_space)
                                 i +=1
-
-#                            for i in bound_differences:
- #                               index += i
- #                               colorlist.append(cmap(index))
-  #                              newbounds.append(index)
-     
-                            
-                           # index += interval
-                           # colorlist.append(cmap(index))
-                           # newbounds.append(index)
-                           # index += interval
-                           # colorlist.append(cmap(index))
-                           # newbounds.append(index)
-                            ticklabels_ints = [int(i) for i in cbarinfo.ticklabels]
-                            min_tick_index = ticks.index(ticklabels_ints[0])
-                            max_tick_index = ticks.index(ticklabels_ints[-1])
+                            # put the ticklabels here
+                            # tick labels are of str type
                             ticklabels = cbarinfo.ticklabels
+
+                            # we are going to create a subset where we 
+                            # only utilize the colors corresponding to
+                            # the intervals in the ticks subset.
                             colorlist_subset = []
                             for item in ticklabels_ints:
                                 if item in bounds:
-                                    print '$$$$$$$$$$$$$$$$$$$$$$$$$ index {}'.format(bounds.index(item))
                                     colorlist_subset.append(colorlist[bounds.index(item)])
 
                             colorlist = [colorlist[0]] + colorlist_subset + [colorlist[-1]]
                             
-
-                           # bounds = newbounds
-                            
-                            #if min_tick_index ==0 and max_tick_index == len(bounds)-1:
-                            #    bounds = bounds[min_tick_index:max_tick_index]
-                            #    ticks = bounds
-                            #   # colorlist = colorlist[min_tick_index:max_tick_index]
-                            #elif min_tick_index ==0:
-                            #    bounds = bounds[min_tick_index:max_tick_index+1]
-                            #    ticks = bounds
-                            #    #colorlist = colorlist[min_tick_index:max_tick_index+1]
-                            #elif max_tick_index == len(bounds)-1:
-                            #    bounds = bounds[min_tick_index-1:max_tick_index]
-                            #    ticks = bounds
-                            #    #colorlist = colorlist[min_tick_index-1:max_tick_index]
-                            #else:
-                            #    bounds = bounds[min_tick_index-1:max_tick_index+1]
-                            #    ticks = bounds
-                            #    #colorlist = colorlist[min_tick_index-1:max_tick_index+1]
+                            # we utilize the ticks from this subset to normalize
                             ticks = [ticklabels_ints[0]-1] + ticklabels_ints + [ticklabels_ints[-1]+1]
                             bounds = ticks
+                            # create a new colormap from the subset of colors
                             cmap = matplotlib.colors.ListedColormap(colorlist,N=len(colorlist))
+                            # normalize it by bounds
                             cbar_norm = matplotlib.colors.BoundaryNorm(ticks, cmap.N)
-                            #cbar_norm = matplotlib.colors.Normalize(bounds, cmap.N)
                             
                             # CAB 20180822:
                             # for some reason GeoIPS isnt seeing  the XML tag 
@@ -1225,6 +1215,7 @@ class GeoImgBase(object):
                             spacing = 'uniform'
                         else:
                             cbar_norm = None
+
                     cbar = ColorbarBase(cbar_axes, cmap=cmap, extend='both',
                                  orientation='horizontal', ticks=ticks, norm=cbar_norm,
                                  boundaries = bounds, spacing = spacing)
