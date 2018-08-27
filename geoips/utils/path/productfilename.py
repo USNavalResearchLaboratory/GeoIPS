@@ -763,7 +763,10 @@ class ProductFileName(object):
             # MLS 20150622
             #print 'SHELL productfilename merging'
             #shell()
-            pf.coverage = 'covg'+str(round(geoimgobj.coverage(imgkey),1)).replace('.','p')
+            if imgkey:
+                pf.coverage = 'covg'+str(round(geoimgobj.coverage(imgkey),1)).replace('.','p')
+            else:
+                pf.coverage = 'covg'+str(round(geoimgobj.coverage(),1)).replace('.','p')
             #  MLS DEFAULT TO GEOIMGOBJ START_DATETIME!!
             pf.datetime = geoimgobj.start_datetime
             #pdb.set_trace()
