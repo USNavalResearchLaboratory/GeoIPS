@@ -13,36 +13,56 @@ from geoips.utils.gencolormap import get_cmap
 
 log = logging.getLogger(__name__)
 
+
 def winds_plot(gi, imgkey=None):
 
-    # Figure and axes
-    gi._figure, gi._axes = gi._create_fig_and_ax()
-
-    log.info('Plotting dataset: %s'%(imgkey))
 
     df = gi.image[imgkey]['datafile']
     ds = df.datasets[imgkey]
+
+    bgname = 'None' 
+    prodname = imgkey
     if 'BACKGROUND' in gi.image[imgkey]:
         bgfile = gi.image[imgkey]['BACKGROUND']
+        bgname = df.metadata['ds'][imgkey]['alg_channel']
+        bgvar = np.flipud(bgfile.variables[bgname])
+
+    log.info('Setting up fig and ax for dataset: %s with bgname: %s'%(prodname, bgname))
+
+    new_platform = gi.datafile.metadata['top']['alg_platform'].lower() 
+    new_source = gi.datafile.metadata['top']['alg_source'].lower() 
+
+
+    log.info('Plotting dataset: %s'%(imgkey))
 
     if '1d' in imgkey:
+        resolution = min(gi.sector.area_info.proj4_pixel_width, gi.sector.area_info.proj4_pixel_height)
+        direction = ds.variables['direction']
         speed = ds.variables['speed']
-        u = speed * np.cos(np.radians(ds.variables['direction']))
-        v = speed * np.sin(np.radians(ds.variables['direction']))
+        u = speed * np.cos(np.radians(direction))
+        v = speed * np.sin(np.radians(direction))
         pres = ds.variables['pres']
         lats = ds.variables['lats']
         lons = ds.variables['lons']
-        alg_channel = 'None' 
-        alg_info = imgkey
-        if 'BACKGROUND' in gi.image[imgkey]:
-            alg_channel = df.metadata['ds'][imgkey]['alg_channel']
-            bgvar = bgfile.variables[alg_channel]
-            bgvar.mask = bgfile.geolocation_variables['Latitude'].mask
-            gi.basemap.imshow(bgvar,ax=gi.axes,cmap=get_cmap('Greys'))
-        gi.basemap.barbs(lons.data,lats.data,u,v,speed,ax=gi.axes,cmap=get_cmap('tropix_no_white'))
 
-        from geoimg.title import Title
-        gi._title = Title.from_objects(gi.datafile, gi.sector, gi.product, extra_lines = ['Using: '+alg_info, 'Plotted over: '+alg_channel])
+        from geoips.geoalgs.lib.motion_plot import downsample_winds
+        from geoips.geoalgs.lib.motion_plot import set_winds_plotting_params
+
+        lonsthin, latsthin, uthin, vthin, speedthin, directionthin = downsample_winds(resolution, lons, lats, u, v, speed, direction)
+        set_winds_plotting_params(gi, speedthin, new_platform, new_source, prodname, bgname)
+
+        if 'BACKGROUND' in gi.image[imgkey]:
+            gi.basemap.imshow(bgvar,ax=gi.axes,cmap=get_cmap('Greys'))
+        gi.basemap.barbs(lonsthin.data,latsthin.data,
+                        uthin,vthin,speedthin,
+                        ax=gi.axes,
+                        cmap=get_cmap('tropix_no_white'),
+                        sizes=dict(height=0.8, spacing=0.3),
+                        linewidth=2,
+                        length=5,
+                        latlon=True)
+
+
     #elif 'grid' in imgkey:
     #    speed = gi.image[imgkey]['gridspeed']
     #    u = gi.image[imgkey]['gridu']
