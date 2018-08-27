@@ -104,6 +104,23 @@ class GeoImgBase(object):
             else:
                 self._cmap = None
 
+    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False):
+        if platform_name:
+            self.datafile._finfo['platform_name'] = platform_name
+        if source_name:
+            self.datafile._finfo['source_name'] = source_name
+
+        extra_lines = []
+
+        if prodname:
+            extra_lines += ['Using: '+prodname]
+        if bgname:
+            extra_lines += ['Plotted over: '+bgname]
+
+        from geoimg.title import Title
+        self._title = Title.from_objects(self.datafile, self.sector, self.product, extra_lines = extra_lines)
+
+
     def set_colorbars(self, cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None, spacing=None, append=False):
         ''' Method to allow setting the colorbars explicitly.  Previously boundaries was always
             None, and norm was always  norm = Normalize(vmin=img.min(), vmax=img.max()).
@@ -899,6 +916,7 @@ class GeoImgBase(object):
 
             self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
                             bbox_extra_artists=self.axes.texts, pad_inches=0.2, transparent=False)
+            log.interactive('Done writing image file: '+geoips_product_filename.name)
             if geoips_product_filename.coverage > 90:
                 log.info('LATENCY: '+str(datetime.utcnow()-geoips_product_filename.datetime)+' '+gpaths['BOXNAME']+' '+geoips_product_filename.name)
             geoips_product_filename.move_to_final_filename()
