@@ -104,11 +104,17 @@ class GeoImgBase(object):
             else:
                 self._cmap = None
 
-    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False):
+    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
         if platform_name:
             self.datafile._finfo['platform_name'] = platform_name
         if source_name:
             self.datafile._finfo['source_name'] = source_name
+        if start_dt:
+            self.datafile._finfo['start_datetime'] = start_dt
+            self._start_datetime = start_dt
+        if end_dt:
+            self.datafile._finfo['end_datetime'] = end_dt
+            self._end_datetime = end_dt
 
         extra_lines = []
 
