@@ -108,9 +108,12 @@ class GeoImgBase(object):
                 self._cmap = None
 
     def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
+        extra_extra = ''
         if platform_name:
+            extra_extra = '%s %s'%(extra_extra, platform_name)
             self.datafile._finfo['platform_name'] = platform_name
         if source_name:
+            extra_extra = '%s %s'%(extra_extra, source_name)
             self.datafile._finfo['source_name'] = source_name
         if start_dt:
             self.datafile._finfo['start_datetime'] = start_dt
@@ -124,7 +127,7 @@ class GeoImgBase(object):
         if prodname:
             extra_lines += ['Using: '+prodname]
         if bgname:
-            extra_lines += ['Plotted over: '+bgname]
+            extra_lines += ['Plotted over: %s %s'%(bgname, extra_extra)]
 
         from geoimg.title import Title
         self._title = Title.from_objects(self.datafile, self.sector, self.product, extra_lines = extra_lines)
@@ -1253,8 +1256,6 @@ class GeoImgBase(object):
                             # for some reason GeoIPS isnt seeing  the XML tag 
                             # "spacing". So I have hardcoded it into "uniform" 
                             spacing = 'uniform'
-                        else:
-                            cbar_norm = None
 
                     cbar = ColorbarBase(cbar_axes, cmap=cmap, extend='both',
                                  orientation='horizontal', ticks=ticks, norm=cbar_norm,
