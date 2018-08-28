@@ -26,6 +26,12 @@ def winds_plot(gi, imgkey=None):
         bgfile = gi.image[imgkey]['BACKGROUND']
         bgname = df.metadata['ds'][imgkey]['alg_channel']
         bgvar = np.flipud(bgfile.variables[bgname])
+        if 'Ref' in bgname:
+            bgvar = np.ma.masked_greater(bgvar,1)
+            bgvar = np.ma.masked_less(bgvar,0)
+        if 'BT' in bgname:
+            bgvar = np.ma.masked_greater(bgvar,323)
+            bgvar = np.ma.masked_less(bgvar,173)
 
     log.info('Setting up fig and ax for dataset: %s with bgname: %s'%(prodname, bgname))
 
@@ -45,8 +51,8 @@ def winds_plot(gi, imgkey=None):
         lats = ds.variables['lats']
         lons = ds.variables['lons']
 
-        from geoips.geoalgs.lib.motion_plot import downsample_winds
-        from geoips.geoalgs.lib.motion_plot import set_winds_plotting_params
+        from geoips.geoalgs.lib.amv_plot import downsample_winds
+        from geoips.geoalgs.lib.amv_plot import set_winds_plotting_params
 
         lonsthin, latsthin, uthin, vthin, speedthin, directionthin = downsample_winds(resolution, lons, lats, u, v, speed, direction)
         set_winds_plotting_params(gi, speedthin, new_platform, new_source, prodname, bgname)
