@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<product_file>
+<product method='externalalg' name='Geo-Stitched' finalonly='yes'>
+    <externalalg_args>
+
+        <source name='seviri' granule_composites='no'>
+            <var optional='yes'>IR_016</var>
+            <var optional='yes'>IR_039</var>
+            <var optional='yes'>IR_087</var>
+            <var optional='yes'>IR_097</var>
+            <var optional='yes'>IR_108</var>
+            <var optional='yes'>IR_120</var>
+            <var optional='yes'>IR_134</var>
+            <var optional='yes'>VIS006</var>
+            <var optional='yes'>VIS008</var>
+            <var optional='yes'>WV_073</var>
+            <var optional='yes'>WV_062</var>
+        </source>
+        <day_night>both</day_night>
+        <max_day_zen_ang>90</max_day_zen_ang>
+        <min_ngt_zen_ang>90</min_ngt_zen_ang>
+        <coastcolor>0 180 180 180</coastcolor>
+        <gridcolor>0 180 180 180</gridcolor>
+    </externalalg_args>
+</product>
+</product_file>
+
