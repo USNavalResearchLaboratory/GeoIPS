@@ -23,11 +23,11 @@ dsdictkey = 'ds'
 channel_dict = { 
                 'GOES16' : {
                             'sensor': 'ABI',
-                            'WVCA'  : 'B08Rad', # 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCT'  : 'B10Rad', # 7.3um, Lower-level tropospheric Water Vapor band, IR
+                            'WVCA'  : 'B08BT', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCT'  : 'B10BT', # 7.3um, Lower-level tropospheric Water Vapor band, IR
                             'VIS'   : 'B04Ref', # 1.37um, Cirrus band, near-IR 
-                            'IR'    : 'B11Rad', # 8.4um, Cloud-Top Phase band, IR
-                            'SWIR'  : 'B07Rad', # 3.9um, Shortwave window band, IR (with reflected daytime component)
+                            'IR'    : 'B11BT', # 8.4um, Cloud-Top Phase band, IR
+                            'SWIR'  : 'B07BT', # 3.9um, Shortwave window band, IR (with reflected daytime component)
                            }
                 }
 

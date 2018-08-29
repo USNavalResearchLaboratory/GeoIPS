@@ -80,6 +80,9 @@ class GeoImgBase(object):
         self._product = product
         self._title = title
         self._ticks = ticks
+        
+
+        
 
         self._req_vars = product.get_required_source_vars(datafile.source_name)
         if product:
@@ -103,6 +106,32 @@ class GeoImgBase(object):
                 self._cmap = get_cmap(cmap)
             else:
                 self._cmap = None
+
+    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
+        extra_extra = ''
+        if platform_name:
+            extra_extra = '%s %s'%(extra_extra, platform_name)
+            self.datafile._finfo['platform_name'] = platform_name
+        if source_name:
+            extra_extra = '%s %s'%(extra_extra, source_name)
+            self.datafile._finfo['source_name'] = source_name
+        if start_dt:
+            self.datafile._finfo['start_datetime'] = start_dt
+            self._start_datetime = start_dt
+        if end_dt:
+            self.datafile._finfo['end_datetime'] = end_dt
+            self._end_datetime = end_dt
+
+        extra_lines = []
+
+        if prodname:
+            extra_lines += ['Using: '+prodname]
+        if bgname:
+            extra_lines += ['Plotted over: %s %s'%(bgname, extra_extra)]
+
+        from geoimg.title import Title
+        self._title = Title.from_objects(self.datafile, self.sector, self.product, extra_lines = extra_lines)
+
 
     def set_colorbars(self, cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None, spacing=None, append=False):
         ''' Method to allow setting the colorbars explicitly.  Previously boundaries was always
@@ -899,6 +928,7 @@ class GeoImgBase(object):
 
             self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
                             bbox_extra_artists=self.axes.texts, pad_inches=0.2, transparent=False)
+            log.interactive('Done writing image file: '+geoips_product_filename.name)
             if geoips_product_filename.coverage > 90:
                 log.info('LATENCY: '+str(datetime.utcnow()-geoips_product_filename.datetime)+' '+gpaths['BOXNAME']+' '+geoips_product_filename.name)
             geoips_product_filename.move_to_final_filename()
@@ -1117,20 +1147,120 @@ class GeoImgBase(object):
                     ticks = None
                     bounds = None
                     spacing = None
+                    # CAB 20180822:
+                    # This is the most basic when normalize is set to default
                     if len(cbarinfo.ticks) != 0:
                         ticks = cbarinfo.ticks
                         vmin = min(ticks)
                         vmax = max(ticks)
                         cbar_norm = Normalize(vmin=vmin, vmax=vmax)
-                    if cbarinfo.norm:
-                        cbar_norm = cbarinfo.norm
+
                     if cbarinfo.bounds:
-                        ticks = cbarinfo.bounds
+                       # ticks = cbarinfo.bounds
+                        ticks = [float(i) for i in cbarinfo.bounds.split(' ')]
                         bounds = [ticks[0]-1] + ticks + [ticks[-1]+1]
+
+                    if cbarinfo.norm:
+                        # if norm exists we must determine type to build norm
+
+                        # Currently only norm we are dealing with, but 
+                        # more can be added later, for now all modifications 
+                        # to set up colorbar are contained by each "norm type"
+                        import math
+                        if cbarinfo.norm == 'Boundary':
+                            # Need to know how many intervals the colormap is 
+                            # going to be divided into
+                            interval = cmap.N/len(bounds)
+                            index = 0
+                            colorlist = []
+                            
+                            # Want to proportionally divide the colormap
+                            # so we need to see the range of bounds
+                            
+                            bounds_range = abs(bounds[0] - bounds[-1])
+                            # Need to add the two "ends" to the bounds
+                            bounds = [bounds[0]-1] + bounds + [bounds[-1]+1] 
+                            
+                            # Append the first color to the list
+                            # we are going to make a new colormap out
+                            # of this list
+                            colorlist.append(cmap(index))
+                            # See which ticklabels are actually going to be used
+                            # These should be a subset of the bounds
+                            ticklabels_ints = [float(i) for i in cbarinfo.ticklabels]
+                            # Gets the "space"/difference between the first
+                            # item in bounds and the first utilized bound 
+                            # which is identified in the subset ticklabels
+                            bound_space = float(abs(bounds[0]-ticklabels_ints[0]))
+                            # In order to convert this difference into a 
+                            # normalized percentage of how much this difference
+                            # is out of a total 100% of the entire colormap we
+                            # convert it to the nearest percentage point.
+                            # This closest percentage point is due to the fact
+                            # that cmap only takes ints
+                            normalized_bound_space = int(math.ceil((bound_space*100)/float(bounds_range)))
+                            # We offset the first space utilized so we are now
+                            # at the first utilized bound
+                            index += int(normalized_bound_space)
+                            # Utilizing this normalized bound we can then 
+                            # append the color tuple from the cmap to a list
+                            # from which we will make the new colormap
+                            colorlist.append(cmap(index))
+                            
+                            # Colormap is normalized by the segments determined
+                            # in the bounds AKA divided into the specific 
+                            # regions specified in the bounds
+                            # We already have the endbar and the first segment
+                            i = 2 
+
+                            while i < len(bounds)-1:
+                                # do the same operations as above but now for
+                                # every bound_space
+                                bound_space = float(abs(bounds[i]-bounds[i+1]))
+                                normalized_bound_space = int(math.ceil((bound_space*100)/float(bounds_range)))
+                                # This is not very intuitive
+                                # The reason we do this is because colormaps
+                                # are on a gradient, and we want the color 
+                                # in the middle of that gradient.
+                                # *************************************
+
+                                # IF COLORS ARENT LINING UP, COME HERE!!
+
+                                # **************************************
+                                index += int(1.5*normalized_bound_space)
+                                colorlist.append(cmap(index))
+                                i +=1
+                            # put the ticklabels here
+                            # tick labels are of str type
+                            ticklabels = cbarinfo.ticklabels
+
+                            # we are going to create a subset where we 
+                            # only utilize the colors corresponding to
+                            # the intervals in the ticks subset.
+                            colorlist_subset = []
+                            for item in ticklabels_ints:
+                                if item in bounds:
+                                    colorlist_subset.append(colorlist[bounds.index(item)])
+
+                            colorlist = [colorlist[0]] + colorlist_subset + [colorlist[-1]]
+                            
+                            # we utilize the ticks from this subset to normalize
+                            ticks = [ticklabels_ints[0]-1] + ticklabels_ints + [ticklabels_ints[-1]+1]
+                            bounds = ticks
+                            # create a new colormap from the subset of colors
+                            cmap = matplotlib.colors.ListedColormap(colorlist,N=len(colorlist))
+                            # normalize it by bounds
+                            cbar_norm = matplotlib.colors.BoundaryNorm(ticks, cmap.N)
+                            
+                            # CAB 20180822:
+                            # for some reason GeoIPS isnt seeing  the XML tag 
+                            # "spacing". So I have hardcoded it into "uniform" 
+                            spacing = 'uniform'
+
                     cbar = ColorbarBase(cbar_axes, cmap=cmap, extend='both',
                                  orientation='horizontal', ticks=ticks, norm=cbar_norm,
                                  boundaries = bounds, spacing = spacing)
-                    if len(cbarinfo.ticklabels) != 0:
+                    if len(cbarinfo.ticklabels) != 0 :
                         cbar.set_ticklabels(cbarinfo.ticklabels)
                     # MLS 20151202 This sets the font size for the color bar 
                     # tick labels. Lots of available tick params for tweaking

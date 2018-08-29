@@ -300,11 +300,13 @@ def create_imagery(data_file, sector, productlist, outdir,
                 curr_geoips_only = check_if_testonly(finalimg, geoips_only)
                 if isinstance(finalimg.image, dict):
                     for imgkey in finalimg.image.keys():
+                        log.info('Looping through final images and producing imagery for '+imgkey)
                         finalimg.coverage(imgkey)
                         finalimg._is_final = True
                         final_productnames += [finalimg.get_filename(imgkey=imgkey).name]
                         finalimg.produce_imagery(final=True, geoips_only=curr_geoips_only, imgkey=imgkey)
                 else:
+                    log.info('No separate images, producing single final imagery')
                     finalimg.produce_imagery(final=True, geoips_only=curr_geoips_only)
             except (IOError,OSError),resp:
                 log.error(str(resp)+pplog+' Failed writing FINAL MERGED image. Someone else did it for us? Skipping to next product')
