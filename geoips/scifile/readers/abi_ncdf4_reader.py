@@ -43,14 +43,15 @@ except Exception:
 DONT_AUTOGEN_GEOLOCATION = False
 if os.getenv('DONT_AUTOGEN_GEOLOCATION'):
     DONT_AUTOGEN_GEOLOCATION = True
-
-GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files', 'geolocation', 'ABI')
-if os.getenv('GEOLOCDIR'):
-    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'ABI')
-
-DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'intermediate_files', 'geolocation', 'ABI')
-if os.getenv('DYNAMIC_GEOLOCDIR'):
-    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'ABI')
+# CAB 20180904: Removed these to try and reduce the number of emails we are
+# getting
+#GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files', 'geolocation', 'ABI')
+#if os.getenv('GEOLOCDIR'):
+#    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'ABI')
+#
+#DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'intermediate_files', 'geolocation', 'ABI')
+#if os.getenv('DYNAMIC_GEOLOCDIR'):
+#    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'ABI')
 
 READ_GEOLOCDIRS = []
 if os.getenv('READ_GEOLOCDIRS'):
@@ -749,6 +750,38 @@ class ABI_NCDF4_Reader(Reader):
 
     @staticmethod
     def format_test(path):
+
+        #notes = \
+        '''Uncomment this shell statement for development purposes.
+
+         When it drops to shell, poke around in the resulting "df" object 
+         until you find something UNIQUE to the current data type.  
+         We just need this "format_test" method within the reader to return 
+         True when this netcdf is UNIQUELY an abi netcdf file, 
+         and False if it is a netcdf for a different sensor.
+
+         Some IPython data file interrogation tips (PLEASE NOTE ALL OF 
+         these tips WILL NOT work with all data types! Different data files
+         have different attributes/properties on the resulting python objects):
+           df.<TAB> 
+               shows a list of properties and methods you have available on 
+               the df object
+           df.attributes().keys() 
+               shows what dictionary elements are available in df.attributes()
+           attrs = df.attributes() 
+           attrs['KeyVal']
+               Access the element named 'KeyVal' in the dictionary attrs
+           attrs.<TAB>
+               <TAB> does not work after a function or dictionary element, 
+               so you have to create a new variable, then use <TAB> on the 
+               new variable to access it's list of properties and methods
+         df.project now 'NPP Data Exploitation: NOAA GCOM-W1 AMSR2', not just NOAA GCOM-W1 AMSR2
+        '''
+        #print notes
+        #from IPython import embed as shell
+        #shell()
+
+
         # Correctly handles directories of files
         fnames = _get_files(path)
 

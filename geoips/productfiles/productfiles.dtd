@@ -97,6 +97,10 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 <!ELEMENT ticks                 (#PCDATA)>
 <!ELEMENT ticklabels            (#PCDATA)>
 <!ELEMENT title                 (#PCDATA)>
+<!ELEMENT bounds                (#PCDATA)>
+<!ELEMENT norm                  (#PCDATA)>
+<!ELEMENT spacing               (#PCDATA)>
+
 <!ELEMENT coastcolor            (#PCDATA)>
 <!ELEMENT gridcolor             (#PCDATA)>
 <!ELEMENT max_day_zen_ang       (#PCDATA)>
@@ -145,6 +149,7 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 -->
 <!ATTLIST product name          CDATA #IMPLIED>
 <!ATTLIST product finalonly     CDATA "no">
+<!ATTLIST product granule_composites CDATA "yes">
 <!ATTLIST product display_name          CDATA "False">
 <!ATTLIST possiblesource platforms          CDATA "False">
 <!ATTLIST productlayer name          CDATA #IMPLIED>
@@ -155,6 +160,7 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 <!ATTLIST productlayer order    CDATA #REQUIRED>
 <!ATTLIST product testonly      CDATA "no">
 <!ATTLIST source name           CDATA #REQUIRED>
+<!ATTLIST source granule_composites CDATA "yes">
 
 <!-- normalize/min/max/units/outbounds deprecated for var attlist
     zenith still used to specify solar zenith correction for specific variables
@@ -167,6 +173,7 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 -->
 <!ATTLIST var zenith            CDATA "no">
 <!ATTLIST var mark_terminator   CDATA "no">
+<!ATTLIST var optional 		CDATA "no">
 <!ATTLIST var eq_name           CDATA #IMPLIED>
 
 <!-- eq_name used when specifying multiple equations, so you can reference 
