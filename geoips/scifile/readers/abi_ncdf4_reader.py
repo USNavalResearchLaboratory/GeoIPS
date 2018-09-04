@@ -43,14 +43,15 @@ except Exception:
 DONT_AUTOGEN_GEOLOCATION = False
 if os.getenv('DONT_AUTOGEN_GEOLOCATION'):
     DONT_AUTOGEN_GEOLOCATION = True
-
-GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files', 'geolocation', 'ABI')
-if os.getenv('GEOLOCDIR'):
-    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'ABI')
-
-DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'intermediate_files', 'geolocation', 'ABI')
-if os.getenv('DYNAMIC_GEOLOCDIR'):
-    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'ABI')
+# CAB 20180904: Removed these to try and reduce the number of emails we are
+# getting
+#GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files', 'geolocation', 'ABI')
+#if os.getenv('GEOLOCDIR'):
+#    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'ABI')
+#
+#DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'intermediate_files', 'geolocation', 'ABI')
+#if os.getenv('DYNAMIC_GEOLOCDIR'):
+#    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'ABI')
 
 READ_GEOLOCDIRS = []
 if os.getenv('READ_GEOLOCDIRS'):
