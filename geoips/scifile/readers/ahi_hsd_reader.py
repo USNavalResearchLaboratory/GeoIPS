@@ -42,15 +42,13 @@ except Exception:
 DONT_AUTOGEN_GEOLOCATION = False
 if os.getenv('DONT_AUTOGEN_GEOLOCATION'):
     DONT_AUTOGEN_GEOLOCATION = True
-# CAB 20180904: Removing these to try and reduce the amount of emails we are
-# getting from satuser
-#GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files/geolocation/AHI')
-#if os.getenv('GEOLOCDIR'):
-#    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'AHI')
-#
-#DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'intermediate_files/geolocation/AHI')
-#if os.getenv('DYNAMIC_GEOLOCDIR'):
-#    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'AHI')
+GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files/geolocation/AHI')
+if os.getenv('GEOLOCDIR'):
+    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'AHI')
+
+DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'intermediate_files/geolocation/AHI')
+if os.getenv('DYNAMIC_GEOLOCDIR'):
+    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'AHI')
 
 READ_GEOLOCDIRS = []
 if os.getenv('READ_GEOLOCDIRS'):
