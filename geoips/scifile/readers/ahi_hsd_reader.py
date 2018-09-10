@@ -43,12 +43,16 @@ DONT_AUTOGEN_GEOLOCATION = False
 if os.getenv('DONT_AUTOGEN_GEOLOCATION'):
     DONT_AUTOGEN_GEOLOCATION = True
 GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files/geolocation/AHI')
-if os.getenv('GEOLOCDIR'):
-    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'AHI')
+# 20180910 CAB:
+# Geolocation files are now no longer moved to localscratch and are now from
+# the SATOPS directory. Also the path is slightly different for dynamic sectors
 
-DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'intermediate_files/geolocation/AHI')
-if os.getenv('DYNAMIC_GEOLOCDIR'):
-    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'AHI')
+#if os.getenv('GEOLOCDIR'):
+#    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'AHI')
+
+DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files/geolocation_dynamic/AHI')
+#if os.getenv('DYNAMIC_GEOLOCDIR'):
+#    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'AHI')
 
 READ_GEOLOCDIRS = []
 if os.getenv('READ_GEOLOCDIRS'):
