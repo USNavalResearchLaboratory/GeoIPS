@@ -194,7 +194,7 @@ class MSG_XRIT_Reader(Reader):
                             log.info('    Saving Latitude to gvars')
                             gvars[dsname]['Latitude'] = np.ma.array(ad.get_lonlats()[1])
                         if 'SunZenith' not in gvars[dsname].keys():
-                            from scifile.satnav import satnav
+                            from geoips.scifile.satnav import satnav
                             log.info('        Using satnav, can only calculate Sun Zenith angles')
                             gvars[dsname]['SunZenith'] = satnav('SunZenith',metadata['top']['start_datetime'],gvars[dsname]['Longitude'],gvars[dsname]['Latitude'])
                         datavars[dsname][geoipsvarname] =\

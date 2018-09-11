@@ -158,8 +158,8 @@ class Title(object):
         line_parts = [self.satellite.upper(),
                       self.sensor.upper(),
                       self.product,
-                      self.time_range,
-                      self.copyright,
+                      #self.time_range,
+                      #self.copyright,
                       ]
         line = ' '.join(line_parts)
         self._first_line = line
@@ -201,7 +201,7 @@ class Title(object):
         may not want to explicitly set the title when creating the geoimg obj.
         '''
         #self._lines = [self.first_line, self.second_line]
-        self._lines = [self.first_line]
+        self._lines = [self.first_line, self.second_line]
         if self.extra_lines is not None:
             self._lines.extend(self.extra_lines)
         return self._lines

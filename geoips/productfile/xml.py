@@ -21,7 +21,6 @@ import logging
 
 # Installed Libraries
 from lxml import etree
-from IPython import embed as shell
 
 
 # GeoIPS Libraries
@@ -99,6 +98,14 @@ class XMLProductFile(object):
         variables = set()
         for prod in self.iterproducts(source):
             variables.update(set(prod.get_required_source_vars(source)))
+        return list(variables)
+
+    def get_optional_source_vars(self, source):
+        '''Returns a list containing the names of the variables required for the current set of products
+        for the provided data source name.'''
+        variables = set()
+        for prod in self.iterproducts(source):
+            variables.update(set(prod.get_optional_source_vars(source)))
         return list(variables)
 
     def get_required_source_geolocation_vars(self, source):
@@ -201,11 +208,14 @@ class Product(object):
     def __str__(self):
         return etree.tostring(self.node, pretty_print=True)
 
-    def eval_att(self,path):
+    def eval_str(self,val):
         try:
-            return eval(self.node.xpath(path)[0])
+            return eval(val)
         except:
-            return self.node.xpath(path)[0]
+            return val
+
+    def eval_att(self,path):
+        return self.eval_str(self.node.xpath(path)[0])
 
     @property
     def name(self):
@@ -225,7 +235,12 @@ class Product(object):
     def get_required_source_vars(self, source):
         '''Return a list containing the names of the variables required for the current product
         for the given data source name.'''
-        return self.sources[source].variables.keys()
+        return [xx.name for xx in self.sources[source].variables.values() if not xx.optional]
+
+    def get_optional_source_vars(self, source):
+        '''Return a list containing the names of the variables required for the current product
+        for the given data source name.'''
+        return [xx.name for xx in self.sources[source].variables.values() if xx.optional]
 
     def get_required_source_geolocation_vars(self, source):
         '''Return a list containing the names of the geolocation variables required for the current product
@@ -250,6 +265,15 @@ class Product(object):
     @finalonly.setter
     def finalonly(self, val):
         self._finalonly = val
+
+    @property
+    def granule_composites(self):
+        if not hasattr(self, '_granule_composites'):
+            self._granule_composites = test_attrib_bool(self.node, 'granule_composites')
+        return self._granule_composites
+    @granule_composites.setter
+    def granule_composites(self, val):
+        self._granule_composites= val
 
     @property
     def testonly(self):
@@ -418,7 +442,7 @@ class Product(object):
                     textstr = None
             else:
                 textstr = None
-            self._text_below_colorbars = textstr
+            self._text_below_colorbars = self.eval_str(textstr)
         return self._text_below_colorbars
     @property
     def text_above_colorbars(self):
@@ -431,7 +455,7 @@ class Product(object):
                     textstr = None
             else:
                 textstr = None
-            self._text_above_colorbars = textstr
+            self._text_above_colorbars = self.eval_str(textstr)
         return self._text_above_colorbars
     @property
     def text_below_title(self):
@@ -444,7 +468,7 @@ class Product(object):
                     textstr = None
             else:
                 textstr = None
-            self._text_below_title = textstr
+            self._text_below_title = self.eval_str(textstr)
         return self._text_below_title
 
     @property
@@ -788,6 +812,12 @@ class Source(object):
         return self._name
 
     @property
+    def granule_composites(self):
+        if not hasattr(self, '_granule_composites'):
+            self._granule_composites = test_attrib_bool(self.node, 'granule_composites')
+        return self._granule_composites
+
+    @property
     def variables(self):
         if not hasattr(self, '_variables'):
             self._variables = {}
@@ -934,6 +964,12 @@ class Variable(object):
         return self._mark_terminator
 
     @property
+    def optional(self):
+        if not hasattr(self, '_optional'):
+            self._optional= test_attrib_bool(self.node, 'optional')
+        return self._optional
+
+    @property
     def units(self):
         try:
             self._units = self.node.attrib['units']
@@ -959,7 +995,7 @@ class Colorbar(object):
         self.scifile = scifile
 
     @staticmethod
-    def fromvals(cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None):
+    def fromvals(cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None, spacing=None):
         cbar = Colorbar()
         cbar._cmap = cmap
         cbar._ticks = ticks
@@ -971,6 +1007,7 @@ class Colorbar(object):
         cbar._title = title
         cbar._bounds = bounds
         cbar._norm = norm
+        cbar._spacing = spacing
         return cbar
 
     def __str__(self):

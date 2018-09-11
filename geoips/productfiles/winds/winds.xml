@@ -7,9 +7,9 @@
         is contained there.
 -->
 <product_file>
-<product method='externalalg' name='winds' testonly='no'>
+<product method='externalalg' name='winds' testonly='no' finalonly='yes'>
     <externalalg_args>
-        <source name='winds'>
+        <source name='winds' granule_composites='no'>
             <var>speed</var>
             <var>direction</var>
             <var>lats</var>
