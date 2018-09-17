@@ -71,6 +71,7 @@ def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_ti
         for sdt in minrange(min_time, max_time):
             sdtstr = sdt.strftime('%Y%m%d.%H%M*')
             dirname, baseoutfilename, suf =  get_filename(basedir, source_name, secclass, sector, sdtstr, edtstr, platform_name, numfiles, dataprovider, filetype)
+            #print '%s'%(os.path.join(dirname,baseoutfilename+suf))
             filenames += glob(os.path.join(dirname,baseoutfilename+suf))
     return filenames
 
