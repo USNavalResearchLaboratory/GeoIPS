@@ -261,8 +261,8 @@ def recursively_load_dict_contents_from_group(h5file, path):
                 ans[key] = item.value 
             elif isinstance(item.value, (np.float32, np.int32, int, np.uint64)):
                 ans[key] = item.value
-            # Added these for AHI / ABI metadata
-            elif isinstance(item.value, (np.uint8, np.uint16, np.uint32)):
+            # Added these for AHI / ABI / SEVIRI metadata
+            elif isinstance(item.value, (np.uint8, np.uint16, np.uint32, np.float)):
                 ans[key] = item.value
         # If we are a group, recursively read in the rest of the levels
         elif isinstance(item, h5py._hl.group.Group):
@@ -312,8 +312,8 @@ def recursively_save_dict_contents_to_group(df, path, dic):
         elif isinstance(item, (np.float32, np.int32, int, np.uint64)):
             df[val] = item
 
-        # Added these for AHI / ABI metadata
-        elif isinstance(item, (np.uint8, np.uint16, np.uint32)):
+        # Added these for AHI / ABI / SEVIRI metadata
+        elif isinstance(item, (np.uint8, np.uint16, np.uint32, np.float)):
             df[val] = item
 
         # If the current item is a dictionary, recursively start
