@@ -35,8 +35,8 @@ def winds_plot(gi, imgkey=None):
 
     log.info('Setting up fig and ax for dataset: %s with bgname: %s'%(prodname, bgname))
 
-    new_platform = gi.datafile.metadata['top']['alg_platform'].lower() 
-    new_source = gi.datafile.metadata['top']['alg_source'].lower() 
+    new_platform = gi.datafile.metadata['top']['alg_platform']
+    new_source = gi.datafile.metadata['top']['alg_source']
 
 
     log.info('Plotting dataset: %s'%(imgkey))
@@ -59,14 +59,40 @@ def winds_plot(gi, imgkey=None):
 
         if 'BACKGROUND' in gi.image[imgkey]:
             gi.basemap.imshow(bgvar,ax=gi.axes,cmap=get_cmap('Greys'))
+
+
+        '''
+        NOTE there appears to be an error in basemap - I had to add a try except to allow 
+        for different outputs from np.where
+        4778                 thresh = 360.-londiff_sort[-2] if nlons > 2 else 360.0 - londiff_sort[-1]
+        ***4779                 try:
+        ***4780                     itemindex = len(lonsin)-np.where(londiff>=thresh)[0][0]
+        ***4781                 except IndexError:
+        ***4782                     itemindex = len(lonsin)-np.where(londiff>=thresh)[0]
+        4783             else:
+        4784                 itemindex = 0
+        4785
+        4786             if fix_wrap_around and itemindex:
+        4787                 # check to see if cyclic (wraparound) point included
+        4788                 # if so, remove it.
+        4789                 if np.abs(lonsin[0]-lonsin[-1]) < 1.e-4:
+        4790                     hascyclic = True
+        4791                     lonsin_save = lonsin.copy()
+        4792                     lonsin = lonsin[1:]
+        /satops/geoips_externals_nrl-2.7/built/anaconda2/lib/python2.7/site-packages/mpl_toolkits/basemap/__init__.py
+        '''
+
+
         gi.basemap.barbs(lonsthin.data,latsthin.data,
-                        uthin,vthin,speedthin,
+                        uthin.data,vthin.data,speedthin.data,
                         ax=gi.axes,
-                        cmap=get_cmap('tropix_no_white'),
+                        cmap=gi.colorbars[0].cmap,
                         sizes=dict(height=0.8, spacing=0.3),
+                        norm=gi.colorbars[0].norm,
                         linewidth=2,
                         length=5,
                         latlon=True)
+
 
 
     #elif 'grid' in imgkey:
