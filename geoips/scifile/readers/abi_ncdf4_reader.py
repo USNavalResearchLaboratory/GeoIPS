@@ -1025,8 +1025,18 @@ class ABI_NCDF4_Reader(Reader):
             else:
                 raise ValueError('No geolocation data found.')
 
+        # basically just reformat the all_metadata dictionary to 
+        # reference channel names as opposed to file names..
+        band_metadata = self.get_band_metadata(all_metadata)
+
+        # MLS MASK HACK - will be replaced with Jeremy's actual fix
+        #completemask = {}
         # Remove lines and samples arrays.  Not needed.
         for res in gvars.keys():
+            # MLS MASK HACK - will be replaced with Jeremy's actual fix
+            # Some channels appear to not get the mask appropriately...
+            # Lat/lons always have the correct mask, so use that.
+            #completemask[res] = gvars[res]['Latitude'].mask
             try:
                 gvars[res].pop('Lines')
                 gvars[res].pop('Samples')
@@ -1037,10 +1047,56 @@ class ABI_NCDF4_Reader(Reader):
                 datavars.pop(ds)
             else:
                 for varname in datavars[ds].keys():
+                    self.set_variable_metadata(scifile_metadata, band_metadata, ds, varname)
                     datavars[ds][varname] = np.ma.masked_less(datavars[ds][varname], -999.1)
+                    # MLS MASK HACK - will be replaced with Jeremy's actual fix
+                    #if ds in completemask.keys():
+                    #    datavars[ds][varname].mask = datavars[ds][varname].mask | completemask[ds]
         log.interactive('Done reading ABI data for ' + adname)
         log.info('')
         return
+
+    @staticmethod
+    def set_variable_metadata(scifile_metadata, band_metadata, dsname, varname):
+        ''' MLS 20180914 
+            Setting scifile_metadata at the variable level for the associated 
+            channel metadata pulled from the actual netcdf file.
+            This will now be accessible from the scifile object.
+            Additionally, pull out specifically the band_wavelength and 
+            attach it to the _varinfo at the variable level - this is 
+            automatically pulled from the scifile_metadata dictionary
+            and set in the variable._varinfo dictionary in scifile/scifile.py
+            and scifile/containers.py (see empty_varinfo at the beginning
+            of containers.py for dictionary fields that are automatically 
+            pulled from the appropriate location in the  scifile_metadata 
+            dictionary and set on the _varinfo dictionary)
+        '''
+        if dsname not in scifile_metadata['datavars'].keys():
+            scifile_metadata['datavars'][dsname] = {}
+        bandname = varname.replace('Rad','').replace('Ref','').replace('BT','')
+        if varname not in scifile_metadata['datavars'][dsname].keys():
+            if bandname in band_metadata.keys():
+                scifile_metadata['datavars'][dsname][varname] = {}
+                # Store the full metadata dictionary in the scifile metadata
+                scifile_metadata['datavars'][dsname][varname]['all'] = band_metadata[bandname]
+                # Set the actual wavelength property on the variable itself
+                if 'var_info' in band_metadata[bandname].keys() and 'band_wavelength' in band_metadata[bandname]['var_info'].keys():
+                    scifile_metadata['datavars'][dsname][varname]['wavelength'] = band_metadata[bandname]['var_info']['band_wavelength'][0]
+
+    @staticmethod
+    def get_band_metadata(all_metadata):
+        ''' This method basically just reformats the all_metadata 
+            dictionary that is set based on the metadata found
+            in the netcdf object itself to reference channel
+            names as opposed to filenames as the dictionary keys.
+        '''
+        bandmetadata = {}
+        for fname in all_metadata.keys():
+            bandnum = all_metadata[fname]['var_info']['band_id'][0]
+            bandmetadata['B%02d'%bandnum] = {}
+            bandmetadata['B%02d'%bandnum] = all_metadata[fname]
+        return bandmetadata
+                
 
     @staticmethod
     def get_data(md, gvars, rad=False, ref=False, bt=False):
