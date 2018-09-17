@@ -22,8 +22,8 @@ def winds(datafile, sector, product, workdir):
     from geoips.scifile.utils import find_datafiles_in_range
     from geoips.scifile.scifile import SciFile
     matching_files = find_datafiles_in_range(sector,
-        datafile.metadata['top']['alg_platform'].lower(),
-        datafile.metadata['top']['alg_source'].lower(),
+        datafile.metadata['top']['alg_platform'],
+        datafile.metadata['top']['alg_source'],
         datafile.start_datetime - timedelta(minutes=60),
         datafile.start_datetime - timedelta(minutes=0),
         )
