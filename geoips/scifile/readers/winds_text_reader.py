@@ -46,7 +46,7 @@ channel_dict = {
                             'WVCA'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
                             'WVCT'  : 'WV_073', # 
                             'VIS'   : 'VIS008', # 
-                            'IR'    : 'IR_112', # 
+                            'IR'    : 'IR_108', # 
                             'SWIR'  : 'IR_039', # 3.9um, Shortwave window band, IR (with reflected daytime component)
                            },
                 'MET8' : {
@@ -56,7 +56,7 @@ channel_dict = {
                             'WVCA'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
                             'WVCT'  : 'WV_073', # 
                             'VIS'   : 'VIS008', # 
-                            'IR'    : 'IR_112', # 
+                            'IR'    : 'IR_108', # 
                             'SWIR'  : 'IR_039', # 3.9um, Shortwave window band, IR (with reflected daytime component)
                            },
                 }
