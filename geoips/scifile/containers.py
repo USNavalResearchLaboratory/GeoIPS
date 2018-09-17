@@ -68,7 +68,9 @@ _empty_dsinfo.update({'shape': None,
 _empty_varinfo = _empty_dsinfo.copy()
 _empty_varinfo.update({'badval': None,
                        '_nomask': None,
-                       'transform_coeff': None})
+                       'transform_coeff': None,
+                        'wavelength': None,
+                       })
 
 
 class BaseContainer(object):
@@ -1500,6 +1502,26 @@ class DataSet(object):
         else:
             return False
 
+    @property
+    def day_inds(self, max_zenith=90):
+        '''Return percentage of pixels with SunZenith less than max_zenith'''
+        # Read SunZenith without reading the rest of the variables to save time here
+        # Replace SunZenith variable in self.geolocation_variables
+        if self.geolocation_variables['SunZenith'].empty:
+            self.geolocation_variables._force_append(self.geolocation_variables['SunZenith'].read())
+        # Determine where day and create DataSet level mask
+        return np.ma.where(self.geolocation_variables['SunZenith'] < max_zenith)
+
+    @property
+    def night_inds(self, min_zenith=90):
+        '''Mask all variables in the DataSet where SunZenith is greater than min_zenith.'''
+        # Read SunZenith without reading the rest of the variables to save time here
+        # Replace SunZenith variable in self.geolocation_variables
+        if self.geolocation_variables['SunZenith'].empty:
+            self.geolocation_variables._force_append(self.geolocation_variables['SunZenith'].read())
+        # Determine where night and create DataSet level mask
+        return np.ma.where(self.geolocation_variables['SunZenith'] > min_zenith)
+
     def mask_day(self, max_zenith=90):
         '''Mask all variables in the DataSet where SunZenith is greater than max_zenith.'''
         # Read SunZenith without reading the rest of the variables to save time here
@@ -1942,6 +1964,10 @@ class Variable(MaskedArray):
     @property
     def transform_coeff(self):
         return self._varinfo['transform_coeff']
+
+    @property
+    def wavelength(self):
+        return self._varinfo['wavelength']
 
     @property
     def name(self):
