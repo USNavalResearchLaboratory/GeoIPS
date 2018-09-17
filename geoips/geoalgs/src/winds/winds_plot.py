@@ -84,7 +84,7 @@ def winds_plot(gi, imgkey=None):
 
 
         gi.basemap.barbs(lonsthin.data,latsthin.data,
-                        uthin.data,vthin.data,speedthin.data,
+                        uthin,vthin,speedthin,
                         ax=gi.axes,
                         cmap=gi.colorbars[0].cmap,
                         sizes=dict(height=0.8, spacing=0.3),
