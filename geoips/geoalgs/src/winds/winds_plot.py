@@ -58,6 +58,7 @@ def winds_plot(gi, imgkey=None):
         set_winds_plotting_params(gi, speedthin, new_platform, new_source, prodname, bgname)
 
         if 'BACKGROUND' in gi.image[imgkey]:
+            log.info('Plotting background image %s'%(bgname))
             gi.basemap.imshow(bgvar,ax=gi.axes,cmap=get_cmap('Greys'))
 
 
@@ -83,6 +84,7 @@ def winds_plot(gi, imgkey=None):
         '''
 
 
+        log.info('Plotting barbs with colorbars %s'%(gi.colorbars))
         gi.basemap.barbs(lonsthin.data,latsthin.data,
                         uthin,vthin,speedthin,
                         ax=gi.axes,
