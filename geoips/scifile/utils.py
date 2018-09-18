@@ -41,7 +41,7 @@ def get_filename(basedir, source_name, secclass, sector, sdt, edt, platform_name
 
 def minrange(start_date, end_date):
     '''Check one min at a time'''
-    log.info('in minrange')
+    #log.info('in minrange')
     tr = end_date - start_date
     for n in range(tr.seconds / 60):
         yield start_date + timedelta(seconds = (n*60))
@@ -50,7 +50,7 @@ def daterange(start_date, end_date):
     '''Check one day at a time. 
         If end_date - start_date is between 1 and 2, days will be 1,
         and range(1) is 0. So add 2 to days to set range'''
-    log.info('in minrange')
+    #log.info('in minrange')
     tr = end_date - start_date
     for n in range(tr.days + 2):
         yield start_date + timedelta(n)
