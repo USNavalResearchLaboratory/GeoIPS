@@ -1072,6 +1072,16 @@ class Colorbar(object):
                 self._norm = None
         return self._norm
 
+    @property
+    def spacing(self):
+        if not hasattr(self, '_spacing'):
+            try:
+                #self._norm = self.node.find('norm').pyval.strip()
+                self._spacing = self.node.find('spacing').pyval.strip().decode('string_escape')
+            except AttributeError:
+                self._spacing = None
+        return self._spacing
+
 def test_attrib_bool(node, name, yes='yes', no='no'):
     '''Tests attribute "name" from ElementTree "node" against yes and no
     keywords.  If name == yes then return true, if name == no then return

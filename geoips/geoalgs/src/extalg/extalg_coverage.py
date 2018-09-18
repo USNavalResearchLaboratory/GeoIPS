@@ -18,12 +18,8 @@ def extalg_coverage(gi, imgkey=None):
     different data array in the dictionary...
     '''
     
-    if imgkey and imgkey != 'winds':
-        return 100 * (float(np.ma.count(gi[imgkey])) / gi[imgkey].size)
-    if isinstance(gi, dict):
-        for imgkey in gi.keys():
-            if imgkey != 'winds':
-                return 100 * (float(np.ma.count(gi[imgkey])) / gi[imgkey].size)
+    if imgkey and imgkey == 'rainrate':
+        return 100 * (float(np.ma.count(gi[imgkey]['frozen'])) / gi[imgkey]['frozen'].size)
     else:
-        return 100 * (float(np.ma.count(gi)) / gi.size)
+        return 101
          
