@@ -21,16 +21,27 @@ def winds(datafile, sector, product, workdir):
 
     from geoips.scifile.utils import find_datafiles_in_range
     from geoips.scifile.scifile import SciFile
+    log.info('Trying to find matching background imagery: %s %s %s to %s from %s'%
+                (   datafile.metadata['top']['alg_platform'],
+                    datafile.metadata['top']['alg_source'],
+                    datafile.start_datetime - timedelta(minutes=60),
+                    datafile.start_datetime + timedelta(minutes=5),
+                    'nesdisstar',
+            ))
     matching_files = find_datafiles_in_range(sector,
-        datafile.metadata['top']['alg_platform'].lower(),
-        datafile.metadata['top']['alg_source'].lower(),
+        datafile.metadata['top']['alg_platform'],
+        datafile.metadata['top']['alg_source'],
         datafile.start_datetime - timedelta(minutes=60),
-        datafile.start_datetime - timedelta(minutes=0),
+        datafile.start_datetime + timedelta(minutes=5),
+        dataprovider='*',
         )
     if matching_files:
+        log.info('Found matching files:\n%s\nUsing: %s'%
+                ('\n        '.join(matching_files),
+                matching_files[-1],
+                ))
         matching_file = SciFile()
         matching_file.import_data([matching_files[-1]])
-
 
     for dsname in datafile.datasets.keys():
         #if '1d' not in dsname or '800' not in dsname:

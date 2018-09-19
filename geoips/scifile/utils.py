@@ -8,7 +8,7 @@ from geoips.utils.plugin_paths import paths as gpaths
 
 log = logging.getLogger(__name__)
 
-def get_filename(basedir, source_name, secclass, sector, sdt, edt, platform_name, numfiles, filetype='h5'):
+def get_filename(basedir, source_name, secclass, sector, sdt, edt, platform_name, numfiles, dataprovider=None, filetype='h5'):
     if isinstance(numfiles, int):
         numfilesstr = '%03d'%(numfiles)
     else:
@@ -27,12 +27,13 @@ def get_filename(basedir, source_name, secclass, sector, sdt, edt, platform_name
     uniq_hash = sector.uniq_hash
 
     dirname = '%s/%s_%s'%(basedir,source_name,secclass)
-    baseoutfilename = '%s_%s-%s_%s_%s_%s_%s'%(
+    baseoutfilename = '%s_%s-%s_%s_%s_%s_%s_%s'%(
                         sector.name,    
                         sdtstr,
                         edtstr,
                         platform_name,
                         source_name,
+                        dataprovider,
                         numfilesstr,
                         uniq_hash,
                     )
@@ -40,7 +41,7 @@ def get_filename(basedir, source_name, secclass, sector, sdt, edt, platform_name
 
 def minrange(start_date, end_date):
     '''Check one min at a time'''
-    log.info('in minrange')
+    #log.info('in minrange')
     tr = end_date - start_date
     for n in range(tr.seconds / 60):
         yield start_date + timedelta(seconds = (n*60))
@@ -49,7 +50,7 @@ def daterange(start_date, end_date):
     '''Check one day at a time. 
         If end_date - start_date is between 1 and 2, days will be 1,
         and range(1) is 0. So add 2 to days to set range'''
-    log.info('in minrange')
+    #log.info('in minrange')
     tr = end_date - start_date
     for n in range(tr.days + 2):
         yield start_date + timedelta(n)
@@ -61,7 +62,7 @@ def hourrange(start_date, end_date):
     for n in range(tr.days*24 + tr.seconds / 3600 ):
         yield start_date + timedelta(seconds = (n*3600))
 
-def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_time, basedir=gpaths['PRESECTORED_DATA_PATH'], filetype='h5'):
+def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_time, basedir=gpaths['PRESECTORED_DATA_PATH'], dataprovider=None, filetype='h5'):
     secclass = '*'
     numfiles = '*'
     edtstr = '*'
@@ -69,7 +70,8 @@ def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_ti
     if (min_time - max_time) < timedelta(minutes=30):
         for sdt in minrange(min_time, max_time):
             sdtstr = sdt.strftime('%Y%m%d.%H%M*')
-            dirname, baseoutfilename, suf =  get_filename(basedir, source_name, secclass, sector, sdtstr, edtstr, platform_name, numfiles, filetype)
+            dirname, baseoutfilename, suf =  get_filename(basedir, source_name, secclass, sector, sdtstr, edtstr, platform_name, numfiles, dataprovider, filetype)
+            #print '%s'%(os.path.join(dirname,baseoutfilename+suf))
             filenames += glob(os.path.join(dirname,baseoutfilename+suf))
     return filenames
 
@@ -108,7 +110,9 @@ def write_datafile(basedir, datafile, sector, secclass=None, filetype='h5'):
                 sector, 
                 sdt, edt, 
                 datafile.platform_name,
-                numfiles)
+                numfiles,
+                datafile.dataprovider,
+                )
 
     if not os.path.isdir(dirname):
         os.makedirs(dirname)
@@ -258,6 +262,9 @@ def recursively_load_dict_contents_from_group(h5file, path):
                 ans[key] = item.value 
             elif isinstance(item.value, (np.float32, np.int32, int, np.uint64)):
                 ans[key] = item.value
+            # Added these for AHI / ABI / SEVIRI metadata
+            elif isinstance(item.value, (np.uint8, np.uint16, np.uint32, np.float)):
+                ans[key] = item.value
         # If we are a group, recursively read in the rest of the levels
         elif isinstance(item, h5py._hl.group.Group):
             islist = True
@@ -304,6 +311,10 @@ def recursively_save_dict_contents_to_group(df, path, dic):
        
         # I added these and they seem to work.
         elif isinstance(item, (np.float32, np.int32, int, np.uint64)):
+            df[val] = item
+
+        # Added these for AHI / ABI / SEVIRI metadata
+        elif isinstance(item, (np.uint8, np.uint16, np.uint32, np.float)):
             df[val] = item
 
         # If the current item is a dictionary, recursively start

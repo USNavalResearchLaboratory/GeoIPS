@@ -197,7 +197,18 @@ class MSG_XRIT_Reader(Reader):
                             from geoips.scifile.satnav import satnav
                             log.info('        Using satnav, can only calculate Sun Zenith angles')
                             gvars[dsname]['SunZenith'] = satnav('SunZenith',metadata['top']['start_datetime'],gvars[dsname]['Longitude'],gvars[dsname]['Latitude'])
+                        self.set_variable_metadata(metadata, dsname, geoipsvarname)
                         datavars[dsname][geoipsvarname] =\
                          np.ma.array(sectored_data.datasets[spvarname.name].data,
                          mask=sectored_data.datasets[spvarname.name].mask)
         # datavars, gvars, and metadata are passed by reference, so we do not have to return anything.
+
+    @staticmethod
+    def set_variable_metadata(scifile_metadata, dsname, varname):
+        if dsname not in scifile_metadata['datavars'].keys():
+            scifile_metadata['datavars'][dsname] = {}
+        if varname not in scifile_metadata['datavars'][dsname].keys():
+            scifile_metadata['datavars'][dsname][varname] = {}
+        wavelength = varname.replace('VIS','').replace('IR_','').replace('WV_','')
+        wavelength = float(wavelength[0:2]+'.'+wavelength[2])
+        scifile_metadata['datavars'][dsname][varname]['wavelength'] = wavelength

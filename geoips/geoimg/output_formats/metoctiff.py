@@ -83,14 +83,14 @@ def metoctiff(self, sector, output_filename):
 
     corners = numpy.flipud(sector.area_definition.corners)
 
-    rsULLat = int(numpy.rad2deg(corners[2].lat) * 100000)
-    rsULLon = int(numpy.rad2deg(corners[2].lon) * 100000)
+    rsULLat = int(numpy.rad2deg(corners[0].lat) * 100000)
+    rsULLon = int(numpy.rad2deg(corners[0].lon) * 100000)
 
-    rsURLat = int(numpy.rad2deg(corners[3].lat) * 100000)
-    rsURLon = int(numpy.rad2deg(corners[3].lon) * 100000)
+    rsURLat = int(numpy.rad2deg(corners[2].lat) * 100000)
+    rsURLon = int(numpy.rad2deg(corners[2].lon) * 100000)
 
-    rsLLLat = int(numpy.rad2deg(corners[0].lat) * 100000)
-    rsLLLon = int(numpy.rad2deg(corners[0].lon) * 100000)
+    rsLLLat = int(numpy.rad2deg(corners[3].lat) * 100000)
+    rsLLLon = int(numpy.rad2deg(corners[3].lon) * 100000)
 
     rsLRLat = int(numpy.rad2deg(corners[1].lat) * 100000)
     rsLRLon = int(numpy.rad2deg(corners[1].lon) * 100000)
