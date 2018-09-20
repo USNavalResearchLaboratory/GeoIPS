@@ -54,13 +54,13 @@ def extalg(datafile, sector, product, workdir):
     '''
     Example if you want to register some data in here
     '''
-    log.info('Registering datasets...')
-    registered_data = datafile.register(sector.area_definition,
-            interp_method = None,
-            roi = None,
-            #required_datasets = ['B13BT'],
-            )
-
+#    log.info('Registering datasets...')
+#    registered_data = datafile.register(sector.area_definition,
+#            interp_method = None,
+#            roi = None,
+#            #required_datasets = ['B13BT'],
+#            )
+#
 
     '''
     This is a ridiculous process, but calling

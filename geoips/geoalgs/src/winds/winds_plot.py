@@ -26,12 +26,22 @@ def winds_plot(gi, imgkey=None):
         bgfile = gi.image[imgkey]['BACKGROUND']
         bgname = df.metadata['ds'][imgkey]['alg_channel']
         bgvar = np.flipud(bgfile.variables[bgname])
-        if 'Ref' in bgname:
-            bgvar = np.ma.masked_greater(bgvar,1)
-            bgvar = np.ma.masked_less(bgvar,0)
-        if 'BT' in bgname:
-            bgvar = np.ma.masked_greater(bgvar,323)
-            bgvar = np.ma.masked_less(bgvar,173)
+        lats = bgfile.geolocation_variables['Latitude']
+        lons = bgfile.geolocation_variables['Longitude']
+        sunzen = bgfile.geolocation_variables['SunZenith']
+        from .motion_config import motion_config
+        from .EnhancedImage import EnhancedImage
+        config = motion_config(bgfile.source_name)[bgvar.name]
+        enhdata = EnhancedImage(
+            bgvar,
+            bgvar.shape,
+            lats,
+            lons,
+            sunzen=sunzen,
+            )
+        enhdata.enhanceImage(config)
+        bgvar = enhdata.Data
+
 
     log.info('Setting up fig and ax for dataset: %s with bgname: %s'%(prodname, bgname))
 
@@ -54,8 +64,9 @@ def winds_plot(gi, imgkey=None):
         from geoips.geoalgs.lib.amv_plot import downsample_winds
         from geoips.geoalgs.lib.amv_plot import set_winds_plotting_params
 
-        lonsthin, latsthin, uthin, vthin, speedthin, directionthin = downsample_winds(resolution, lons, lats, u, v, speed, direction)
-        set_winds_plotting_params(gi, speedthin, new_platform, new_source, prodname, bgname)
+        #lonsthin, latsthin, uthin, vthin, speedthin, directionthin = downsample_winds(resolution, lons, lats, u, v, speed, direction)
+        #set_winds_plotting_params(gi, speedthin, new_platform, new_source, prodname, bgname)
+        set_winds_plotting_params(gi, speed, new_platform, new_source, prodname, bgname)
 
         if 'BACKGROUND' in gi.image[imgkey]:
             log.info('Plotting background image %s'%(bgname))
@@ -85,8 +96,18 @@ def winds_plot(gi, imgkey=None):
 
 
         log.info('Plotting barbs with colorbars %s'%(gi.colorbars))
-        gi.basemap.barbs(lonsthin.data,latsthin.data,
-                        uthin,vthin,speedthin,
+        #gi.basemap.barbs(lonsthin.data,latsthin.data,
+        #                uthin,vthin,speedthin,
+        #                ax=gi.axes,
+        #                cmap=gi.colorbars[0].cmap,
+        #                sizes=dict(height=0.8, spacing=0.3),
+        #                norm=gi.colorbars[0].norm,
+        #                linewidth=2,
+        #                length=5,
+        #                latlon=True)
+
+        gi.basemap.barbs(lons.data,lats.data,
+                        u,v,speed,
                         ax=gi.axes,
                         cmap=gi.colorbars[0].cmap,
                         sizes=dict(height=0.8, spacing=0.3),
@@ -94,7 +115,6 @@ def winds_plot(gi, imgkey=None):
                         linewidth=2,
                         length=5,
                         latlon=True)
-
 
 
     #elif 'grid' in imgkey:
