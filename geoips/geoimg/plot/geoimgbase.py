@@ -1142,24 +1142,39 @@ class GeoImgBase(object):
                 for cbind, cbarinfo in enumerate(self.colorbars):
                     # add_axes [left,bottom,width,height] in figure fractions
                     cbar_axes = fig.add_axes([start+cbind*(width+space), cbar_bottom, width, cbar_height])
-                    cmap = get_cmap(cbarinfo.cmap)
-                    cbar_norm = None
-                    ticks = None
-                    bounds = None
-                    spacing = None
-                    # CAB 20180822:
-                    # This is the most basic when normalize is set to default
-                    if len(cbarinfo.ticks) != 0:
-                        ticks = cbarinfo.ticks
-                        vmin = min(ticks)
-                        vmax = max(ticks)
-                        cbar_norm = Normalize(vmin=vmin, vmax=vmax)
 
+                    # Default to the values that were passed into def colorbars.
+                    # If these are just direct matlotlib paramters, they will get
+                    # passed through to the matplotlib commands.
+                    # If they are keywords, they will be set below
+                    cmap = cbarinfo.cmap
+                    cbar_norm = cbarinfo.norm
+                    ticks = cbarinfo.ticks
+                    bounds = cbarinfo.bounds
+                    spacing = cbarinfo.spacing
+
+                    # If cmap is a string, get the matplotlib cmap object
+                    # based on the cmap name
+                    if isinstance(cbarinfo.cmap, str):
+                        cmap = get_cmap(cbarinfo.cmap)
+
+                    # If norm was not specified, set it based on the min/max of the ticks
+                    if not cbarinfo.norm:
+                        if len(cbarinfo.ticks) != 0:
+                            ticks = cbarinfo.ticks
+                            vmin = min(ticks)
+                            vmax = max(ticks)
+                            cbar_norm = Normalize(vmin=vmin, vmax=vmax)
+
+                    # If bounds was specified as a string, set ticks and bounds
+                    # based on the passed values
                     if cbarinfo.bounds:
-                       # ticks = cbarinfo.bounds
-                        ticks = [float(i) for i in cbarinfo.bounds.split(' ')]
-                        bounds = [ticks[0]-1] + ticks + [ticks[-1]+1]
+                        if isinstance(cbarinfo.bounds, str):
+                            ticks = [float(i) for i in cbarinfo.bounds.split(' ')]
+                            bounds = [ticks[0]-1] + ticks + [ticks[-1]+1]
 
+                    # If norm is a string keyword value, set values based on 
+                    # pre-determined paramters
                     if cbarinfo.norm:
                         # if norm exists we must determine type to build norm
 
@@ -1257,6 +1272,7 @@ class GeoImgBase(object):
                             # "spacing". So I have hardcoded it into "uniform" 
                             spacing = 'uniform'
 
+                    # Now set the colorbar based on the passed values
                     cbar = ColorbarBase(cbar_axes, cmap=cmap, extend='both',
                                  orientation='horizontal', ticks=ticks, norm=cbar_norm,
                                  boundaries = bounds, spacing = spacing)

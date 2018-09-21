@@ -22,13 +22,43 @@ dsdictkey = 'ds'
 
 channel_dict = { 
                 'GOES16' : {
-                            'sensor': 'ABI',
+                            'satellite': 'goes16',
+                            'sensor': 'abi',
                             'WVCA'  : 'B08BT', # 6.2um, Upper-level tropospheric Water Vapor band, IR
                             'WVCT'  : 'B10BT', # 7.3um, Lower-level tropospheric Water Vapor band, IR
                             'VIS'   : 'B04Ref', # 1.37um, Cirrus band, near-IR 
                             'IR'    : 'B11BT', # 8.4um, Cloud-Top Phase band, IR
                             'SWIR'  : 'B07BT', # 3.9um, Shortwave window band, IR (with reflected daytime component)
-                           }
+                           },
+                'HMWR08' : {
+                            'satellite': 'himawari8',
+                            'sensor': 'ahi',
+                            'WVCA'  : 'B08BT', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCT'  : 'B10BT', # 7.3um, Lower-level tropospheric Water Vapor band, IR
+                            'VIS'   : 'B04Ref', # 1.37um, Cirrus band, near-IR 
+                            'IR'    : 'B11BT', # 8.4um, Cloud-Top Phase band, IR
+                            'SWIR'  : 'B07BT', # 3.9um, Shortwave window band, IR (with reflected daytime component)
+                           },
+                'MET11' : {
+                            'satellite': 'meteoEU',
+                            'sensor': 'seviri',
+                            'WV'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCA'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCT'  : 'WV_073', # 
+                            'VIS'   : 'VIS008', # 
+                            'IR'    : 'IR_108', # 
+                            'SWIR'  : 'IR_039', # 3.9um, Shortwave window band, IR (with reflected daytime component)
+                           },
+                'MET8' : {
+                            'satellite': 'meteoIO',
+                            'sensor': 'seviri',
+                            'WV'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCA'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCT'  : 'WV_073', # 
+                            'VIS'   : 'VIS008', # 
+                            'IR'    : 'IR_108', # 
+                            'SWIR'  : 'IR_039', # 3.9um, Shortwave window band, IR (with reflected daytime component)
+                           },
                 }
 
 # For now must include this string for automated importing of classes.
@@ -164,7 +194,7 @@ class Winds_Text_Reader(Reader):
                     log.info('Starting dataset %s'%(key))
                     dat[key] = self.get_empty_datfields()
                     datavars[key] = {}
-                    metadata['top']['alg_platform'] = sat
+                    metadata['top']['alg_platform'] = channel_dict[sat]['satellite']
                     metadata['top']['alg_source'] = channel_dict[sat]['sensor']
                     metadata[dsdictkey][key] = {}
                 dat[key]['days'] += [day]
@@ -177,7 +207,7 @@ class Winds_Text_Reader(Reader):
                 dat[key]['rffs'] += [rff]
                 dat[key]['qis']+= [qi]
                 dat[key]['intervs'] += [interv]
-                metadata[dsdictkey][key]['alg_platform'] = sat
+                metadata[dsdictkey][key]['alg_platform'] = channel_dict[sat]['satellite']
                 metadata[dsdictkey][key]['alg_wavelength'] = typ
                 metadata[dsdictkey][key]['alg_channel'] = channel_dict[sat][typ]
 
