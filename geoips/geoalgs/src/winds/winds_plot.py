@@ -32,6 +32,12 @@ def winds_plot(gi, imgkey=None):
         from .motion_config import motion_config
         from .EnhancedImage import EnhancedImage
         config = motion_config(bgfile.source_name)[bgvar.name]
+        bgcmap = 'Greys'
+        if 'plot_params' in config.keys() \
+            and 'EnhImage' in config['plot_params'].keys() \
+            and 'cmap' in config['plot_params']['EnhImage'].keys():
+            bgcmap = config['plot_params']['EnhImage']['cmap']
+
         enhdata = EnhancedImage(
             bgvar,
             bgvar.shape,
@@ -70,7 +76,7 @@ def winds_plot(gi, imgkey=None):
 
         if 'BACKGROUND' in gi.image[imgkey]:
             log.info('Plotting background image %s'%(bgname))
-            gi.basemap.imshow(bgvar,ax=gi.axes,cmap=get_cmap('Greys'))
+            gi.basemap.imshow(bgvar,ax=gi.axes,cmap=get_cmap(bgcmap))
 
 
         '''
