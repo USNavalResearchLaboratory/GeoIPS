@@ -1290,6 +1290,9 @@ class ABISensorInfo(SensorInfo):
         self.OrigFName['pathfieldsep'] = '-'
         self.OrigFName['pathfillvalue'] = 'x'
         self.OrigFName['noextension'] = False
+        # For downloader
+        self.OrigFName['prefix_search_string'] = 'OR_'
+        self.OrigFName['postfix_search_string'] = '.nc'
         # self.OrigFName['base_dir'] is where the original files show up - this is where
         # downloader looks for them.
         # DO NOT specify OrigFName1['pathnameformat']  if you want DataFileName to
