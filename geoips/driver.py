@@ -97,7 +97,7 @@ __doc__ = '''
 def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc, mp_max_cpus,
                 printmemusg, sects, mp_jobs, mp_waiting, geoips_only, sectors_run, mp_num_procs,
                 mp_max_num_jobs, mp_num_waits, mp_num_times_cleared, waittimes, didmem, separate_datasets,
-                write_sectored_datafile):
+                write_sectored_datafile, write_registered_datafile):
     if printmemusg and (datetime.utcnow().second % 5) == 0 and not didmem:
         print_mem_usage('drmainloop ', printmemusg)
         didmem = True
@@ -314,7 +314,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         '''If user requested write_sectored_datafile command line, then see if this is not
             already a PRESECTORED data file, and write if necessary
         '''
-        if write_sectored_datafile:
+        if write_sectored_datafile or write_registered_datafile:
             write_file = False
             '''Currently we will not rewrite if all datafiles are already
                 in PRESECTORED_DATA_PATH (meaning it was already written out)
@@ -331,6 +331,24 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                 '''
                 log.info('Attempting to write out data file to  %s' % (gpaths['PRESECTORED_DATA_PATH']))
                 write_datafile(gpaths['PRESECTORED_DATA_PATH'],sectored,curr_sector, filetype='h5')
+        if write_registered_datafile:
+            write_file = False
+            ''' Currently we will NOT rewrite if all datafiles are already in
+                PREREGISTERED_DATA_PATH (meaning it was already written out)'''
+            for dfname in sectored.datafiles.keys():
+                if gpaths['PREREGISTERED_DATA_PATH'] not in dfname:
+                    write_file = True
+            if write_file:
+                from geoips.scifile.utils import write_datafile
+                ''' Currently only h5 is supported.  Will have to write new def 
+                    write for additional filetypes
+                    write_datafile determines appropriate paths and filenames
+                    based on all the datasets contained in the scifile object
+                '''
+                log.info('Attempting to register datafile')
+                sectored = sectored.register(curr_sector.area_definition)
+                log.info('Attempting to write out data file to %s' % (gpaths['PREREGISTERED_DATA_PATH']))
+                write_datafile(gpaths['PREREGISTERED_DATA_PATH'], sectored, curr_sector, filetype='h5')
 
         log.info('{0} Checking products'.format(plog))
 
@@ -446,7 +464,8 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 
 def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=None, call_next=True,
            forcereprocess=False, queue=None, no_multiproc=False, mp_max_cpus=1, 
-           printmemusg=False, separate_datasets=False, write_sectored_datafile=False):
+           printmemusg=False, separate_datasets=False, write_sectored_datafile=False, 
+            write_registered_datafile=False):
     '''
     Produce imagery from a single input data file for any number of sectors and products.
 
@@ -513,6 +532,13 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     |                        |        |                                                           |
     |                        |        | **Default:** False                                        |
     +----------------+--------+-------------------------------------------------------------------+
+    | write_registered_datafile| *bool* | **True:** write registered datafile out to                  |
+    |                        |        |                 $PREREGISTERED_DATA_PATH                    |
+    |                        |        |                                                           |
+    |                        |        | ** False:** do not write out datafile                     |
+    |                        |        |                                                           |
+    |                        |        | **Default:** False                                        |
+    +----------------+--------+-------------------------------------------------------------------+
     '''
     # If we are not calling this from driver.py, set these times
     if 'start' not in DATETIMES.keys():
@@ -529,6 +555,9 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
         raise ValueError('mp_max_cpus must be greater than or equal to 1.')
     elif int(mp_max_cpus) == 1:
         log.info('mp_max_cpus set to 1, not running multiprocessing')
+        no_multiproc = True
+    elif not MAXCPUS:
+        log.info('env MAXCPUS not defined, not running multiprocessing')
         no_multiproc = True
     elif int(mp_max_cpus) > int(MAXCPUS):
         log.info('Maximum of {0} cpus, reducing from: {1}'.format(MAXCPUS, mp_max_cpus))
@@ -588,7 +617,8 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
         rs_ret = run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc,
                              mp_max_cpus, printmemusg, sects, mp_jobs, mp_waiting, geoips_only,
                              sectors_run, mp_num_procs, mp_max_num_jobs, mp_num_waits, mp_num_times_cleared,
-                             waittimes, didmem, separate_datasets, write_sectored_datafile)
+                             waittimes, didmem, separate_datasets, write_sectored_datafile,
+                            write_registered_datafile)
         mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem = rs_ret
     if not sects and not mp_jobs:
         log.info('MPLOG All jobs completed')
@@ -655,7 +685,8 @@ def predict_sectors(platform_name, source_name, start_dt, end_dt):
 def _get_argument_parser():
     '''Create an argument parser with all of the correct arguments.'''
     parser = ArgParse()
-    parser.add_arguments(['paths', 'separate_datasets', 'write_sectored_datafile', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
+    parser.add_arguments(['paths', 'separate_datasets', 'write_sectored_datafile', 'write_registered_datafile', 
+                            'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
                           'forcereprocess', 'all', 'allstatic', 'alldynamic', 'tc', 'volcano', 'sectorfiles',
                           'templatefiles', 'no_multiproc', 'mp_max_cpus', 'queue', 'printmemusg'])
     return parser
@@ -841,7 +872,8 @@ if __name__ == '__main__':
                    forcereprocess=args['forcereprocess'], queue=args['queue'],
                    no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
                    printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
-                   write_sectored_datafile=args['write_sectored_datafile'])
+                   write_sectored_datafile=args['write_sectored_datafile'],
+                   write_registered_datafile=args['write_registered_datafile'])
 
         else:
             driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
@@ -849,5 +881,6 @@ if __name__ == '__main__':
                forcereprocess=args['forcereprocess'], queue=args['queue'],
                no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
                printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
-               write_sectored_datafile=args['write_sectored_datafile'])
+               write_sectored_datafile=args['write_sectored_datafile'],
+                   write_registered_datafile=args['write_registered_datafile'])
 
