@@ -380,7 +380,7 @@ class GeoImgBase(object):
                                            geoimgobj=self, geoipsfinal_product=final,
                                             external_product=external_product, merged=merged_type,
                                             data_output=data_output,imgkey=imgkey)
-        # If these should be labeled as something besides source/platform (ie, stitched), 
+        # If these should be labeled as something besides source/platform (ie, sourcestitched), 
         # set new values here.
         if new_sourcename:
             pfn.sensorname = new_sourcename
@@ -463,14 +463,17 @@ class GeoImgBase(object):
             # This has to be self._image, not self.image! Can't set self.image.
             self._image = np.flipud(new)
         else:
+            delattr(self,'_image')
+            delattr(self,'_registered_data')
             datasets = []
             for dsname in self.datafile.datasets.keys():
-                #log.info('Trying to merge dataset '+dsname)
+                log.info('Trying to merge dataset '+dsname)
                 for var in self.req_vars:
+                    log.info('Trying to merge var '+var)
                     variables = []
                     geolocation_variables = []
                     if var in self.datafile.datasets[dsname].variables.keys():
-                        #log.info('    Trying to merge variable '+var)
+                        log.info('    Trying to merge variable '+var)
                         # Use np.ma to preserve mask !!!
 
                         # Note hstack/vstack takes a tuple!  Extra ()
@@ -504,7 +507,7 @@ class GeoImgBase(object):
 
                         gvars = ['Latitude','Longitude']+self.product.get_required_source_geolocation_vars(self.datafile.source_name)
                         for gvar in gvars:
-                            #log.info('    Trying to merge geolocation variable '+gvar)
+                            log.info('    Trying to merge geolocation variable '+gvar)
                             if other_width != self_width:
                                 if other_width > self_width:
                                     data = np.ma.hstack(
@@ -529,6 +532,7 @@ class GeoImgBase(object):
                 self.datafile.delete_dataset(dsname)
                 self.datafile.add_dataset(vdataset,copy=False)
                 self.datafile.add_dataset(gdataset,copy=False)
+
 
             #log.info('In def merge')
 
@@ -676,14 +680,14 @@ class GeoImgBase(object):
             else:
                 self.merge(layer_img)
 
-    def stitch_products(self):
+    def sourcestitch_products(self):
         log.info('')
         log.info('')
-        log.info('    Stitching products')
+        log.info('    Source Stitching products')
         matching_sat_files = []
         all_sat_files = []
         # Go through all the sources listed for the current sector - it will 
-        # plot them all in the same image - that is what we mean by stitched,
+        # plot them all in the same image - that is what we mean by sourcestitching,
         # plot multiple satellites/sensors of the same product in the same sector.
         for (sourcename, proddict) in self.sector.sources.products_dict.items():
             log.info('')
@@ -717,9 +721,9 @@ class GeoImgBase(object):
         if self.coverage() < self.sector.min_total_cover:
             log.info('Coverage of '+str(self.coverage())+'% less than required '+str(self.sector.min_total_cover)+'%, SKIPPING')
         else:
-            # Name these as stitched/stitched sensor/satellite instead of current datafile's sat/sensor
-            self.produce_imagery(final=False, new_sourcename='stitched', new_platformname='stitched')
-            self.produce_imagery(final=True, new_sourcename='stitched', new_platformname='stitched')
+            # Name these as sourcestitched/sourcestitched sensor/satellite instead of current datafile's sat/sensor
+            self.produce_imagery(final=False, new_sourcename='sourcestitched', new_platformname='sourcestitched')
+            self.produce_imagery(final=True, new_sourcename='sourcestitched', new_platformname='sourcestitched')
 
     def required_layer(self, layers, orig_prodname, combined_prodname):
         runme = False
@@ -730,9 +734,9 @@ class GeoImgBase(object):
             if orig_prodname == layer[0] and self.datafile.source_name_product in layer[1].possiblesources and layer[1].runonreceipt == 'yes':
                 runme=True
                 log.info('    '+self.datafile.source_name_product+' '+orig_prodname+' data required for product'+combined_prodname+', running')
-            if orig_prodname == layer[0] and self.sector.isstitched and 'stitched' in layer[1].possiblesources and layer[1].runonreceipt == 'yes':
+            if orig_prodname == layer[0] and self.sector.sourcestitching_on and 'sourcestitched' in layer[1].possiblesources and layer[1].runonreceipt == 'yes':
                 runme=True
-                log.info('    stitched '+orig_prodname+' data required for product '+combined_prodname+' sector'+self.sector.name+', running')
+                log.info('    sourcestitched '+orig_prodname+' data required for product '+combined_prodname+' sector'+self.sector.name+', running')
         # If we found in the above loop that the multisource product needs to be produced this time,
         #   start finding and merging the layers.
         return runme
@@ -746,12 +750,12 @@ class GeoImgBase(object):
         # multisource version, so we lose the original product)
         orig_productname = self.product.name
 
-        if 'multisource' not in self.sector.products.keys() and not self.sector.isstitched:
-            log.info('    No multisource products defined, or sector not stitched')
+        if 'multisource' not in self.sector.products.keys() and not self.sector.sourcestitching_on:
+            log.info('    No multisource products defined, or sector not sourcestitched')
             return None
 
-        if self.sector.isstitched:
-            self.stitch_products()
+        if self.sector.sourcestitching_on:
+            self.sourcestitch_products()
 
         if 'multisource' not in self.sector.products.keys():
             log.info('    No multisource products defined')
@@ -770,8 +774,8 @@ class GeoImgBase(object):
                     # If this is not the current product that we already have in memory, need to 
                     # find the appropriate temporary file and read it in.
                     possiblesources = layer[1].possiblesources.keys()
-                    if self.sector.isstitched:
-                        possiblesources += ['stitched']
+                    if self.sector.sourcestitching_on:
+                        possiblesources += ['sourcestitched']
                     # This is performing overlays - if the current layer from the multisource product file is NOT the
                     # current in memory image (ie, the multisource layer productname != current product name and 
                     # multisource layer possiblesources does not include the current datafile's source), then go 
@@ -811,8 +815,8 @@ class GeoImgBase(object):
                 if self.coverage() < self.sector.min_total_cover:
                     log.info('Coverage of '+str(self.coverage())+'% less than required '+str(self.sector.min_total_cover)+'%, SKIPPING')
                     continue
-                if self.sector.isstitched:
-                    self.produce_imagery(final=True, new_sourcename='stitched', new_platformname='stitched')
+                if self.sector.sourcestitching_on:
+                    self.produce_imagery(final=True, new_sourcename='sourcestitched', new_platformname='sourcestitched')
                 else:
                     self.produce_imagery(final=True)
             else:
