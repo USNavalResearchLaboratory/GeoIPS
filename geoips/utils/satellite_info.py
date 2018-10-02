@@ -1731,6 +1731,9 @@ class SEVIRISensorInfo(SensorInfo):
         OrigFName3['noextension'] = True
         OrigFName3['fieldsep'] = '-'
         OrigFName3['fillvalue'] = 'x'
+        OrigFName3['base_dir'] = os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                          'data', 'incoming')
+        OrigFName3['prefix_search_string'] = 'H-000-MSG'
         self.OrigFNames = [OrigFName3, OrigFName, OrigFName2]
         # Don't think legacy path is used anymore, can't run tdfs, and not downloading them.
         #self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/msg/hires']
@@ -1747,6 +1750,7 @@ class SEVIRISensorInfo(SensorInfo):
         self.pathnameformat = opsep.join(
                 ['<satname>','<dataprovider>-<ext>',
                  '<date{%Y%m%d}>','<time{%H%M%S}>'])
+
         #self.data_types = {}
 
 
