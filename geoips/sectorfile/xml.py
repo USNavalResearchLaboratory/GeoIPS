@@ -1682,15 +1682,15 @@ class Sector(object):
         self.set_bool_att('operational', val)
 
     @property
-    def isstitched(self):
-        '''Determine whether sector should be stitched.  Returns a boolean.'''
-        self._isstitched = self.get_bool_att('stitched')
-        return self._isstitched
+    def sourcestitching_on(self):
+        '''Determine whether sector should be sourcestitching_on.  Returns a boolean.'''
+        self._sourcestitching_on = self.get_bool_att('sourcestitching')
+        return self._sourcestitching_on
 
-    @isstitched.setter
-    def isstitched(self, val):
-        '''Sets whether a sector should be stitched or not.'''
-        self.set_bool_att('stitched', val)
+    @sourcestitching_on.setter
+    def sourcestitching_on(self, val):
+        '''Sets whether a sector should be sourcestitching_on or not.'''
+        self.set_bool_att('sourcestitching', val)
 
     @property
     def isactive(self):
@@ -1736,14 +1736,14 @@ class Sector(object):
         self.set_bool_att('download', val)
 
     @property
-    def composite_on(self):
-        '''Determine whether sector imagery should be composited for polar sensors.  Returns a boolean.'''
-        self._composite_on = self.get_bool_att('composite')
-        return self._composite_on
-    @composite_on.setter
-    def composite_on(self, val):
-        '''Setse whether to composite polar swaths for a sector or not.'''
-        self.set_bool_att('composite', val)
+    def swathstitching_on(self):
+        '''Determine whether sector imagery should be swathstitchingd for polar sensors.  Returns a boolean.'''
+        self._swathstitching_on = self.get_bool_att('swathstitching')
+        return self._swathstitching_on
+    @swathstitching_on.setter
+    def swathstitching_on(self, val):
+        '''Setse whether to swathstitching polar swaths for a sector or not.'''
+        self.set_bool_att('swathstitching', val)
 
 #######################################
 # Getter and setter for boolean attributes in destinations element
