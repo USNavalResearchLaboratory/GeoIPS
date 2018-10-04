@@ -251,11 +251,11 @@ def create_imagery(data_file, sector, productlist, outdir,
                 return None
 
             '''
-            sector.composite_on specifies whether we want to do swath composites
+            sector.swathstitching_on specifies whether we want to do swath stitching
             for this particular sector. Some sectors in arctic / antarctic do
-            not need composited, because all swaths overlap.
+            not need swath stitched, because all swaths overlap.
             '''
-            if sector.composite_on:
+            if sector.swathstitching_on:
                 log.info('\n\n\n\n       '+pplog+' Running merge_swaths and produce_imagery for TEMPORARY FULLCOMPOSITE image... \n')
                 try:
                     finalimg = swathimg.merge_swaths()
