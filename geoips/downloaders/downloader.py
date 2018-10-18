@@ -236,6 +236,14 @@ def downloader(data_type,
                     geoips_args.addopt(arg)
                 elif argval == False:
                     log.info('Not adding %s, set to False' % (arg))
+                elif arg == 'productlist':
+                    geoips_args.addopt('productlist',' '.join(argval))
+                elif arg == 'sectorlist':
+                    geoips_args.addopt('sectorlist',' '.join(argval))
+                elif arg == 'productfiles':
+                    geoips_args.addopt('productfiles',' '.join(argval))
+                elif arg == 'sectorfiles':
+                    geoips_args.addopt('sectorfiles',' '.join(argval))
                 else:
                     log.info('Adding %s = %s' % (arg, argval))
                     geoips_args.addopt(arg,argval)
