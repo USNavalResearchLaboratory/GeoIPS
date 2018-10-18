@@ -314,7 +314,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         '''If user requested write_sectored_datafile command line, then see if this is not
             already a PRESECTORED data file, and write if necessary
         '''
-        if write_sectored_datafile or write_registered_datafile:
+        if write_sectored_datafile:
             write_file = False
             '''Currently we will not rewrite if all datafiles are already
                 in PRESECTORED_DATA_PATH (meaning it was already written out)
