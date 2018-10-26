@@ -59,9 +59,10 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
     def format_test(fname):
         # This reader only handles individual files, not multiple files or directories.
         # Change def read and def format_test if you want to handle directories directly.
-        df = open(fname,'rb')
         if os.path.isdir(fname):
             return False
+
+        df = open(fname,'rb')
 
         #shell()
         # Check that this file is grib first

@@ -59,9 +59,10 @@ class COAMPSIEEE_BINARY_Reader(Reader):
     def format_test(fname):
         # This reader only handles individual files, not multiple files or directories.
         # Change def read and def format_test if you want to handle directories directly.
-        df = open(fname,'rb')
         if os.path.isdir(fname):
             return False
+
+        df = open(fname,'rb')
 
         # Check that this file is grib first
         from ..file_format_tests import bin_format_test
