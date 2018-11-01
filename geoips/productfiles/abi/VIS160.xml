@@ -11,7 +11,7 @@
     <basic_args>
         <source name='abi'>
             <!-- Snow/Ice band, Near-IR-->
-            <var mark_terminator='yes' zenith='no'>B05Ref</var>
+            <var mark_terminator='yes' zenith='yes'>B05Ref</var>
         </source>
         <img>
             <equation>B05Ref</equation>

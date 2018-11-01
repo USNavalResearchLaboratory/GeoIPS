@@ -1228,7 +1228,7 @@ class ABI_NCDF4_Reader(Reader):
             #        since some algorithms (e.g. Fire-Temperature RGB) required uncorrected
             #        data, we will not do this here, instead leaving it to the algorithm
             #        developer to handle.
-            data['Ref'][~bad_data_mask] = ne.evaluate('k0 * rad_data / cos(deg2rad * sun_zenith)')
+            data['Ref'][~bad_data_mask] = ne.evaluate('k0 * rad_data')
 
         if bt:
             if band_num not in range(7, 17):
