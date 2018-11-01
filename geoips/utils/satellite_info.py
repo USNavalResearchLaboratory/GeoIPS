@@ -305,10 +305,10 @@ class GOESESatInfo(SatInfo):
         self.orig_file_satname = 'g13'
         self.geostationary = True
 
-class StitchedSatInfo(SatInfo):
+class SourceStitchedSatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['stitched']
-        self.geoips_satname = 'stitched'
+        self.sensornames = ['sourcestitched']
+        self.geoips_satname = 'sourcestitched'
         self.geostationary = True
 
 class GOES16SatInfo(SatInfo):
@@ -1290,6 +1290,9 @@ class ABISensorInfo(SensorInfo):
         self.OrigFName['pathfieldsep'] = '-'
         self.OrigFName['pathfillvalue'] = 'x'
         self.OrigFName['noextension'] = False
+        # For downloader
+        self.OrigFName['prefix_search_string'] = 'OR_'
+        self.OrigFName['postfix_search_string'] = '.nc'
         # self.OrigFName['base_dir'] is where the original files show up - this is where
         # downloader looks for them.
         # DO NOT specify OrigFName1['pathnameformat']  if you want DataFileName to
@@ -1728,6 +1731,9 @@ class SEVIRISensorInfo(SensorInfo):
         OrigFName3['noextension'] = True
         OrigFName3['fieldsep'] = '-'
         OrigFName3['fillvalue'] = 'x'
+        OrigFName3['base_dir'] = os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                          'data', 'incoming')
+        OrigFName3['prefix_search_string'] = 'H-000-MSG'
         self.OrigFNames = [OrigFName3, OrigFName, OrigFName2]
         # Don't think legacy path is used anymore, can't run tdfs, and not downloading them.
         #self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/msg/hires']
@@ -1744,6 +1750,7 @@ class SEVIRISensorInfo(SensorInfo):
         self.pathnameformat = opsep.join(
                 ['<satname>','<dataprovider>-<ext>',
                  '<date{%Y%m%d}>','<time{%H%M%S}>'])
+
         #self.data_types = {}
 
 
@@ -1803,7 +1810,7 @@ class SSMISSensorInfo(SensorInfo):
         self.interpolation_radius_of_influence = 15000
         #self.data_types = {}
 
-class StitchedSensorInfo(SensorInfo):
+class SourceStitchedSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         self.swath_width_km = 12000
         self.interpolation_radius_of_influence = 10000
@@ -2024,7 +2031,7 @@ class WINDSATSensorInfo(SensorInfo):
 
 SensorInfo_classes = {
         # Needed to allow for stitched directory
-        'stitched':  StitchedSensorInfo,
+        'sourcestitched':  SourceStitchedSensorInfo,
         'abi':  ABISensorInfo,
         'ahi':  AHISensorInfo,
         'amsr2':  AMSR2SensorInfo,
@@ -2073,7 +2080,7 @@ SensorInfo_classes = {
 
 SatInfo_classes = {
         # Needed to allow for stitched directory
-        'stitched':  StitchedSatInfo,
+        'sourcestitched':  SourceStitchedSatInfo,
         'npp': NPPSatInfo,
         'jpss': N20SatInfo,
         'aqua': AQUASatInfo,

@@ -251,11 +251,11 @@ def create_imagery(data_file, sector, productlist, outdir,
                 return None
 
             '''
-            sector.composite_on specifies whether we want to do swath composites
+            sector.swathstitching_on specifies whether we want to do swath stitching
             for this particular sector. Some sectors in arctic / antarctic do
-            not need composited, because all swaths overlap.
+            not need swath stitched, because all swaths overlap.
             '''
-            if sector.composite_on:
+            if sector.swathstitching_on:
                 log.info('\n\n\n\n       '+pplog+' Running merge_swaths and produce_imagery for TEMPORARY FULLCOMPOSITE image... \n')
                 try:
                     finalimg = swathimg.merge_swaths()
@@ -300,11 +300,13 @@ def create_imagery(data_file, sector, productlist, outdir,
                 curr_geoips_only = check_if_testonly(finalimg, geoips_only)
                 if isinstance(finalimg.image, dict):
                     for imgkey in finalimg.image.keys():
+                        log.info('Looping through final images and producing imagery for '+imgkey)
                         finalimg.coverage(imgkey)
                         finalimg._is_final = True
                         final_productnames += [finalimg.get_filename(imgkey=imgkey).name]
                         finalimg.produce_imagery(final=True, geoips_only=curr_geoips_only, imgkey=imgkey)
                 else:
+                    log.info('No separate images, producing single final imagery')
                     finalimg.produce_imagery(final=True, geoips_only=curr_geoips_only)
             except (IOError,OSError),resp:
                 log.error(str(resp)+pplog+' Failed writing FINAL MERGED image. Someone else did it for us? Skipping to next product')

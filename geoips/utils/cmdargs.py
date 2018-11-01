@@ -81,6 +81,12 @@ class CMDArgs(object):
         except KeyError:
             raise ArgumentError('No such option: %s' % opt)
 
+    def hasopt(self, opt):
+        '''Check if an option exists in the constructor by name.'''
+        if opt in self._options.keys():
+            return True
+        return False
+
     def _get_optstr(self, opt):
         '''Prepends a single dash if `arg` is one character long
         and a double dash if `arg` is more than one character long.

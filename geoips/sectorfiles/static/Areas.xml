@@ -6,7 +6,7 @@
         is contained there.
 -->
 <sector_file xmlns:py="http://codespeak.net/lxml/objectify/pytype">
-  <sector name="Global" download="yes" active="yes" operational="no" dynamic_datetime="" dynamic="no" composite='yes'>
+  <sector name="Global" download="yes" active="yes" operational="no" dynamic_datetime="" dynamic="no" swathstitching='yes'>
     <destinations />
     <name>
       <continent>Global</continent>
@@ -92,7 +92,7 @@
     </source>
   </sector>
 <!-- CONUS SECTORS -->
-  <sector name="Cali" active="yes" composite="no">
+  <sector name="Cali" active="yes" swathstitching="no">
     <destinations />
     <name>
       <continent>NorthAmerica</continent>
@@ -174,7 +174,7 @@
       <product name="Visible"/>
     </source>
   </sector>
-  <sector name="JapanComposite" active="yes" composite="no">
+  <sector name="JapanComposite" active="yes" swathstitching="no">
     <destinations />
     <name>
       <continent>Asia</continent>

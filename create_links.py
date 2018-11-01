@@ -55,7 +55,8 @@ linkedsubdirs = ['/geoips/geoimg', '/geoips/sectorfiles/sectorfiles.dtd',
                  '/geoips/pass_prediction', '/geoips/utils',
                  '/geoips/scifile', '/geoips/geoalgs', '/geoips/downloaders',
                  '/geoips/Makefile', '/geoips/driver.py',
-                 '/geoips/process_overpass.py', '/geoips/about.py']
+                 '/geoips/process_overpass.py', '/geoips/about.py',
+                 '/geoips/manual_updates' ]
 # Link the about from each plugin package
 for pluginbase in pluginbases:
     linkedsubdirs += ['/geoips/about_'+os.path.split(pluginbase)[-1]+'.py']

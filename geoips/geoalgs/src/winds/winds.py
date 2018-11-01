@@ -7,47 +7,41 @@ log = logging.getLogger(__name__)
 
 def winds(datafile, sector, product, workdir):
     '''
-    This is a template for creating an external algorithm for operating on 
-    arbitrary data types from the datafile (registered, sectored, 
-    pre-registered...), and returning arbitrary arrays.  There must be a 
-        geoalgs/src/extalg/extalg_plot.py
-        geoalgs/src/extalg/extalg_coverage.py
-    to go with 
-        geoalgs/src/extalg/extalg.py
-    so the plotting and coverage checking routines know how to handle the
-    arbitrary arrays. 
+    This method creates image output for arbitrary wind
+    vector data.
 
-    Oh, we should probably have a default plot / coverage routine in 
-        geoimg/plot/extalg.py, so it uses that if extalg_plot.py and
-        extalg_coverage.py are not defined ?
+    It will overlay on related geostationary imagery
+    i alg_platform and alg_source are included in 
+    the metadata of the scifile object.
 
-    This is a pretty useless function, but should hopefully provide a 
-        template for more useful applications.
-    '''
-
-    '''
-    Here is your arbitrary outdata dictionary!!!
-    You can put anything you want in here !!!!
-    Then tell <extalg>_plot how to plot each entry, 
-    and <extalg>_coverage how to check coverage for
-    each entry!!!!
+    Datasets must be named include '1d' in order for 
+    this to plot.
     '''
     outdata = {}
 
     from geoips.scifile.utils import find_datafiles_in_range
     from geoips.scifile.scifile import SciFile
+    log.info('Trying to find matching background imagery: %s %s %s to %s from %s'%
+                (   datafile.metadata['top']['alg_platform'],
+                    datafile.metadata['top']['alg_source'],
+                    datafile.start_datetime - timedelta(minutes=60),
+                    datafile.start_datetime + timedelta(minutes=5),
+                    'nesdisstar',
+            ))
     matching_files = find_datafiles_in_range(sector,
-        datafile.metadata['top']['alg_platform'].lower(),
-        datafile.metadata['top']['alg_source'].lower(),
+        datafile.metadata['top']['alg_platform'],
+        datafile.metadata['top']['alg_source'],
         datafile.start_datetime - timedelta(minutes=60),
-        datafile.start_datetime - timedelta(minutes=0),
+        datafile.start_datetime + timedelta(minutes=5),
+        dataprovider='*',
         )
     if matching_files:
+        log.info('Found matching files:\n%s\nUsing: %s'%
+                ('\n        '.join(matching_files),
+                matching_files[-1],
+                ))
         matching_file = SciFile()
         matching_file.import_data([matching_files[-1]])
-
-    datafile._finfo['platform_name'] = datafile.metadata['top']['alg_platform'].lower()
-    datafile._finfo['source_name'] = datafile.metadata['top']['alg_source'].lower()
 
     for dsname in datafile.datasets.keys():
         #if '1d' not in dsname or '800' not in dsname:

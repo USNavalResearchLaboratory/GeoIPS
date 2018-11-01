@@ -14,49 +14,49 @@
 # Please see geoalgs/README.txt for information on module/product naming (and everything else
 # relating to geoalgs)
 
-.PHONY: extalg extalg_plot extalg_coverage
-extalg: init $(LIB)/extalg.py $(LIB)/extalg_plot.py $(LIB)/extalg_coverage.py
-extalg_plot: $(LIB)/extalg_plot.py
-extalg_coverage: $(LIB)/extalg_coverage.py
+.PHONY: fields fields_plot fields_coverage
+fields: init $(LIB)/fields.py $(LIB)/fields_plot.py $(LIB)/fields_coverage.py
+fields_plot: $(LIB)/fields_plot.py
+fields_coverage: $(LIB)/fields_coverage.py
 
-$(LIB)/extalg.py: $(SRC)/extalg/extalg.py init $(SRC)/extalg/__init__.py
+$(LIB)/fields.py: $(SRC)/fields/fields.py init $(SRC)/fields/__init__.py
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
 	-ln -s $< $@
-	$(ADDIMPORT) "from .$(notdir $(LIB)).extalg import extalg"
+	$(ADDIMPORT) "from .$(notdir $(LIB)).fields import fields"
 	@echo "----------------------------------"
 	@echo ""
 
-$(LIB)/extalg_plot.py: $(SRC)/extalg/extalg_plot.py
+$(LIB)/fields_plot.py: $(SRC)/fields/fields_plot.py
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
 	-ln -s $< $@
-	$(ADDIMPORT) "from .$(notdir $(LIB)).extalg_plot import extalg_plot"
+	$(ADDIMPORT) "from .$(notdir $(LIB)).fields_plot import fields_plot"
 	@echo "----------------------------------"
 	@echo ""
 
-$(LIB)/extalg_coverage.py: $(SRC)/extalg/extalg_coverage.py
+$(LIB)/fields_coverage.py: $(SRC)/fields/fields_coverage.py
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
 	-ln -s $< $@
-	$(ADDIMPORT) "from .$(notdir $(LIB)).extalg_coverage import extalg_coverage"
+	$(ADDIMPORT) "from .$(notdir $(LIB)).fields_coverage import fields_coverage"
 	@echo "----------------------------------"
 	@echo ""
 
 
-.PHONY: clean_extalg
-clean_extalg:
+.PHONY: clean_fields
+clean_fields:
 	@echo ""
 	@echo "----------------------------------"
-	@echo "Cleaning extalg"
+	@echo "Cleaning fields"
 	@echo ""
-	-rm $(LIB)/extalg.py
-	-rm $(LIB)/extalg_plot.py
-	-rm $(LIB)/extalg_coverage.py
-	$(DELIMPORT) "from .$(notdir $(LIB)).extalg import extalg"
-	$(DELIMPORT) "from .$(notdir $(LIB)).extalg_coverage import extalg_coverage"
-	$(DELIMPORT) "from .$(notdir $(LIB)).extalg_plot import extalg_plot "
+	-rm $(LIB)/fields.py
+	-rm $(LIB)/fields_plot.py
+	-rm $(LIB)/fields_coverage.py
+	$(DELIMPORT) "from .$(notdir $(LIB)).fields import fields"
+	$(DELIMPORT) "from .$(notdir $(LIB)).fields_plot import fields_plot"
+	$(DELIMPORT) "from .$(notdir $(LIB)).fields_coverage import fields_coverage"
 	@echo "----------------------------------"

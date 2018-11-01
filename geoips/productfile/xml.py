@@ -995,7 +995,7 @@ class Colorbar(object):
         self.scifile = scifile
 
     @staticmethod
-    def fromvals(cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None):
+    def fromvals(cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None, spacing=None):
         cbar = Colorbar()
         cbar._cmap = cmap
         cbar._ticks = ticks
@@ -1007,6 +1007,7 @@ class Colorbar(object):
         cbar._title = title
         cbar._bounds = bounds
         cbar._norm = norm
+        cbar._spacing = spacing
         return cbar
 
     def __str__(self):
@@ -1070,6 +1071,16 @@ class Colorbar(object):
             except AttributeError:
                 self._norm = None
         return self._norm
+
+    @property
+    def spacing(self):
+        if not hasattr(self, '_spacing'):
+            try:
+                #self._norm = self.node.find('norm').pyval.strip()
+                self._spacing = self.node.find('spacing').pyval.strip().decode('string_escape')
+            except AttributeError:
+                self._spacing = None
+        return self._spacing
 
 def test_attrib_bool(node, name, yes='yes', no='no'):
     '''Tests attribute "name" from ElementTree "node" against yes and no

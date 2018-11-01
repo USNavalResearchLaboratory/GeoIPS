@@ -13,62 +13,55 @@ from geoips.utils.gencolormap import get_cmap
 
 log = logging.getLogger(__name__)
 
-def write_winds(gi):
-    fn = gi.get_filename(imgkey='winds')
-    fn.ext = 'txt'
 
-    log.info('Writing wind output text file: '+fn.name)
+def set_plotting_params(gi, speed=None, platform=None, source=None, prodname=None, bgname=None, start_dt=None, end_dt=None):
 
-    # Only get unmasked values
-    indxs = np.ma.where(gi.image['winds'])
+    gi.set_geoimg_attrs(platform, source, prodname, bgname, start_dt=start_dt, end_dt=end_dt)
 
-    speeds = gi.image['speed'][indxs]
-    dirs = gi.image['dir'][indxs]
-    lats = gi.image['lats'][indxs]
-    lons = gi.image['lons'][indxs]
+    if speed is not None:
+        from matplotlib.colors import Normalize
+        cmap = 'tropix_no_white'
+        if gi.product.cmap:
+            cmap = gi.product.cmap
 
-    fn.makedirs()
-    fp1 = open(fn.name, 'w')
+        if not np.ma.is_masked(speed.min()):
+            norm = Normalize(vmin = speed.min(), vmax= speed.max())
+            ticks = [int(speed.min()), int(speed.max())]
+            ticklabels = ticks
+        else:
+            norm = None
+            ticks = None
+            ticklabels = None
+        #if gi.product.colorbarsticks:
 
-    from datetime import datetime, timedelta
-    dt1a = datetime.utcnow()
-    fp1.write('speed dir lat lon')
-    fp1.writelines([str(speed)+' '+str(lat)+' '+str(lon)+'\n' for (speed, dir, lat, lon) in iter(zip(speeds, dirs, lats, lons))])
-    dt1b = datetime.utcnow()
-    time1 = dt1b-dt1a
-    log.info('Time to write text file: '+str(time1))
+        gi.set_colorbars(cmap, ticks, ticklabels=ticklabels, title=None, bounds=None, norm=norm)
 
-    # Might be better with very large arrays so entire thing is not in memory.
-    #from itertools import izip
-    #for (speed, dir, lat, lon) in izip(speeds, dirs, lats, lons):
-    #   fp2.write(str(speed)+' '+str(dir)+' '+str(lat)+' '+str(lon)+'\n')
-
-def extalg_plot(gi, imgkey=None):
+    else:
+        gi._colorbars = []
 
     # Figure and axes
     gi._figure, gi._axes = gi._create_fig_and_ax()
 
-    if imgkey:
-        # Can specify different methods for different image types
-        # Note I didn't specify a 'winds' output image currently, 
-        # but we could...
-        if imgkey == 'winds' and gi.is_final:
-            write_winds(gi)
-        colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap(gi.product.cmap))
-        if 'float' in str(gi.image[imgkey].dtype):
-            pass
-        else:
-            gi.image[imgkey].dtype = 'float64'
-        currimg = colormapper.to_rgba(normalize(gi.image[imgkey]))
-        gi.basemap.imshow(currimg, ax=gi.axes, interpolation='nearest')
-    else:
-        colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap(gi.product.cmap))
-        if 'float' in str(gi.image.dtype):
-            pass
-        else:
-            gi.image.dtype = 'float64'
-        currimg = colormapper.to_rgba(normalize(gi.image))
-        gi.basemap.imshow(currimg, ax=gi.axes, interpolation='nearest')
+def extalg_plot(gi, imgkey=None):
+
+    gi.set_plotting_params(gi)
+
+    if imgkey and imgkey == 'rainrate':
+
+        colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap('frozen_cmap'))
+        currimg = colormapper.to_rgba(normalize(gi.image['rainrate']['frozen']))
+        gi.basemap.imshow(gi.image['rainrate']['frozen'])
+
+        colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap('liquid_cmap'))
+        currimg = colormapper.to_rgba(normalize(gi.image['rainrate']['liquid']))
+        gi.basemap.imshow(gi.image['rainrate']['liquid'])
+
+        ##if 'float' in str(gi.image[imgkey].dtype):
+        ##    pass
+        ##else:
+        ##    gi.image[imgkey].dtype = 'float64'
+        ##gi.basemap.imshow(currimg, ax=gi.axes, interpolation='nearest')
+
 
     if gi.is_final:
         gi.finalize()
