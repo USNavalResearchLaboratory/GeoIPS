@@ -3,7 +3,12 @@ from __future__ import print_function
 import os
 import logging
 import numpy as np
-import numexpr as ne
+
+try:
+    import numexpr as ne
+except:
+    pass
+
 from hashlib import md5
 
 from pyresample.geometry import SwathDefinition
