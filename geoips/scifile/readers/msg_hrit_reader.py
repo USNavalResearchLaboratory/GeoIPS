@@ -198,9 +198,16 @@ class MSG_XRIT_Reader(Reader):
                             log.info('        Using satnav, can only calculate Sun Zenith angles')
                             gvars[dsname]['SunZenith'] = satnav('SunZenith',metadata['top']['start_datetime'],gvars[dsname]['Longitude'],gvars[dsname]['Latitude'])
                         self.set_variable_metadata(metadata, dsname, geoipsvarname)
-                        datavars[dsname][geoipsvarname] =\
-                         np.ma.array(sectored_data.datasets[spvarname.name].data,
-                         mask=sectored_data.datasets[spvarname.name].mask)
+                        try:
+                            datavars[dsname][geoipsvarname] =\
+                             np.ma.array(sectored_data.datasets[spvarname.name].data,
+                             mask=sectored_data.datasets[spvarname.name].mask)
+                            log.warning('Sectored variable %s '%(spvarname.name))
+                        except AttributeError:
+                            log.warning('Variable %s does not contain a mask, masking invalid values! Might take longer'%(spvarname.name))
+                            datavars[dsname][geoipsvarname] =\
+                                np.ma.masked_invalid(sectored_data.datasets[spvarname.name].data)
+
         # datavars, gvars, and metadata are passed by reference, so we do not have to return anything.
 
     @staticmethod
