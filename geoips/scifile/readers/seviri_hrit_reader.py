@@ -350,6 +350,7 @@ class SEVIRI_HRIT_Reader(Reader):
             # Get prologue
             if df.file_type == 'prologue':
                 pro = df.prologue
+                metadata['top']['prologue'] = pro
             # Get epilogue
             elif df.file_type == 'epilogue':
                 epi = df.epilogue
@@ -406,6 +407,7 @@ class SEVIRI_HRIT_Reader(Reader):
         num_samples = pro['imageDescription']['referenceGridVIS_IR']['numberOfColumns']
         count_data = {}
         for band in chlist.bands:
+            log.info('Reading band %s'%(band))
             # Create empty full-disk array for this channel
             data = np.full((num_lines, num_samples), -999.9, dtype=np.float)
             # Read data into data array
@@ -432,11 +434,13 @@ class SEVIRI_HRIT_Reader(Reader):
             if chan.type == 'Rad':
                 datavars[adname][chan.name] = radiances[chan.band]
             if chan.type == 'Ref':
+                log.info('Calculating reflectances for %s'%(chan.band))
                 datavars[adname][chan.name] = radToRef(radiances[chan.band],
                                                        gvars[adname]['SunZenith'],
                                                        metadata['top']['platform_name'],
                                                        chan.band)
             if chan.type == 'BT':
+                log.info('Calculating brightness temperatures for %s'%(chan.band))
                 datavars[adname][chan.name] = radToBT(radiances[chan.band],
                                                       metadata['top']['platform_name'],
                                                       chan.band)
