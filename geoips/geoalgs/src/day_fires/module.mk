@@ -17,7 +17,7 @@
 .PHONY: day_fires
 day_fires: $(LIB)/day_fires.py
 
-$(LIB)/day_fires.py: $(SRC)/day_fires/day_fires.py config ancildat init
+$(LIB)/day_fires.py: $(SRC)/day_fires/day_fires.py config init
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
