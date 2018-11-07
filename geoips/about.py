@@ -43,6 +43,7 @@ __requires__ = [ # 'pyhdf',
                  'satpy',
                  'opencv-python',
                  'shapely',
+                 'numexpr', 
                  #'basemap', # install from source
                  #'cftime', # Doesn't appear to automatically install for netCDF4
                  #'netCDF4', # Anaconda - netcdf4 -- needs basemap first
