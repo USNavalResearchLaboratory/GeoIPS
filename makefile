@@ -17,8 +17,8 @@ all:
     if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
 		echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
 	fi
+	#sudo pip install virtualenv;
 	@echo "RUNNING";\
-	sudo pip install virtualenv;\
 	virtualenv ../geoips_dependencies/packages;\
 	. ../geoips_dependencies/packages/bin/activate;\
 	echo "PYTHONPATH:      ${PYTHONPATH}";\
