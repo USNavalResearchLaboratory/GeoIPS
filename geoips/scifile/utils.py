@@ -202,7 +202,7 @@ def get_props_from_metadata(metadata, vartype, dsname, varname):
     else: 
         from .containers import _empty_finfo as empty_info
 
-    varinfo = {}
+    varinfo = empty_info.copy()
 
     # Default to top level metadata values
     for key,val in metadata['top'].items():
