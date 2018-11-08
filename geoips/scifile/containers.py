@@ -1327,7 +1327,9 @@ class DataSet(object):
                     log.info('        Using DEFAULT SATELLITE_INFO radius of influence: '+str(roi))
 
         # ROI up to here is in km, not m
-        roi = roi * 1000
+        #roi = roi * 1000
+        # Dammit Jeremy, this works for us.
+        roi = roi
 
         if hasattr(ad, 'pixel_size_x') and hasattr(ad, 'pixel_size_y'):
             if ad.pixel_size_x > roi or ad.pixel_size_y > roi:
@@ -2137,8 +2139,8 @@ class Variable(MaskedArray):
             you can remove tese two lines. 
             '''
             # Share the mask
-            val._set_mask_inplace(self._mask | val.mask)
-            self._mask = val._mask
+            #val._set_mask_inplace(self._mask | val.mask)
+            #self._mask = val._mask
             #else:
             #    for attr in self._dsinfo.keys():
             #        print '  Variable.dataset self: '+' '+str(attr)+' '+str(getattr(self,attr))
