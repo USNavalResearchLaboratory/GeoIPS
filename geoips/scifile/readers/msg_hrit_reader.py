@@ -41,17 +41,17 @@ reader_class_name = 'MSG_XRIT_Reader'
 class MSG_XRIT_Reader(Reader):
 
     dataset_info = { 
-                          'LO': {'VIS006':'VIS006',
-                                 'VIS008':'VIS008',
-                                 'IR_016':'IR_016',
-                                 'IR_039':'IR_039',
-                                 'IR_087':'IR_087',
-                                 'IR_097':'IR_097',
-                                 'IR_108':'IR_108',
-                                 'IR_120':'IR_120',
-                                 'IR_134':'IR_134',
-                                 'WV_062':'WV_062',
-                                 'WV_073':'WV_073',},
+                          'LO': {'VIS006':'B01Ref',
+                                 'VIS008':'B02Ref',
+                                 'IR_016':'B03Ref',
+                                 'IR_039':'B04BT',
+                                 'IR_087':'B07BT',
+                                 'IR_097':'B08BT',
+                                 'IR_108':'B09BT',
+                                 'IR_120':'B10BT',
+                                 'IR_134':'B11BT',
+                                 'WV_062':'B05BT',
+                                 'WV_073':'B06BT',},
                           'HI': { 'HRV': 'HRV',},
                         }
 
