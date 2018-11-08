@@ -11,10 +11,10 @@
 <product method="basic" name="IR_016">
     <basic_args>
         <source name='seviri'>
-            <var>IR_016</var>
+            <var>B03Ref</var> <!-- 1.6um  B05 ABI   IR_016  1.6um MSG Snow/Ice band, near-IR	                                  -->
         </source>
         <img>
-            <equation>IR_016</equation>
+            <equation>B03Ref</equation> <!-- 1.6um  B05 ABI   IR_016  1.6um MSG Snow/Ice band, near-IR	                                  -->
             <range>
                 <min_value>0</min_value>
                 <max_value>60</max_value>

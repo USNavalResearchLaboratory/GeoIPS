@@ -11,10 +11,10 @@
 <product method="basic" name="IR_087">
     <basic_args>
         <source name='seviri'>
-            <var>IR_087</var>
+            <var>B07BT</var> <!-- 8.4um  B11 ABI   IR_087  8.7um MSG Cloud-Top Phase band, IR                                     -->
         </source>
         <img>
-            <equation>IR_087</equation>
+            <equation>B07BT</equation>
             <range>
                 <min_value>183</min_value>
                 <max_value>303</max_value>
