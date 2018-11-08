@@ -138,7 +138,8 @@ def get_top_level_metadata(fname, sect):
     md['start_datetime'] = df.start_datetime
     md['end_datetime'] = df.start_datetime
     md['data_provider'] = 'nesdisstar'
-    md['platform_name'] = df.annotation_metadata['platform'].lower()
+    # MLS Check platform_name
+    md['platform_name'] = df.annotation_metadata['platform'].lower().replace('_iodc','')
     md['source_name'] = 'seviri'
     md['sector_definition'] = sect
     md['NO_GRANULE_COMPOSITES'] = True
@@ -354,6 +355,7 @@ class SEVIRI_HRIT_Reader(Reader):
             # Get epilogue
             elif df.file_type == 'epilogue':
                 epi = df.epilogue
+                metadata['top']['epilogue'] = epi
             # Store data files, organized by band, then segment
             elif df.file_type == 'image':
                 # Ensure all files have the same geolocation information
@@ -406,8 +408,8 @@ class SEVIRI_HRIT_Reader(Reader):
         num_lines = pro['imageDescription']['referenceGridVIS_IR']['numberOfLines']
         num_samples = pro['imageDescription']['referenceGridVIS_IR']['numberOfColumns']
         count_data = {}
+        annotation_metadata = {}
         for band in chlist.bands:
-            log.info('Reading band %s'%(band))
             # Create empty full-disk array for this channel
             data = np.full((num_lines, num_samples), -999.9, dtype=np.float)
             # Read data into data array
@@ -416,10 +418,12 @@ class SEVIRI_HRIT_Reader(Reader):
                 start_line = seg_num_lines * (seg - 1)
                 end_line = seg_num_lines * seg
                 data[start_line:end_line, 0:] = df._read_image_data()
+            log.info('Read band %s %s'%(band, df.annotation_metadata['band']))
             if 'Lines' in gvars[adname]:
                 count_data[band] = data[gvars[adname]['Lines'], gvars[adname]['Samples']]
             else:
                 count_data[band] = data
+            annotation_metadata[band] = df.annotation_metadata
 
         datavars[adname] = {}
         radiances = {}
@@ -444,6 +448,12 @@ class SEVIRI_HRIT_Reader(Reader):
                 datavars[adname][chan.name] = radToBT(radiances[chan.band],
                                                       metadata['top']['platform_name'],
                                                       chan.band)
+            if adname not in metadata['datavars'].keys():
+                metadata['datavars'][adname] = {}
+            if chan.name not in metadata['datavars'].keys():
+                metadata['datavars'][adname][chan.name] = {}
+
+            metadata['datavars'][adname][chan.name]['wavelength'] = float(annotation_metadata[chan.band]['band'][3:4]+'.'+annotation_metadata[chan.band]['band'][4:])
 
         for var in datavars[adname].keys():
             datavars[adname][var] = np.ma.masked_less_equal(np.flipud(datavars[adname][var]), -999)
