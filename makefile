@@ -12,14 +12,15 @@ all:
 	@echo "VIRTUALENV:      ../geoips_dependencies/packages"
 	@echo ""
 	@while [ -z "$$CONTINUE" ]; do \
-        read -r -p "Y or y to CONTINUE with GeoIPS build, affecting above paths. [y/N]: " CONTINUE; \
-    done ; \
-    if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
+		read -r -p "Y or y to CONTINUE with GeoIPS build, affecting above paths. [y/N]: " CONTINUE; \
+	done ; \
+	if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
 		echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
-	fi
-	#sudo pip install virtualenv;
+	fi; \
 	@echo "RUNNING";\
-	virtualenv ../geoips_dependencies/packages;\
+	if [ ! -e ../geoips_dependencies/packages ]; then \
+		virtualenv ../geoips_dependencies/packages;\
+	fi;\
 	. ../geoips_dependencies/packages/bin/activate;\
 	echo "PYTHONPATH:      ${PYTHONPATH}";\
 	echo "PYTHON:          "`which python`;\

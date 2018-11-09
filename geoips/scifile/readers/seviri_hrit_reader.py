@@ -270,7 +270,7 @@ class SEVIRI_HRIT_Reader(Reader):
     @staticmethod
     def format_test(path):
         # MLS Temporary until we completely replace msg_hrit_reader.py
-        return False
+        # return False
         if not os.path.isdir(path):
             return False
 
