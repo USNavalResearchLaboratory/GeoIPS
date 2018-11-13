@@ -1,0 +1,7 @@
+if [ ! -e $GEOIPS_VIRTUALENV_DIR ]; then
+    virtualenv $GEOIPS_VIRTUALENV_DIR
+fi
+unset PYTHONPATH
+source $GEOIPS_VIRTUALENV_DIR/bin/activate
+
+export XRIT_DECOMPRESS_PATH=$GEOIPS_VIRTUALENV_DIR/../xRITDecompress/xRITDecompress/xRITDecompress
