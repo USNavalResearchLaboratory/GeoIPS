@@ -128,8 +128,11 @@ def compare_dicts(d1, d2, skip=None):
     return True
 
 
-def get_top_level_metadata(fname, sect):
-    df = HritFile(fname)
+def get_top_level_metadata(fnames, sect):
+    for fname in fnames:
+        df = HritFile(fname)
+        if 'block_2' in df.metadata.keys():
+            break
     md = {}
     if 'GEOS' in df.metadata['block_2']['projection']:
         md['sector_name'] = 'Full-Disk'
@@ -321,8 +324,10 @@ class SEVIRI_HRIT_Reader(Reader):
         else:
             adname = 'FULL_DISK'
 
-        # Gather top-level metadata
-        metadata['top'] = get_top_level_metadata(fnames[0], sector_definition)
+        # Gather top-level metadata. MUst pass ALL fnames to make sure we 
+ 		# use a datafile, and not pro or epi (they do not contain projection 
+		# information)
+        metadata['top'] = get_top_level_metadata(fnames, sector_definition)
 
         # chans == [] specifies we don't want to read ANY data, just metadata.
         # chans == None specifies that we are not specifying a channel list,
