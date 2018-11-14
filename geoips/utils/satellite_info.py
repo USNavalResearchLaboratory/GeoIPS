@@ -398,7 +398,9 @@ class ME8SatInfo(SatInfo):
         # if not, defined in _set_satinfo
         # None if not available (no ISS from tscan, no TLEs for GEO)
         self.celestrak_tle_name = 'METEOSAT-8 (MSG-1)'
-        self.tscan_tle_name = None
+        self.geoips_satname = 'meteoIO'
+        self.tscan_tle_name = 'msg-1'
+        self.orig_file_satname = 'MSG1'
         self.geostationary = True
 
 
@@ -434,6 +436,8 @@ class ME11SatInfo(SatInfo):
         # None if not available (no ISS from tscan, no TLEs for GEO)
         self.celestrak_tle_name = 'METEOSAT-11 (MSG-4)'
         self.tscan_tle_name = 'msg-4'
+        self.geoips_satname = 'meteoEU'
+        self.orig_file_satname = 'MSG4'
         self.geostationary = True
 
 
@@ -461,29 +465,6 @@ class METEO7SatInfo(SatInfo):
         self.tscan_tle_name = 'meteo-7'
         self.geostationary = True
 
-
-class METEOIOSatInfo(SatInfo):
-    def _set_satinfo(self, sensor=None):
-        self.sensornames = ['seviri']
-        #self.orbital_period = 92.5 * 60
-        # tle names for celestrak and tscan, default to satname
-        # if not, defined in _set_satinfo
-        # None if not available (no ISS from tscan, no TLEs for GEO)
-        self.celestrak_tle_name = 'METEOSAT-8 (MSG-1)'
-        self.tscan_tle_name = None
-        self.geostationary = True
-
-
-class METEOEUSatInfo(SatInfo):
-    def _set_satinfo(self, sensor=None):
-        self.sensornames = ['seviri']
-        #self.orbital_period = 92.5 * 60
-        # tle names for celestrak and tscan, default to satname
-        # if not, defined in _set_satinfo
-        # None if not available (no ISS from tscan, no TLEs for GEO)
-        self.celestrak_tle_name = 'METEOSAT-10 (MSG-3)'
-        self.tscan_tle_name = None
-        self.geostationary = True
 
 
 class METOPASatInfo(SatInfo):
@@ -2113,8 +2094,8 @@ SatInfo_classes = {
         'mt1': MT1SatInfo,
         'nrljc': NRLJCSatInfo,
         'proteus': PROTEUSSatInfo,
-        'meteoIO': METEOIOSatInfo,
-        'meteoEU': METEOEUSatInfo,
+        'meteoIO': ME8SatInfo,
+        'meteoEU': ME11SatInfo,
         'me10': ME10SatInfo,
         'me11': ME11SatInfo,
         'me9': ME9SatInfo,
