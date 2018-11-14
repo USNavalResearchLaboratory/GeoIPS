@@ -20,7 +20,6 @@ from ..satnav import SatNav
 from .hrit_reader import HritFile, HritError
 
 # Installed Libraries
-from IPython import embed as shell
 
 # GeoIPS Libraries
 from .reader import Reader
@@ -142,7 +141,20 @@ def get_top_level_metadata(fnames, sect):
     md['end_datetime'] = df.start_datetime
     md['data_provider'] = 'nesdisstar'
     # MLS Check platform_name
-    md['platform_name'] = df.annotation_metadata['platform'].lower().replace('_iodc','')
+    # Turn msg4_iodc into msg4.  Then pull geoips satname (meteoEU/meteoIO) 
+    # from utils/satellite_info.py
+    msg_satname = df.annotation_metadata['platform'].lower().replace('_iodc','')
+    # Save actual satellite name (msg1 / msg4) for the coefficient tables above.
+    # geoips specific platform_name should be meteoEU or meteoIO
+    md['satellite_name'] = msg_satname
+    from geoips.utils.satellite_info import open_satinfo
+    try:
+        satinfo = open_satinfo(msg_satname)
+        if hasattr(satinfo, 'geoips_satname'):
+            msg_satname = satinfo.geoips_satname
+    except KeyError:
+        raise HritError('Unknown satname encountered: {}'.format(msg_satname))
+    md['platform_name'] = msg_satname
     md['source_name'] = 'seviri'
     md['sector_definition'] = sect
     md['NO_GRANULE_COMPOSITES'] = True
@@ -399,7 +411,7 @@ class SEVIRI_HRIT_Reader(Reader):
         # Drop files for channels other than those requested and decompress
         outdir = os.path.join(gpaths['LOCALSCRATCH'],
                               metadata['top']['source_name'],
-                              metadata['top']['platform_name'],
+                              metadata['top']['satellite_name'],
                               metadata['top']['start_datetime'].strftime('%Y%m%d%H%M'))
         if not os.path.isdir(outdir):
             os.makedirs(outdir)
@@ -446,12 +458,12 @@ class SEVIRI_HRIT_Reader(Reader):
                 log.info('Calculating reflectances for %s'%(chan.band))
                 datavars[adname][chan.name] = radToRef(radiances[chan.band],
                                                        gvars[adname]['SunZenith'],
-                                                       metadata['top']['platform_name'],
+                                                       metadata['top']['satellite_name'],
                                                        chan.band)
             if chan.type == 'BT':
                 log.info('Calculating brightness temperatures for %s'%(chan.band))
                 datavars[adname][chan.name] = radToBT(radiances[chan.band],
-                                                      metadata['top']['platform_name'],
+                                                      metadata['top']['satellite_name'],
                                                       chan.band)
             if adname not in metadata['datavars'].keys():
                 metadata['datavars'][adname] = {}
