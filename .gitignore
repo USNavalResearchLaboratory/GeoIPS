@@ -1,3 +1,4 @@
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips/gitignore
 *.pyc
 *.o
 *.log
@@ -18,3 +19,2460 @@
 */geoalgs/src/*.f90
 */geoalgs/docs/source/stddev_kernel.rst
 
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+
+
+
+######### Checking subdir /geoips/geoimg #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/geoimg to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoimg #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+*geoips/geoimg/add_watermark.py
+*geoips/geoimg/ascii_palettes/11um-web_orig
+*geoips/geoimg/ascii_palettes/11um-web_v1
+*geoips/geoimg/ascii_palettes/4-11BTD
+*geoips/geoimg/ascii_palettes/4-11BTD-V2
+*geoips/geoimg/ascii_palettes/4-11BTD-V3
+*geoips/geoimg/ascii_palettes/4-11BTD-V4
+*geoips/geoimg/ascii_palettes/4-11BTD-V5
+*geoips/geoimg/ascii_palettes/DNB_ywb
+*geoips/geoimg/ascii_palettes/Greys_cosine
+*geoips/geoimg/ascii_palettes/Greys_cosine_r
+*geoips/geoimg/ascii_palettes/LinearSegementedColormapConv.py
+*geoips/geoimg/ascii_palettes/bd_171
+*geoips/geoimg/ascii_palettes/black-red
+*geoips/geoimg/ascii_palettes/black-white-hsl256-combo
+*geoips/geoimg/ascii_palettes/black-yellow
+*geoips/geoimg/ascii_palettes/blu-grn-red-yel
+*geoips/geoimg/ascii_palettes/blue-red
+*geoips/geoimg/ascii_palettes/c1_171
+*geoips/geoimg/ascii_palettes/c3_171
+*geoips/geoimg/ascii_palettes/c4_171
+*geoips/geoimg/ascii_palettes/c6_171
+*geoips/geoimg/ascii_palettes/c9_171
+*geoips/geoimg/ascii_palettes/cira_wv_table
+*geoips/geoimg/ascii_palettes/cira_wv_table_r
+*geoips/geoimg/ascii_palettes/color_Jet_Stream_windspeed
+*geoips/geoimg/ascii_palettes/color_text_tropical_cyclones
+*geoips/geoimg/ascii_palettes/color_windspeed_00.15.25.35.50.65kts
+*geoips/geoimg/ascii_palettes/color_windspeed_60kts.62
+*geoips/geoimg/ascii_palettes/color_windspeed_60kts.62.rob2
+*geoips/geoimg/ascii_palettes/color_windspeed_60kts.rw2
+*geoips/geoimg/ascii_palettes/color_windspeed_contpalette_00bl.25cy.35gr.50ye.64re
+*geoips/geoimg/ascii_palettes/color_windspeed_contpalette_00lb.15gr.25ye.35br.50or.65re
+*geoips/geoimg/ascii_palettes/color_windspeed_contpalette_00lb.15gr.25ye.35or.50re.65pu
+*geoips/geoimg/ascii_palettes/color_windspeed_palette
+*geoips/geoimg/ascii_palettes/color_windspeed_palette_00.15.25.35.50.65kts
+*geoips/geoimg/ascii_palettes/color_windspeed_palette_192colors
+*geoips/geoimg/ascii_palettes/color_windspeed_rgb
+*geoips/geoimg/ascii_palettes/color_windspeed_rgb_00lb.15gr.25ye.35br.50or.65re
+*geoips/geoimg/ascii_palettes/color_windspeed_rgb_00lb.15gr.25ye.35or.50re.65pu
+*geoips/geoimg/ascii_palettes/cth_compare1
+*geoips/geoimg/ascii_palettes/dryglick-ir
+*geoips/geoimg/ascii_palettes/dryglick-wv
+*geoips/geoimg/ascii_palettes/dummy
+*geoips/geoimg/ascii_palettes/dvorak_183-303
+*geoips/geoimg/ascii_palettes/dvorak_color_178-303
+*geoips/geoimg/ascii_palettes/dvorak_color_178-303_alt
+*geoips/geoimg/ascii_palettes/f15color.pal
+*geoips/geoimg/ascii_palettes/files.out
+*geoips/geoimg/ascii_palettes/focus_colors_all
+*geoips/geoimg/ascii_palettes/full_pyrocb
+*geoips/geoimg/ascii_palettes/gamma2
+*geoips/geoimg/ascii_palettes/green-pink
+*geoips/geoimg/ascii_palettes/grey-blue
+*geoips/geoimg/ascii_palettes/gvar_ch2_171
+*geoips/geoimg/ascii_palettes/highlow
+*geoips/geoimg/ascii_palettes/highlow2
+*geoips/geoimg/ascii_palettes/hsl256
+*geoips/geoimg/ascii_palettes/hsl256_newblack
+*geoips/geoimg/ascii_palettes/hsl256_no_black
+*geoips/geoimg/ascii_palettes/hsl256_no_black_grey_center
+*geoips/geoimg/ascii_palettes/hsl256_no_black_white_center
+*geoips/geoimg/ascii_palettes/invert-sqrt
+*geoips/geoimg/ascii_palettes/kimrgbhist
+*geoips/geoimg/ascii_palettes/kimrgbtest
+*geoips/geoimg/ascii_palettes/landpal6
+*geoips/geoimg/ascii_palettes/landpal7
+*geoips/geoimg/ascii_palettes/mb_171
+*geoips/geoimg/ascii_palettes/mod_pyrocb
+*geoips/geoimg/ascii_palettes/noaa_bd
+*geoips/geoimg/ascii_palettes/noaa_bd_151
+*geoips/geoimg/ascii_palettes/noaa_bd_color
+*geoips/geoimg/ascii_palettes/noaa_bd_color_151
+*geoips/geoimg/ascii_palettes/noaa_c1_151
+*geoips/geoimg/ascii_palettes/noaa_c3_151
+*geoips/geoimg/ascii_palettes/noaa_c4_151
+*geoips/geoimg/ascii_palettes/noaa_c6_151
+*geoips/geoimg/ascii_palettes/noaa_c9_151
+*geoips/geoimg/ascii_palettes/noaa_cc
+*geoips/geoimg/ascii_palettes/noaa_cc_151
+*geoips/geoimg/ascii_palettes/noaa_ec
+*geoips/geoimg/ascii_palettes/noaa_ec_151
+*geoips/geoimg/ascii_palettes/noaa_gvar_ch2
+*geoips/geoimg/ascii_palettes/noaa_gvar_ch2_151
+*geoips/geoimg/ascii_palettes/noaa_he
+*geoips/geoimg/ascii_palettes/noaa_he_151
+*geoips/geoimg/ascii_palettes/noaa_hf
+*geoips/geoimg/ascii_palettes/noaa_hf_151
+*geoips/geoimg/ascii_palettes/noaa_jf
+*geoips/geoimg/ascii_palettes/noaa_jf_151
+*geoips/geoimg/ascii_palettes/noaa_jj
+*geoips/geoimg/ascii_palettes/noaa_jj_151
+*geoips/geoimg/ascii_palettes/noaa_lc
+*geoips/geoimg/ascii_palettes/noaa_lc_151
+*geoips/geoimg/ascii_palettes/noaa_mb
+*geoips/geoimg/ascii_palettes/noaa_mb_151
+*geoips/geoimg/ascii_palettes/noaa_mb_color
+*geoips/geoimg/ascii_palettes/noaa_mb_color_151
+*geoips/geoimg/ascii_palettes/noaa_md
+*geoips/geoimg/ascii_palettes/noaa_ta
+*geoips/geoimg/ascii_palettes/noaa_ta_151
+*geoips/geoimg/ascii_palettes/noaa_wv
+*geoips/geoimg/ascii_palettes/noaa_wv_151
+*geoips/geoimg/ascii_palettes/noaa_za
+*geoips/geoimg/ascii_palettes/noaa_za_151
+*geoips/geoimg/ascii_palettes/noaa_zb
+*geoips/geoimg/ascii_palettes/noaa_zb_151
+*geoips/geoimg/ascii_palettes/palette_aod
+*geoips/geoimg/ascii_palettes/pierre
+*geoips/geoimg/ascii_palettes/prism
+*geoips/geoimg/ascii_palettes/pyrocb
+*geoips/geoimg/ascii_palettes/rain6
+*geoips/geoimg/ascii_palettes/rain6_no_white
+*geoips/geoimg/ascii_palettes/rain7
+*geoips/geoimg/ascii_palettes/rain8
+*geoips/geoimg/ascii_palettes/red-purple
+*geoips/geoimg/ascii_palettes/red.temp
+*geoips/geoimg/ascii_palettes/rss_sst
+*geoips/geoimg/ascii_palettes/rss_sst_24
+*geoips/geoimg/ascii_palettes/rss_sst_64
+*geoips/geoimg/ascii_palettes/sal-marla
+*geoips/geoimg/ascii_palettes/satct
+*geoips/geoimg/ascii_palettes/seapal
+*geoips/geoimg/ascii_palettes/ssd-rb
+*geoips/geoimg/ascii_palettes/ssd-rb-mod200
+*geoips/geoimg/ascii_palettes/ssd-rbtop
+*geoips/geoimg/ascii_palettes/ssd-rbtop-brg
+*geoips/geoimg/ascii_palettes/ssd-rbtop-mod1
+*geoips/geoimg/ascii_palettes/step.64Rev
+*geoips/geoimg/ascii_palettes/step.64_clip
+*geoips/geoimg/ascii_palettes/temp1
+*geoips/geoimg/ascii_palettes/temp2
+*geoips/geoimg/ascii_palettes/test37
+*geoips/geoimg/ascii_palettes/test89
+*geoips/geoimg/ascii_palettes/tpw_cimss
+*geoips/geoimg/ascii_palettes/tpw_purple
+*geoips/geoimg/ascii_palettes/tropix
+*geoips/geoimg/ascii_palettes/tropix_new
+*geoips/geoimg/ascii_palettes/tropix_new_pct
+*geoips/geoimg/ascii_palettes/tropix_new_pct_sav
+*geoips/geoimg/ascii_palettes/tropix_new_pct_wedge
+*geoips/geoimg/ascii_palettes/tropix_new_sav
+*geoips/geoimg/ascii_palettes/tropix_new_sqrt
+*geoips/geoimg/ascii_palettes/tropix_new_sqrtRev
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_pal
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_pal2
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_pal3
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_pal3.sav
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_pal3_Rev
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_rgb
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_rgb2
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_rgb3
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_rgb3.sav
+*geoips/geoimg/ascii_palettes/uwave_windspeed_color_rgb3_Rev
+*geoips/geoimg/ascii_palettes/white-black
+*geoips/geoimg/ascii_palettes/white-black-red-fire
+*geoips/geoimg/ascii_palettes/wv_171
+*geoips/geoimg/ascii_palettes/wv_so1
+*geoips/geoimg/ascii_palettes/za_171
+*geoips/geoimg/ascii_palettes/zb_171
+*geoips/geoimg/plot/contour.py
+*geoips/geoimg/plot/footprintsimg.py
+*geoips/geoimg/plot/full_disk.py
+*geoips/geoimg/plot/rainimg.py
+*geoips/geoimg/plot/streamline.py
+*geoips/geoimg/plot/testimg.py
+*geoips/geoimg/plot/windbarbs.py
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/geoimg to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoimg #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/geoimg to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoimg #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/geoimg to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoimg #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+*geoips/geoimg/ascii_palettes/11-13BTD-web
+*geoips/geoimg/ascii_palettes/11um-web
+*geoips/geoimg/ascii_palettes/4-11BTD-web
+*geoips/geoimg/ascii_palettes/4um-web
+*geoips/geoimg/ascii_palettes/intense_pyrocb_web
+*geoips/geoimg/ascii_palettes/mod_pyrocb_web
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/geoimg to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoimg #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/sectorfiles/sectorfiles.dtd #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/sectorfiles/sectorfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/sectorfiles/sectorfiles.dtd #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/sectorfiles/sectorfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/sectorfiles/sectorfiles.dtd #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/sectorfiles/sectorfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/sectorfiles/sectorfiles.dtd #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/sectorfiles/sectorfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/sectorfiles/sectorfiles.dtd #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/sectorfiles/sectorfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/sectorfiles/sectorfiles.dtd #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/productfiles/productfiles.dtd #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/productfiles/productfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/productfiles/productfiles.dtd #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/productfiles/productfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/productfiles/productfiles.dtd #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/productfiles/productfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/productfiles/productfiles.dtd #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/productfiles/productfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/productfiles/productfiles.dtd #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/productfiles/productfiles.dtd to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/productfiles/productfiles.dtd #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/pass_prediction #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/pass_prediction to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/pass_prediction #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/pass_prediction to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/pass_prediction #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/pass_prediction to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/pass_prediction #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/pass_prediction to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/pass_prediction #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/pass_prediction to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/pass_prediction #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/utils #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/utils to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/utils #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+*geoips/utils/sftp_to_fnmoc.py
+*geoips/utils/update_geolocation_files.py
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/utils to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/utils #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/utils to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/utils #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/utils to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/utils #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/utils to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/utils #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/scifile #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/scifile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/scifile #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+*geoips/scifile/geometry.py
+*geoips/scifile/viirs_rdr2sdr.py
+*geoips/scifile/readers/glmnew_ncdf4_reader.py
+*geoips/scifile/readers/icap_ncdf4_reader.py
+*geoips/scifile/readers/knmioscat_ncdf3_reader.py
+*geoips/scifile/readers/knmirscat_ncdf3_reader.py
+*geoips/scifile/readers/mimic_ncdf4_reader.py
+*geoips/scifile/readers/rscat_hdf4_reader.py
+*geoips/scifile/readers/rscat_ncdf3_reader.py
+*geoips/scifile/readers/viirs_aotcimss_ncdf4_reader.py
+*geoips/scifile/readers/viirs_sdrcimss_ncdf4_reader.py
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/scifile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/scifile #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/scifile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/scifile #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/scifile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/scifile #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+*geoips/scifile/readers/mpop
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+*geoips/scifile/README.txt
+*geoips/scifile/readers/clavrx_hdf4_reader.py
+*geoips/scifile/readers/mint_ncdf3_reader.py
+*geoips/scifile/readers/saphir_hdf5_reader.py
+*geoips/scifile/readers/tpw_hdfeos_reader.py
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/scifile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/scifile #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/geoalgs #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/geoalgs to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoalgs #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+*geoips/geoalgs/doc
+*geoips/geoalgs/testdir
+*geoips/geoalgs/utils
+*geoips/geoalgs/src/cirrus_cloud
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/geoalgs to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoalgs #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/geoalgs to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoalgs #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/geoalgs to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoalgs #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+*geoips/geoalgs/dat
+*geoips/geoalgs/src/ancildat
+*geoips/geoalgs/src/binary_cloud_snow
+*geoips/geoalgs/src/bldust
+*geoips/geoalgs/src/debra
+*geoips/geoalgs/src/interp
+*geoips/geoalgs/src/lunarref
+*geoips/geoalgs/src/multi_cloud_snow
+*geoips/geoalgs/src/pyro_cb_high_lcl
+*geoips/geoalgs/src/pyro_cb_standard
+*geoips/geoalgs/src/rayleigh
+*geoips/geoalgs/src/satsuncalc
+*geoips/geoalgs/src/share
+*geoips/geoalgs/src/sunglint
+*geoips/geoalgs/src/true_color
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/geoalgs to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/geoalgs #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/downloaders #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/downloaders to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/downloaders #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+*geoips/downloaders/atcf
+*geoips/downloaders/Sites/TURNED_OFF
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+*geoips/downloaders/Sites/cimss_tpwmimic.py
+*geoips/downloaders/Sites/fnmoc_ftp.py
+*geoips/downloaders/Sites/godae.py
+*geoips/downloaders/Sites/knmi_scat.py
+*geoips/downloaders/Sites/lance_modis.py
+*geoips/downloaders/Sites/localftp.py
+*geoips/downloaders/Sites/nesdis_data.py
+*geoips/downloaders/Sites/pps_gpm.py
+*geoips/downloaders/Sites/sips_data_jpss1.py
+*geoips/downloaders/Sites/sips_data_npp.py
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/downloaders to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/downloaders #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/downloaders to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/downloaders #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+*geoips/downloaders/Sites/datapush.py
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/downloaders to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/downloaders #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/downloaders to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/downloaders #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/Makefile #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/Makefile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/Makefile #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/Makefile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/Makefile #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/Makefile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/Makefile #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/Makefile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/Makefile #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/Makefile to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/Makefile #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/driver.py #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/driver.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/driver.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/driver.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/driver.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/driver.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/driver.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/driver.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/driver.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/driver.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/driver.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/process_overpass.py #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/process_overpass.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/process_overpass.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/process_overpass.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/process_overpass.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/process_overpass.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/process_overpass.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/process_overpass.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/process_overpass.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/process_overpass.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/process_overpass.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/about.py #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/about.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/about.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/about.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/manual_updates #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/manual_updates to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/manual_updates #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/manual_updates to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/manual_updates #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/manual_updates to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/manual_updates #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/manual_updates to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/manual_updates #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/manual_updates to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/manual_updates #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/about_geoips.py #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/about_geoips.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/about_geoips.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/about_geoips.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/about_geoips_nrl.py #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+*geoips/about_geoips_nrl.py
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/about_geoips_nrl.py #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/about_geoips_nrl.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_nrl.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/about_geoips_fnmoc.py #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_fnmoc.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_fnmoc.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_fnmoc.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_fnmoc.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/about_geoips_fnmoc.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_fnmoc.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+*geoips/about_geoips_fnmoc.py
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/about_geoips_fnmoc.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_fnmoc.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/about_geoips_fnmoc.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_fnmoc.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/about_geoips_proprietary.py #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_proprietary.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_proprietary.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_proprietary.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_proprietary.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/about_geoips_proprietary.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_proprietary.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/about_geoips_proprietary.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_proprietary.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+*geoips/about_geoips_proprietary.py
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/about_geoips_proprietary.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_proprietary.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+
+
+
+######### Checking subdir /geoips/about_geoips_aws.py #########
+
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_aws.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_aws.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/geoips/about_geoips_aws.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_aws.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_nrl/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/src/*.f90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_nrl
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/geoips/about_geoips_aws.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_aws.py #####
+
+# Adding gitignore from /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc/gitignore
+*.pyc
+*.o
+*.log
+*.swp
+*/geoalgs/__init__.py
+*/geoalgs/dat/
+*/geoalgs/docs/build/
+*/geoalgs/docs/source/bldust.rst
+*/geoalgs/docs/source/fires.rst
+*/geoalgs/docs/source/geoalgs_modules.txt
+*/geoalgs/docs/source/lunarref.rst
+*/geoalgs/docs/source/rayleigh.rst
+*/geoalgs/docs/source/stddev.rst
+*/geoalgs/docs/source/sunglint.rst
+*/geoalgs/include/
+*/geoalgs/lib/
+*/geoalgs/src/config.F90
+*/geoalgs/docs/source/stddev_kernel.rst
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_fnmoc
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary/geoips/about_geoips_aws.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_aws.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_proprietary
+
+
+
+##### Attempting to link files from /users/devuser/satnrl_release/0.5.0+3/geoips_aws/geoips/about_geoips_aws.py to /users/devuser/satnrl_release/0.5.0+3/geoips/geoips/about_geoips_aws.py #####
+
+
+# LINKED DIRS TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
+
+# LINKED FILES TO IGNORE FROM /users/devuser/satnrl_release/0.5.0+3/geoips_aws
