@@ -276,7 +276,10 @@ def recursively_load_dict_contents_from_group(h5file, path):
             # same order.
             for ffkey in sorted(h5file[path+pathkey].keys()):
                 if 'list' in ffkey:
-                    anslist += [h5file[path+pathkey][ffkey].value]
+                    if hasattr(h5file[path+pathkey][ffkey], 'value'):
+                        anslist += [h5file[path+pathkey][ffkey].value]
+                    elif hasattr(h5file[path+pathkey][ffkey], 'items'):
+                        anslist += [h5file[path+pathkey][ffkey].items()]
                 elif 'list' not in ffkey:
                     islist = False
                 if islist:
