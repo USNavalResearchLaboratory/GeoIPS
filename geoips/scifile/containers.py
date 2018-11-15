@@ -2139,8 +2139,8 @@ class Variable(MaskedArray):
             you can remove tese two lines. 
             '''
             # Share the mask
-            #val._set_mask_inplace(self._mask | val.mask)
-            #self._mask = val._mask
+            val._set_mask_inplace(self._mask | val.mask)
+            self._mask = val._mask
             #else:
             #    for attr in self._dsinfo.keys():
             #        print '  Variable.dataset self: '+' '+str(attr)+' '+str(getattr(self,attr))
