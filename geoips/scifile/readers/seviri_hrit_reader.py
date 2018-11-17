@@ -368,7 +368,11 @@ class SEVIRI_HRIT_Reader(Reader):
             # Get prologue
             if df.file_type == 'prologue':
                 pro = df.prologue
-                metadata['top']['prologue'] = pro
+                dt = metadata['top']['start_datetime']
+                #metadata['top']['prologue'] = pro
+                for poly in df.prologue['satelliteStatus']['orbit']['orbitPolynomial']:
+                    if dt <= poly['endTime'] and dt >= poly['startTime']:
+                        metadata['top']['orbitPolynomial'] = poly
             # Get epilogue
             elif df.file_type == 'epilogue':
                 epi = df.epilogue
