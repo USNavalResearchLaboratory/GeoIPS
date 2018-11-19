@@ -400,7 +400,7 @@ class ME8SatInfo(SatInfo):
         self.celestrak_tle_name = 'METEOSAT-8 (MSG-1)'
         self.geoips_satname = 'meteoIO'
         self.tscan_tle_name = 'msg-1'
-        self.orig_file_satname = 'MSG1'
+        self.orig_file_satname = 'MSG1__'
         self.geostationary = True
 
 
@@ -437,7 +437,7 @@ class ME11SatInfo(SatInfo):
         self.celestrak_tle_name = 'METEOSAT-11 (MSG-4)'
         self.tscan_tle_name = 'msg-4'
         self.geoips_satname = 'meteoEU'
-        self.orig_file_satname = 'MSG4'
+        self.orig_file_satname = 'MSG4__'
         self.geostationary = True
 
 
