@@ -381,9 +381,11 @@ class DataFileName(object):
                     currpath = currdir+'/'+currpath
                     #print 'empty path: '+str(currpath)
                 #if sat == testsat and sensor == testsensor: print 'pathnameformat: '+str(origfname['pathnameformat'])
+                #if sat == testsat and sensor == testsensor: print 'pathnameformat: '+str(origfname['nameformat'])
                 #if sat == testsat and sensor == testsensor: print 'noextension: '+str(origfname['noextension'])
                 #if sat == testsat and sensor == testsensor: print getattr(sys.modules[__name__],origfname['cls'])
                 #if sat == testsat and sensor == testsensor: print currpath
+                #if testsensor == sensor: from IPython import embed as shell; shell()
                 # Try to open the DataFileName subclass specified in origfname['cls'],
                 # using the specified path and format. Will raise an error if it does
                 # not match (which is caught below, and None is returned. Maybe should
@@ -2604,15 +2606,19 @@ class SeviriHRITFileName(StandardDataFileName):
 
 
     def set_fields(self,df,wildcards=False,scifile_obj=None):
-        #RNSCA-RVIRS_npp_d20141205_t0012213_e0013467_b16083_c20141205020902820922_noaa_ops.h5
-        # From utils.satellite_info.VIIRSSensorInfo:
-        #<datatype>_<satname>_<date{d%Y%m%d}>_<time{t%H%M%S%f}>_<endtime>_<orbitnum>_<creationtime>_<dataoriginator>_<datalevel>'
-        #print 'setting npp fields'
+        # self.satname is from filename, self.sensorinfo is current attempt at matching format
+        # Need to make sure both filename and sensorinfo match
+        # MSG1 is Meteosat-8, which is currently meteoIO
+        # MSG3 is Meteosat-10, which used to be meteoEU
+        # MSG4 is Meteosat-11, which is currently meteoEU
 
         df.datetime = self.datetime
         dt_strs = df.set_datetime_str() 
         for dt_field in dt_strs.keys():
             setattr(df,dt_field,dt_strs[dt_field])
+        # H-000-MSG1__-MSG1_IODC___-WV_073___-000005___-201612201830-C_
+        # H-000-MSG4__-MSG4________-HRV______-000001___-201811191100-C_
+        # OrigFName3['nameformat'] = '<resolution>-<always000>-<satname>-<alwaysmsg1iodc>-<channel>-<slice>-<date{%Y%m%d%H%M}>-<compression>'
         if self.satname == 'MSG3__' or self.satname == 'MSG4__':
             df.satname = 'meteoEU'
         if self.satname == 'MSG1__':
