@@ -101,10 +101,10 @@ atcffieldsep = '_'
 # NOTE: extra field EXPECTED and NECESSARY for merging, etc. Not sure how to get around it without 
 #       getting database working.
 #ATCFnameformat = '<date{%Y%m%d%H%M}>_<atcfid>_<sensorname>_<productname>_<intensity>_<coverage>'
-ATCFnameformat = '<date{%Y%m%d%H%M}>_<state>_<sensorname>_<productname>_<intensity>_<coverage>_<extra>'
+ATCFnameformat = '<date{%Y%m%d%H%M}>_<state>_<sensorname>_<satname>_<productname>_<intensity>_<coverage>_<extra>'
 #ATCFpathnameformat='<basedir>','<tcyear>','<basin>','<atcfid>','<ext>','<productname>'
 ATCFpathnameformat=os.path.join('<basedir>','<continent>','<subarea>',
-                                '<state>','<ext>','<productname>')
+                                '<state>','<ext>','<productname>','<satname>')
 
 # JTWC requested filename format
 Metoctiffnameformat = '<date{%Y%m%d}>.<time{%H%M%S}>.<sensorname>.<productname>.<sectorname>.<coverage>'
