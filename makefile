@@ -45,10 +45,10 @@ all:
 		make; \
 		make install; \
 		if [[ -v STANDALONE_GEOIPS ]]; then \
-			cd ${STANDALONE_GEOIPS} ; \
+			cd "${STANDALONE_GEOIPS}" ; \
 		else \
 			cd ${GEOIPS}; \
-		fi
+		fi; \
 		make -f makefile_geoips; \
 	elif [[ -v GEOIPS_VIRTUALENV_DIR ]]; then \
 		echo "GEOIPS_VIRTUALENV_DIR " `dirname ${GEOIPS_VIRTUALENV_DIR}` " directory DOES NOT EXIST, not attempting to build geoips and dependencies"; \
