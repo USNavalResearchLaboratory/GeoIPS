@@ -41,17 +41,18 @@ reader_class_name = 'MSG_XRIT_Reader'
 class MSG_XRIT_Reader(Reader):
 
     dataset_info = { 
-                          'LO': {'VIS006':'B01Ref',
-                                 'VIS008':'B02Ref',
-                                 'IR_016':'B03Ref',
-                                 'IR_039':'B04BT',
-                                 'IR_087':'B07BT',
-                                 'IR_097':'B08BT',
-                                 'IR_108':'B09BT',
-                                 'IR_120':'B10BT',
-                                 'IR_134':'B11BT',
-                                 'WV_062':'B05BT',
-                                 'WV_073':'B06BT',},
+                          'LO': {'B01Ref':'VIS006',
+                                 'B02Ref': 'VIS008',
+                                 'B03Ref': 'IR_016',
+                                 'B04BT': 'IR_039',
+                                 'B05BT': 'WV_062',
+                                 'B06BT': 'WV_073',
+                                 'B07BT': 'IR_087',
+                                 'B08BT': 'IR_097',
+                                 'B09BT': 'IR_108',
+                                 'B10BT': 'IR_120',
+                                 'B11BT': 'IR_134',
+                                },
                           'HI': { 'HRV': 'HRV',},
                         }
 
@@ -110,6 +111,8 @@ class MSG_XRIT_Reader(Reader):
 
     @staticmethod
     def format_test(fname):
+        # For now turn off msg_hrit_reader and turn on seviri_hrit_reader
+        return False
         #
         #  /satdata/realtime/seviri/meteoIO/meteosat8_nesdisstar-hrit/20170215/000000
         #
