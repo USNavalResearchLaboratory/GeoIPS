@@ -98,6 +98,27 @@ IR_CALIB = {'msg1': {'B04': {'wn': 2567.330, 'a': 0.9956, 'b': 3.410},
                      'B11': {'wn': 748.585, 'a': 0.9981, 'b': 0.5635}}}
 
 
+def calculate_chebyshev_polynomial(coefs, start_dt, end_dt, dt):
+    start_to_end = (end_dt - start_dt).seconds
+    dt_to_end = (end_dt - dt).seconds
+    start_to_dt = (dt - start_dt).seconds
+    t = (start_to_dt - 0.5*(start_to_end)) / (0.5*(start_to_end))
+    t2 = 2*t
+    f = -0.5 * coefs[0] # First term of Chebyshev polynomial
+    f = f + coefs[0] # second term of Chebyshev polynomial
+    f = f + coefs[1]*t # third term
+    T_k_minus_3 = 1
+    T_k_minus_2 = t
+    T_k_minus_1 = t2*T_k_minus_2 - T_k_minus_3
+    # remaining terms recursively defined
+    for xcoef in coefs[3:]:
+        f = f + xcoef * T_k_minus_1
+        T_k_minus_3 = T_k_minus_2
+        T_k_minus_2 = T_k_minus_1
+        T_k_minus_1 = t2*T_k_minus_2 - T_k_minus_3
+
+    return f
+
 class XritError(Exception):
     def __init__(self, msg, code=None):
         self.code = code
@@ -373,6 +394,20 @@ class SEVIRI_HRIT_Reader(Reader):
                 for poly in df.prologue['satelliteStatus']['orbit']['orbitPolynomial']:
                     if dt <= poly['endTime'] and dt >= poly['startTime']:
                         metadata['top']['orbitPolynomial'] = poly
+                        x = calculate_chebyshev_polynomial(poly['X'], 
+                                    poly['startTime'],
+                                    poly['endTime'], 
+                                    dt)
+                        y = calculate_chebyshev_polynomial(poly['Y'], 
+                                    poly['startTime'],
+                                    poly['endTime'], 
+                                    dt)
+                        z = calculate_chebyshev_polynomial(poly['Z'], 
+                                    poly['startTime'],
+                                    poly['endTime'], 
+                                    dt)
+        
+
             # Get epilogue
             elif df.file_type == 'epilogue':
                 epi = df.epilogue
