@@ -104,20 +104,34 @@ def calculate_chebyshev_polynomial(coefs, start_dt, end_dt, dt):
     start_to_dt = (dt - start_dt).seconds
     t = (start_to_dt - 0.5*(start_to_end)) / (0.5*(start_to_end))
     t2 = 2*t
-    f = -0.5 * coefs[0] # First term of Chebyshev polynomial
-    f = f + coefs[0] # second term of Chebyshev polynomial
-    f = f + coefs[1]*t # third term
-    T_k_minus_3 = 1
-    T_k_minus_2 = t
-    T_k_minus_1 = t2*T_k_minus_2 - T_k_minus_3
-    # remaining terms recursively defined
-    for xcoef in coefs[3:]:
-        f = f + xcoef * T_k_minus_1
-        T_k_minus_3 = T_k_minus_2
-        T_k_minus_2 = T_k_minus_1
-        T_k_minus_1 = t2*T_k_minus_2 - T_k_minus_3
 
-    return f
+    # I think this is what was in the documentation
+    # MSG_Level_1_5_Image_Data_Format_Description.pdf 
+    # p 87 earth fixed coordinate frame
+    # p 124 decoding chebychev polynomial function
+    d = 0
+    dd = 0 
+    for j in range(7,1,-1):
+        save = d
+        d = t2 * d - dd + coefs[j]
+        dd = save
+    d = t * d - dd + 0.5 * coefs[0] 
+
+    #f = -0.5 * coefs[0] # First term of Chebyshev polynomial
+    #f = f + coefs[0] # second term of Chebyshev polynomial
+    #f = f + coefs[1]*t # third term
+    #T_k_minus_3 = 1
+    #T_k_minus_2 = t
+    #T_k_minus_1 = t2*T_k_minus_2 - T_k_minus_3
+    ## remaining terms recursively defined
+    #for xcoef in coefs[3:]:
+    #    f = f + xcoef * T_k_minus_1
+    #    T_k_minus_3 = T_k_minus_2
+    #    T_k_minus_2 = T_k_minus_1
+    #    T_k_minus_1 = t2*T_k_minus_2 - T_k_minus_3
+    ##from IPython import embed as shell; shell()
+
+    return d
 
 class XritError(Exception):
     def __init__(self, msg, code=None):
@@ -393,19 +407,16 @@ class SEVIRI_HRIT_Reader(Reader):
                 #metadata['top']['prologue'] = pro
                 for poly in df.prologue['satelliteStatus']['orbit']['orbitPolynomial']:
                     if dt <= poly['endTime'] and dt >= poly['startTime']:
-                        metadata['top']['orbitPolynomial'] = poly
-                        x = calculate_chebyshev_polynomial(poly['X'], 
-                                    poly['startTime'],
-                                    poly['endTime'], 
-                                    dt)
-                        y = calculate_chebyshev_polynomial(poly['Y'], 
-                                    poly['startTime'],
-                                    poly['endTime'], 
-                                    dt)
-                        z = calculate_chebyshev_polynomial(poly['Z'], 
-                                    poly['startTime'],
-                                    poly['endTime'], 
-                                    dt)
+                        log.info('Calculating x/y/z satellite location')
+                        
+                        st=poly['startTime'];et=poly['endTime'];xcoef=poly['X'];ycoef=poly['Y'];zcoef=poly['Z']
+                        x = calculate_chebyshev_polynomial(xcoef,st,et,dt); y = calculate_chebyshev_polynomial(ycoef,st,et,dt); z = calculate_chebyshev_polynomial(zcoef,st,et,dt)
+                        metadata['top']['satECF'] = {}
+                        metadata['top']['satECF']['x'] = x
+                        metadata['top']['satECF']['y'] = y
+                        metadata['top']['satECF']['z'] = z
+                        
+                        #from IPython import embed as shell; shell()
         
 
             # Get epilogue
