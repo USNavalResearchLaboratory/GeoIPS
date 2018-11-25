@@ -42,11 +42,12 @@ screen -t sects 4
 screen -t rscr 5
 screen -t "**abi" 6
 screen -t ahi 7
-screen -t msg 8
-screen -t data 9
-screen -t prep 10
-screen -t out 11
-screen -t logs 11
+screen -t met8 8
+screen -t met11 9
+screen -t data 10
+screen -t prep 11
+screen -t out 12
+screen -t logs 13
 
 hardstatus alwayslastline
 
