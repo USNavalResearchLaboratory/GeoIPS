@@ -411,10 +411,10 @@ class SEVIRI_HRIT_Reader(Reader):
                         
                         st=poly['startTime'];et=poly['endTime'];xcoef=poly['X'];ycoef=poly['Y'];zcoef=poly['Z']
                         x = calculate_chebyshev_polynomial(xcoef,st,et,dt); y = calculate_chebyshev_polynomial(ycoef,st,et,dt); z = calculate_chebyshev_polynomial(zcoef,st,et,dt)
-                        metadata['top']['satECF'] = {}
-                        metadata['top']['satECF']['x'] = x
-                        metadata['top']['satECF']['y'] = y
-                        metadata['top']['satECF']['z'] = z
+                        metadata['top']['satECF_m'] = {}
+                        metadata['top']['satECF_m']['x'] = x*1000
+                        metadata['top']['satECF_m']['y'] = y*1000
+                        metadata['top']['satECF_m']['z'] = z*1000
                         
                         #from IPython import embed as shell; shell()
         
