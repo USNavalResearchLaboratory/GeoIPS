@@ -360,6 +360,7 @@ class HritFile(object):
             stdout, stderr = proc.communicate()
 
             if proc.returncode:
+                log.error('Failed Decompressing {}'.format(new_fname))
                 raise HritError(stderr, proc.returncode)
 
             return HritFile(new_fname)
