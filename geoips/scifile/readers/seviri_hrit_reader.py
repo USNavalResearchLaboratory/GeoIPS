@@ -469,7 +469,12 @@ class SEVIRI_HRIT_Reader(Reader):
             if band not in chlist.bands:
                 dfs.pop(band)
             else:
-                dfs[band] = {seg: df.decompress(outdir) for seg, df in dfs[band].items()}
+                #dfs[band] = {seg: df.decompress(outdir) for seg, df in dfs[band].items()}
+                for seg, df in dfs[band].items():
+                    try:
+                        dfs[band][seg] = df.decompress(outdir)
+                    except HritError:
+                        log.error('FAILED DECOMPRESSING, SKIPPING FILE '+df.name)
 
         # Create data arrays for requested data and read count data
         num_lines = pro['imageDescription']['referenceGridVIS_IR']['numberOfLines']
@@ -484,7 +489,10 @@ class SEVIRI_HRIT_Reader(Reader):
                 seg_num_lines = df.metadata['block_1']['num_lines']
                 start_line = seg_num_lines * (seg - 1)
                 end_line = seg_num_lines * seg
-                data[start_line:end_line, 0:] = df._read_image_data()
+                try:
+                    data[start_line:end_line, 0:] = df._read_image_data()
+                except ValueError as resp:
+                    log.error('FAILED READING SEGMENT, SKIPPING %s'%(resp))
             log.info('Read band %s %s'%(band, df.annotation_metadata['band']))
             if 'Lines' in gvars[adname]:
                 count_data[band] = data[gvars[adname]['Lines'], gvars[adname]['Samples']]
