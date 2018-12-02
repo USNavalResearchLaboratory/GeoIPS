@@ -54,7 +54,6 @@ def winds_plot(gi, imgkey=None):
     new_platform = gi.datafile.metadata['top']['alg_platform']
     new_source = gi.datafile.metadata['top']['alg_source']
 
-
     log.info('Plotting dataset: %s'%(imgkey))
 
     if '1d' in imgkey:
@@ -72,7 +71,7 @@ def winds_plot(gi, imgkey=None):
 
         #lonsthin, latsthin, uthin, vthin, speedthin, directionthin = downsample_winds(resolution, lons, lats, u, v, speed, direction)
         #set_winds_plotting_params(gi, speedthin, new_platform, new_source, prodname, bgname)
-        set_winds_plotting_params(gi, speed, new_platform, new_source, prodname, bgname)
+        set_winds_plotting_params(gi, speed, None, new_platform, new_source, prodname, bgname)
 
         if 'BACKGROUND' in gi.image[imgkey]:
             log.info('Plotting background image %s'%(bgname))
