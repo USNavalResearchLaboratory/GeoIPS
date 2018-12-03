@@ -197,8 +197,8 @@ class Winds_Text_Reader(Reader):
                 #    key = sat+typ+'800to9501d'
                 #elif pre >= 950: # Low
                 #    key = sat+typ+'950to10141d'
-                if pre >= 100 and pre <= 399: # High
-                    key = sat+typ+'100to3991d'
+                if pre >= 0 and pre <= 399: # High
+                    key = sat+typ+'0to3991d'
                 elif pre >= 400 and pre <= 799: # Medium
                     key = sat+typ+'400to7991d'
                 elif pre >= 800: # Low
@@ -241,7 +241,11 @@ class Winds_Text_Reader(Reader):
                     if datavars[typ]['lats'].max() > maxlat:
                         maxlat = datavars[typ]['lats'].max()
                 if key == 'lons':
-                    datavars[typ][key] = -1.0 * np.array(map(float, arr))
+                    if sat == 'HMWR8' or sat == 'GOES16' or sat == 'MET8' or sat == 'MET11':
+                        # CIMSS STORES LONS OPPOSITE!!!!!
+                        datavars[typ][key] = -1.0 * np.array(map(float, arr))
+                    else:
+                        datavars[typ][key] = 1.0 * np.array(map(float, arr))
 
                     # Crosses dateline
                     if abs(datavars[typ][key].min()) > 179 and abs(datavars[typ][key].max()) > 179:
