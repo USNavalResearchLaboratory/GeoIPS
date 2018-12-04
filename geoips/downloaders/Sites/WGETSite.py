@@ -57,7 +57,7 @@ class WGETSite(Site):
         if hasattr(self,'username'):
             wget_call = ['wget', path, '-4','--user='+self.username,'--password='+self.password,'--no-check-certificate','-O',localfnstr]
         elif hasattr(self,'appkey'):
-	    wget_call = ['wget', path, '-4','--user='+self.username,'--password='+self.password,'--header "Authorization: Bearer '+self.appkey+'"','--no-check-certificate','-O',localfnstr]
+            wget_call = ['wget', path, '-4','--user='+self.username,'--password='+self.password,'--header "Authorization: Bearer '+self.appkey+'"','--no-check-certificate','-O',localfnstr]
         else:
             wget_call = ['wget', path, '-4','--no-check-certificate','-O',localfnstr]
         log.info('****Running '+' '.join(wget_call))
