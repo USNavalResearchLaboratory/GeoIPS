@@ -59,6 +59,16 @@ channel_dict = {
                             'IR'    : 'IR_108', # 
                             'SWIR'  : 'IR_039', # 3.9um, Shortwave window band, IR (with reflected daytime component)
                            },
+                'meteoIO' : {
+                            'satellite': 'meteoIO',
+                            'sensor': 'seviri',
+                            'B09BT'  : 'B09BT', 
+                           },
+                'meteoEU' : {
+                            'satellite': 'meteoEU',
+                            'sensor': 'seviri',
+                            'B09BT'  : 'B09BT', 
+                           },
                 }
 
 # For now must include this string for automated importing of classes.
@@ -175,18 +185,24 @@ class Winds_Text_Reader(Reader):
                 else:
                     log.error('Unsupported format for %s'%(parts))
                 pre = int(pre)
-                if pre >= 100 and pre <= 250:
-                    key = sat+typ+'100to2501d'
-                elif pre >= 251 and pre <= 399:
-                    key = sat+typ+'251to3991d'
-                elif pre >= 400 and pre <= 599:
-                    key = sat+typ+'400to5991d'
-                elif pre >= 600 and pre <= 799:
-                    key = sat+typ+'600to7991d'
-                elif pre >= 800 and pre <= 950:
-                    key = sat+typ+'800to9501d'
-                elif pre >= 950:
-                    key = sat+typ+'950to10141d'
+                #if pre >= 100 and pre <= 250: # High
+                #    key = sat+typ+'100to2501d'
+                #elif pre >= 251 and pre <= 399: # High
+                #    key = sat+typ+'251to3991d'
+                #elif pre >= 400 and pre <= 599: # Medium
+                #    key = sat+typ+'400to5991d'
+                #elif pre >= 600 and pre <= 799: # Medium
+                #    key = sat+typ+'600to7991d'
+                #elif pre >= 800 and pre <= 950: # Low
+                #    key = sat+typ+'800to9501d'
+                #elif pre >= 950: # Low
+                #    key = sat+typ+'950to10141d'
+                if pre >= 0 and pre <= 399: # High
+                    key = sat+typ+'0to3991d'
+                elif pre >= 400 and pre <= 799: # Medium
+                    key = sat+typ+'400to7991d'
+                elif pre >= 800: # Low
+                    key = sat+typ+'800to10141d'
                 else:
                     log.warning('Pressure outside allowable range: '+str(pre))
                     continue
@@ -225,7 +241,11 @@ class Winds_Text_Reader(Reader):
                     if datavars[typ]['lats'].max() > maxlat:
                         maxlat = datavars[typ]['lats'].max()
                 if key == 'lons':
-                    datavars[typ][key] = -1.0 * np.array(map(float, arr))
+                    if sat == 'HMWR8' or sat == 'GOES16' or sat == 'MET8' or sat == 'MET11':
+                        # CIMSS STORES LONS OPPOSITE!!!!!
+                        datavars[typ][key] = -1.0 * np.array(map(float, arr))
+                    else:
+                        datavars[typ][key] = 1.0 * np.array(map(float, arr))
 
                     # Crosses dateline
                     if abs(datavars[typ][key].min()) > 179 and abs(datavars[typ][key].max()) > 179:
