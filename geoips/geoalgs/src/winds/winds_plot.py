@@ -69,7 +69,7 @@ def winds_plot(gi, imgkey=None):
         from geoips.geoalgs.lib.amv_plot import downsample_winds
         from geoips.geoalgs.lib.amv_plot import set_winds_plotting_params
 
-        set_winds_plotting_params(gi, speed, None, new_platform, new_source, prodname, bgname)
+        set_winds_plotting_params(gi, speed, None, None, new_platform, new_source, prodname, bgname)
 
         if 'BACKGROUND' in gi.image[imgkey]:
             log.info('Plotting background image %s'%(bgname))
