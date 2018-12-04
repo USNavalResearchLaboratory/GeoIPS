@@ -197,9 +197,9 @@ class Winds_Text_Reader(Reader):
                 #    key = sat+typ+'800to9501d'
                 #elif pre >= 950: # Low
                 #    key = sat+typ+'950to10141d'
-                if pre >= 0 and pre <= 399: # High
+                if pre >= 0 and pre <= 400: # High
                     key = sat+typ+'0to3991d'
-                elif pre >= 400 and pre <= 799: # Medium
+                elif pre >= 400 and pre <= 800: # Medium
                     key = sat+typ+'400to7991d'
                 elif pre >= 800: # Low
                     key = sat+typ+'800to10141d'
