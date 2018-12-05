@@ -528,7 +528,7 @@ class SEVIRI_HRIT_Reader(Reader):
             if chan.name not in metadata['datavars'].keys():
                 metadata['datavars'][adname][chan.name] = {}
 
-            metadata['datavars'][adname][chan.name]['wavelength'] = float(annotation_metadata[chan.band]['band'][3:4]+'.'+annotation_metadata[chan.band]['band'][4:])
+            metadata['datavars'][adname][chan.name]['wavelength'] = float(annotation_metadata[chan.band]['band'][3:5]+'.'+annotation_metadata[chan.band]['band'][5:])
 
         for var in datavars[adname].keys():
             datavars[adname][var] = np.ma.masked_less_equal(np.flipud(datavars[adname][var]), -999)
