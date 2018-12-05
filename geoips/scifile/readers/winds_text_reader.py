@@ -42,22 +42,22 @@ channel_dict = {
                 'MET11' : {
                             'satellite': 'meteoEU',
                             'sensor': 'seviri',
-                            'WV'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCA'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCT'  : 'WV_073', # 
-                            'VIS'   : 'VIS008', # 
-                            'IR'    : 'IR_108', # 
-                            'SWIR'  : 'IR_039', # 3.9um, Shortwave window band, IR (with reflected daytime component)
+                            'WV'  : 'B05BT', # WV_062 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCA'  : 'B05BT', # WV_062 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCT'  : 'B06BT', # WV_073
+                            'VIS'   : 'B02Ref', # VIS008
+                            'IR'    : 'B09BT', # IR_108
+                            'SWIR'  : 'B04BT', # IR_039 3.9um, Shortwave window band, IR (with reflected daytime component)
                            },
                 'MET8' : {
                             'satellite': 'meteoIO',
                             'sensor': 'seviri',
-                            'WV'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCA'  : 'WV_062', # 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCT'  : 'WV_073', # 
-                            'VIS'   : 'VIS008', # 
-                            'IR'    : 'IR_108', # 
-                            'SWIR'  : 'IR_039', # 3.9um, Shortwave window band, IR (with reflected daytime component)
+                            'WV'  : 'B05BT', # WV_062 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCA'  : 'B05BT', # WV_062 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCT'  : 'B06BT', # WV_073
+                            'VIS'   : 'B02Ref', # VIS008
+                            'IR'    : 'B09BT', # IR_108
+                            'SWIR'  : 'B04BT', # IR_039 3.9um, Shortwave window band, IR (with reflected daytime component)
                            },
                 'meteoIO' : {
                             'satellite': 'meteoIO',
