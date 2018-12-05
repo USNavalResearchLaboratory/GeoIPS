@@ -1,1 +1,0 @@
-/users/devuser/satnrl_release/0.5.0+5/geoips_nrl/geoips/downloaders/Sites/lance_modis.py
