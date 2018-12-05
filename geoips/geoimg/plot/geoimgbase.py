@@ -109,11 +109,14 @@ class GeoImgBase(object):
 
     def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
         extra_extra = ''
+        # Platform name and source name should end up in the title, so do not
+        # need to be repeated in the bgname extra_lines. If it is a different
+        # platform/source with bgname, it should be included in bgname
         if platform_name:
-            extra_extra = '%s %s'%(extra_extra, platform_name)
+            #extra_extra = '%s %s'%(extra_extra, platform_name)
             self.datafile._finfo['platform_name'] = platform_name
         if source_name:
-            extra_extra = '%s %s'%(extra_extra, source_name)
+            #extra_extra = '%s %s'%(extra_extra, source_name)
             self.datafile._finfo['source_name'] = source_name
         if start_dt:
             self.datafile._finfo['start_datetime'] = start_dt
@@ -124,8 +127,9 @@ class GeoImgBase(object):
 
         extra_lines = []
 
+        # Just make prodname exactly what you want printed in line 3
         if prodname:
-            extra_lines += ['Using: '+prodname]
+            extra_lines += [prodname]
         if bgname:
             extra_lines += ['Plotted over: %s %s'%(bgname, extra_extra)]
 
