@@ -33,6 +33,9 @@ def winds_plot(gi, imgkey=None):
         sunzen = bgfile.geolocation_variables['SunZenith']
         from .motion_config import motion_config
         from .EnhancedImage import EnhancedImage
+        if bgvar.name not in motion_config(bgfile.source_name)[bgvar.name]:
+            log.warning('Variable '+bgvar.name+' not defined in motion_config, can not find background, not plotting')
+            return
         config = motion_config(bgfile.source_name)[bgvar.name]
         bgcmap = 'Greys'
         if 'plot_params' in config.keys() \
@@ -61,8 +64,8 @@ def winds_plot(gi, imgkey=None):
             except KeyError:
                 pass
 
-    prodname = imgkey.replace('_',' ').replace('IR','IR NOAA Winds, ').replace('WVCA','WVCA NOAA Winds, ').replace('WVCT','WVCT NOAA Winds, ').replace('WV','WV NOAA Winds, ').replace('VIS','VIS NOAA Winds, ')
-    prodname = re.sub(r"^B","Channel ",prodname).replace('BT',' BT').replace('Ref',' Reflectance')
+    prodname = imgkey.replace('_',' ').replace('IR','IR, NOAA Winds, ').replace('WVCA','WVCA, NOAA Winds, ').replace('WVCT','WVCT, NOAA Winds, ').replace('WV','WV, NOAA Winds, ').replace('VIS','VIS, NOAA Winds, ')
+    prodname = prodname.replace('EU B','EU Channel ').replace('IO B','IO Channel ').replace('BT',' BT, Optical Flow Winds, ').replace('Ref',' Ref, Optical Flow Winds, ')
     if day_percent is not None:
         prodname = '%s Product: %d'%(prodname, day_percent) + '% day'
 
