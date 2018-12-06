@@ -48,8 +48,8 @@ def winds(datafile, sector, product, workdir):
 
     for dsname in datafile.datasets.keys():
         #if '1d' not in dsname or '800' not in dsname:
-        if '1d' not in dsname:
-            continue
+        #if '1d' not in dsname:
+        #    continue
         outdata[dsname] = {}
 
         if matching_files:
