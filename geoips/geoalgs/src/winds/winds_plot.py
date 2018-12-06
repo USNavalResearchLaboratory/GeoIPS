@@ -65,11 +65,11 @@ def winds_plot(gi, imgkey=None):
             except KeyError:
                 pass
 
-    if gi.datafile.metadata['top']['dataprovider'] is not None:
-        prodname = prodname+', '+gi.datafile.metadata['top']['dataprovider']
+    if gi.datafile.dataprovider is not None:
+        prodname = prodname+', '+gi.datafile.dataprovider
     if day_percent is not None:
         prodname = '%s Product: %d'%(prodname, day_percent) + '% day'
-    prodname = imgkey.replace('_',' ')
+    prodname = prodname.replace('_',' ')
 
     log.info('Setting up fig and ax for dataset: %s with bgname: %s'%(prodname, bgname))
 
