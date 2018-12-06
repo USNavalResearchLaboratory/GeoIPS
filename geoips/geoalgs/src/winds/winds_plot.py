@@ -33,8 +33,9 @@ def winds_plot(gi, imgkey=None):
         sunzen = bgfile.geolocation_variables['SunZenith']
         from .motion_config import motion_config
         from .EnhancedImage import EnhancedImage
-        if bgvar.name not in motion_config(bgfile.source_name)[bgvar.name]:
-            log.warning('Variable '+bgvar.name+' not defined in motion_config, can not find background, not plotting')
+        if bgvar.name not in motion_config(bgfile.source_name).keys():
+            log.warning('Variable %s not defined in motion_config for %s, can not find background, not plotting'%
+				(bgvar.name, bgfile.source_name))
             return
         config = motion_config(bgfile.source_name)[bgvar.name]
         bgcmap = 'Greys'
@@ -64,11 +65,11 @@ def winds_plot(gi, imgkey=None):
             except KeyError:
                 pass
 
-    prodname = imgkey.replace('_',' ').replace('IR','IR, NOAA Winds, ').replace('WVCA','WVCA, NOAA Winds, ').replace('WVCT','WVCT, NOAA Winds, ').replace('WV','WV, NOAA Winds, ').replace('VIS','VIS, NOAA Winds, ')
-    prodname = prodname.replace('EU B','EU Channel ').replace('IO B','IO Channel ').replace('BT',' BT, Optical Flow Winds, ').replace('Ref',' Ref, Optical Flow Winds, ')
+    if gi.datafile.metadata['top']['dataprovider'] is not None:
+        prodname = prodname+', '+gi.datafile.metadata['top']['dataprovider']
     if day_percent is not None:
         prodname = '%s Product: %d'%(prodname, day_percent) + '% day'
-
+    prodname = imgkey.replace('_',' ')
 
     log.info('Setting up fig and ax for dataset: %s with bgname: %s'%(prodname, bgname))
 

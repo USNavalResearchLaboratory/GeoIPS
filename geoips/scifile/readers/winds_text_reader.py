@@ -71,6 +71,11 @@ channel_dict = {
                            },
                 }
 
+dataprovider_sat_dict = {
+				'NOAA_Winds' : ['MET8','MET11','HMWR08','GOES16'],
+				'Optical_Flow_Winds' : ['meteoIO','meteoEU'],
+			}
+
 # For now must include this string for automated importing of classes.
 reader_class_name = 'Winds_Text_Reader'
 class Winds_Text_Reader(Reader):
@@ -88,9 +93,10 @@ class Winds_Text_Reader(Reader):
             return False
 
         with open(fname) as f:
-            line = f.readline()
-        if 'lat' in line and 'lon' in line and 'spd' in line and 'dir' in line:
-            return True
+            for linenum in range(0,5):
+                line = f.readline()
+                if 'lat' in line and 'lon' in line and 'spd' in line and 'dir' in line:
+                    return True
         return False
 
 
@@ -129,7 +135,7 @@ class Winds_Text_Reader(Reader):
         '''
         metadata['top']['platform_name'] = 'windvectors'
         metadata['top']['source_name'] = 'winds'
-        metadata['top']['dataprovider'] = 'cimss'
+        metadata['top']['dataprovider'] = None
         metadata['top']['NON_SECTORABLE'] = True
         metadata['top']['NO_GRANULE_COMPOSITES'] = True
 
@@ -140,6 +146,9 @@ class Winds_Text_Reader(Reader):
         with open(fname) as fp:
             while not metadata['top']['start_datetime']:
                 parts = fp.readline().split()
+                if 'SECURITY' in parts and 'CLASSIFICATION:' in parts:
+                    metadata['top']['security_classification'] = parts[-1]
+                    continue
                 if len(parts) == 12:
                     typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi,interv = parts
                 elif len(parts) == 11:
@@ -157,6 +166,9 @@ class Winds_Text_Reader(Reader):
                     metadata['top']['start_datetime'] = datetime.strptime(day+hms,'%Y%m%d%H%M')
                     metadata['top']['end_datetime'] = metadata['top']['start_datetime']
                     metadata['top']['filename_datetime'] = metadata['top']['start_datetime']
+                    for dataprovider in dataprovider_sat_dict.keys():
+						if sat in dataprovider_sat_dict[dataprovider]:
+							metadata['top']['dataprovider'] = dataprovider
                     if chans == []:
                         '''
                         chans == [] specifies we don't want to read ANY data, just metadata.
