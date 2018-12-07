@@ -55,8 +55,10 @@ class WGETSite(Site):
 
     def wget_file(self,path,localfnstr):
         if hasattr(self,'username'):
+            #rcj 07DEC2018 this is a special case for the update to api used in lance_modis.py. The api changed in 2018 to require an appkey.  
+            #If there are many more 'special cases' then the whole scheme of routing ftp/http request handling through here may need to be re-assessed
             if hasattr(self,'appkey'):
-                wget_call = ['wget', path, '-4','--user='+self.username,'--password='+self.password,'--header "Authorization: Bearer '+self.appkey+'"','--no-check-certificate','-O',localfnstr]
+                wget_call = ['wget', '-e robots=off -m -np -R .html,.tmp -nH --cut-dirs=4', path, '--header "Authorization: Bearer '+self.appkey+'"', '-P' ,localfnstr]
             else:
                 wget_call = ['wget', path, '-4','--user='+self.username,'--password='+self.password,'--no-check-certificate','-O',localfnstr]
         else:
