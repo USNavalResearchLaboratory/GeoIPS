@@ -34,15 +34,27 @@ all:
 		echo "GEOIPS_EXT_INSTALLLDIR " `dirname ${GEOIPS_EXT_INSTALLDIR}` " exists, building and installing geoips and dependencies from source";\
         echo "GEOIPS_EXT_INSTALLDIR: ${GEOIPS_EXT_INSTALLDIR}";\
 		echo "";\
-		while [ -z "$$CONTINUE" ]; do \
-			read -r -p "Y or y to CONTINUE with GeoIPS build, affecting above paths. If paths are incorrect, source appropriate config_bash setup file. [y/N]: " CONTINUE; \
+		while [ -z "$$CONTINUE2" ]; do \
+			read -r -p "Y or y to CONTINUE with GeoIPS build, affecting above paths. If paths are incorrect, source appropriate config_bash setup file. [y/N]: " CONTINUE2; \
 		done ; \
-		if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
+		if [ $$CONTINUE2 != "y" ] && [ $$CONTINUE2 != "Y" ]; then \
 			echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
 		fi; \
 		echo "RUNNING"; \
 		cd `dirname ${GEOIPS_EXT_INSTALLDIR}`; \
 		make; \
+		grep HAVE_ISNAN basemap*/geos*/include/geos/platform.h; \
+		echo "NOTE some builds fail to set HAVE_ISNAN in geos/platform.h - if it is not set above,"; \
+		echo "Please manually change line 24 of "; \
+		echo `dirname ${GEOIPS_EXT_INSTALLDIR}`"/basemap*/geos*/include/geos/platform.h"; \
+		echo "#define HAVE_ISNAN 1"; \
+		echo "Then continue with make install"; \
+		while [ -z "$$CONTINUE3" ]; do \
+			read -r -p "Y or y to CONTINUE with make install? [y/N]: " CONTINUE3; \
+		done ; \
+		if [ $$CONTINUE3 != "y" ] && [ $$CONTINUE3 != "Y" ]; then \
+			echo "Exiting. Please ensure build environment is correct."; exit 1; \
+		fi; \
 		make install; \
 		if [ ${STANDALONE_GEOIPS} ]; then \
 			cd "${STANDALONE_GEOIPS}" ; \
