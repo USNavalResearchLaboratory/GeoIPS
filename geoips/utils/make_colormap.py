@@ -19,6 +19,12 @@ import os
 import sys
 from glob import glob
 
+#for remote debugging in wingware
+try:
+    import wingdbstub
+except:
+    print('Could not find wingdbstub from driver.py.  I hope you\'re not trying to dubug remotely...')
+
 
 # Installed Libraries
 from IPython import embed as shell
@@ -46,7 +52,7 @@ else:
     
     log.info('Creating colorbar '+cbname)
 
-    for filename in glob(gpaths['GEOIPS']+'/geoips/geoimg/xml_palettes/*.xml'):
+    for filename in glob(gpaths['GEOIPS'] +'/geoips/geoimg/xml_palettes/*.xml'):
         cb = XMLFile(filename).open_element(cbname)
         if cb:
             log.info('  From file '+filename+'\n')
