@@ -28,7 +28,7 @@ from datetime import datetime,timedelta
 try:
     import wingdbstub
 except:
-    print('Could not find wingdbstub from driver.py.  I hope you\'re not trying to dubug remotely...')
+    print('Could not find wingdbstub from downloader.py.  I hope you\'re not trying to dubug remotely...')
 
 
 # Installed libraries

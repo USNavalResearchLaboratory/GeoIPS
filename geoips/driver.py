@@ -21,6 +21,12 @@ import socket
 from datetime import timedelta, datetime
 import multiprocessing
 
+#for remote debugging in wingware
+try:
+    import wingdbstub
+except:
+    print('Could not find wingdbstub from driver.py.  I hope you\'re not trying to dubug remotely...')
+
 # Installed Libraries
 try:
     # Don't fail if this doesn't exist (not even used at the moment)

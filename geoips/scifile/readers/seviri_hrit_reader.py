@@ -320,7 +320,7 @@ class SEVIRI_HRIT_Reader(Reader):
     @staticmethod
     def format_test(path):
         # MLS Temporary until we completely replace msg_hrit_reader.py
-        return False
+        #return False
         
         if not os.path.isdir(path):
             return False
@@ -333,17 +333,19 @@ class SEVIRI_HRIT_Reader(Reader):
         # First three bytes should be >u1 equal to 0 and >u2 equal to 16
         # This should catch any non-hrit files
         df = open(singlefname, 'r')
-        if np.fromfile(df, dtype='>u1', count=1)[0] != 0:
-            return False
-        if np.fromfile(df, dtype='>u2', count=1)[0] != 16:
-            return False
-
+	try: 
+	    if np.fromfile(df, dtype='>u1', count=1)[0] != 0:
+		return False
+	    if np.fromfile(df, dtype='>u2', count=1)[0] != 16:
+		return False
+	except Exception as err:
+	    return False
         # This will attempt to read the hrit file and check the platform name
         try:
             df = HritFile(singlefname)
         except Exception:
             return False
-        try:
+        try: 
             if 'MSG' in df.metadata['block_4']['annotation']:
                 return True
         except KeyError:

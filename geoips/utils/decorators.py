@@ -183,7 +183,7 @@ class DocInherit(object):
 
         overridden = getattr(super(cls, obj), self.name, None)
         print 'get_with_inst'
-        shell()
+        #shell()
 
         @wraps(self.mthd, assigned=('__name__','__module__'))
         def f(*args, **kwargs):
@@ -197,7 +197,7 @@ class DocInherit(object):
             overridden = getattr(parent, self.name, None)
             if overridden: break
         print 'get_no_inst'
-        shell()
+        #shell()
 
         @wraps(self.mthd, assigned=('__name__','__module__'))
         def f(*args, **kwargs):
