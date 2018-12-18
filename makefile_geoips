@@ -9,9 +9,21 @@ all:
 		done ; \
 		if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
 			echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
-		fi; \
+		fi;\
 		unset CONTINUE; \
 		python remove_links.py all; \
+		\
+		\
+		if [ -f ../makefile_scripts ]; then \
+			while [ -z "$$CONTINUE" ]; do \
+				read -r -p "Y or y to CONTINUE: Next run makefile_scripts. Just ran python remove_links.py all. [y/N]: " CONTINUE; \
+			done ; \
+			if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
+				echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
+			fi; \
+			unset CONTINUE; \
+			make -C ../ -f makefile_scripts; \
+		fi; \
 		\
 		\
 		while [ -z "$$CONTINUE" ]; do \
