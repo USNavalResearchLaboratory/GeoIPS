@@ -32,7 +32,7 @@ __email__ = "geoips@nrlmry.navy.mil"
 __license__ = "NRLMMD"
 __copyright__ = "2017 %s" % __author__
 __requires__ = [ # 'pyhdf',
-                 'matplotlib', # Anaconda
+                 'matplotlib<3.0,>=2.0', # Anaconda
                  'lxml', # Anaconda
                  'h5py', # Anaconda
                  'ipython', # Anaconda
