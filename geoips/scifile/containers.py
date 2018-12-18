@@ -1307,7 +1307,9 @@ class DataSet(object):
         #                                  fill_value=None)
 
         # This should be attached to the scifile instance.  Probably should move sensor_info.py into scifile
+        log.info('Debugging roi related stuff.  Prior to checking if roi is None.  roi is {}'.format(str(type(roi))))
         if not roi:
+            log.info('if not roi was true')
             if 'interpolation_radius_of_influence' in self.scifile.metadata['top'].keys():
                 roi = self.scifile.metadata['top']['interpolation_radius_of_influence']
                 log.info('        Using READER radius of influence: '+str(roi))
