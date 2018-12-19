@@ -48,6 +48,7 @@ log = logging.getLogger(__name__)
 _empty_finfo = {'source_name': None,
                 'platform_name': None,
                 'security_classification': None,
+                'security_classification_full': None,
                 'start_datetime': None,
                 'end_datetime': None,
                 'filename_datetime': None,
@@ -831,6 +832,18 @@ class DataSet(object):
     @security_classification.deleter
     def security_classification(self):
         self._dsinfo_prop_deleter('security_classification')
+
+    @property
+    def security_classification_full(self):
+        return self._dsinfo_prop_getter('security_classification_full')
+
+    @security_classification_full.setter
+    def security_classification_full(self, val):
+        self._dsinfo_prop_setter('security_classification_full', val)
+
+    @security_classification_full.deleter
+    def security_classification_full(self):
+        self._dsinfo_prop_deleter('security_classification_full')
 
     @property
     def sensor_name(self):
@@ -1999,6 +2012,10 @@ class Variable(MaskedArray):
     @property
     def security_classification(self):
         return self._dsinfo['security_classification']
+
+    @property
+    def security_classification_full(self):
+        return self._dsinfo['security_classification_full']
 
     # Probably Variable specific.  Should be in _optinfo if needed.
     # @property
