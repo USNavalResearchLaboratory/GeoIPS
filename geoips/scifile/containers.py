@@ -1351,6 +1351,10 @@ class DataSet(object):
         # print_mem_usage('cont2beforeresample',True)
         # MLS 20160203 huge memory usage during resample, but comes back down
         #       to pre-dstack levels immediately after (can be >2x during)
+        try:
+            log.info('Running Interpolation for {0}.  Using method {1}.'.format(ad.area_id,interp_method))
+        except:
+            log.info('Running Interpolation using method {1}.'.format(interp_method))
         if interp_method == 'nearest':
             joined = kd_tree.resample_nearest(self.data_box_definition,
                                           # joined, ad, radius_of_influence=sensor_info.interpolation_radius_of_influence,
@@ -1417,6 +1421,10 @@ class DataSet(object):
 
             joined = joined_new
 
+        try:
+            log.info('Done running Interpolation for {0} using method {1}.'.format(ad.area_id,interp_method))
+        except:
+            log.info('Done running Interpolation using method {1}.'.format(interp_method))        
         # Map Coordinates require a specific coordinate system
         # elif interp_method == 'mapcoord':
         #    lati = self.geolocation_variables['Latitude']
