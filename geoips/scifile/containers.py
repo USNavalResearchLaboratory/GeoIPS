@@ -1307,9 +1307,7 @@ class DataSet(object):
         #                                  fill_value=None)
 
         # This should be attached to the scifile instance.  Probably should move sensor_info.py into scifile
-        log.info('Debugging roi related stuff.  Prior to checking if roi is None.  roi is {}'.format(str(type(roi))))
         if not roi:
-            log.info('if not roi was true')
             if 'interpolation_radius_of_influence' in self.scifile.metadata['top'].keys():
                 roi = self.scifile.metadata['top']['interpolation_radius_of_influence']
                 log.info('        Using READER radius of influence: '+str(roi))
@@ -1340,6 +1338,7 @@ class DataSet(object):
         # print_mem_usage('cont2beforeresample',True)
         # MLS 20160203 huge memory usage during resample, but comes back down
         #       to pre-dstack levels immediately after (can be >2x during)
+        log.info('Running Interpolation for {0}.  Using method {1}.'.format(self.dataset_name,interp_method))
         if interp_method == 'nearest':
             joined = kd_tree.resample_nearest(self.data_box_definition,
                                           # joined, ad, radius_of_influence=sensor_info.interpolation_radius_of_influence,
@@ -1406,6 +1405,7 @@ class DataSet(object):
 
             joined = joined_new
 
+        log.info('Done running Interpolation for {0} using method {1}.'.format(self.dataset_name,interp_method))
         # Map Coordinates require a specific coordinate system
         # elif interp_method == 'mapcoord':
         #    lati = self.geolocation_variables['Latitude']
