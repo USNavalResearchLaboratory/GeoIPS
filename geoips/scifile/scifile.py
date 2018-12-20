@@ -901,6 +901,10 @@ class SciFile(object):
     @property
     def security_classification(self):
         return self._finfo['security_classification']
+
+    @property
+    def security_classification_full(self):
+        return self._finfo['security_classification_full']
     @property
     def start_datetime(self):
         return self._finfo['start_datetime']
