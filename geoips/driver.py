@@ -375,8 +375,8 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                           dss.variables.values()]
             sectored_shape = [dsvars.shape for dss in sectored.datasets.values() for dsvars in
                               dss.variables.values()]
-            log.info('{0} NOMPLOG Original data shape: {1}'.format(plog, orig_shape))
-            log.info('{0} NOMPLOG Sectored data shape: {1}'.format(plog, sectored_shape))
+            log.info('{0} Original data shape: {1}'.format(plog, orig_shape))
+            log.info('{0} Sectored data shape: {1}'.format(plog, sectored_shape))
             # utils.path.productfilename needs sector_file for calling pass_prediction
             # Pass rather than opening again.
             if separate_datasets:
@@ -409,8 +409,8 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                               dss.variables.values()]
                 sectored_shape = [dsvars.shape for dss in sectored.datasets.values() for dsvars in
                                   dss.variables.values()]
-                log.info('{0} MPLOG Original data shape: {1}'.format(plog, orig_shape))
-                log.info('{0} MPLOG Sectored data shape: {1}'.format(plog, sectored_shape))
+                log.info('{0} Original data shape: {1}'.format(plog, orig_shape))
+                log.info('{0} Sectored data shape: {1}'.format(plog, sectored_shape))
             except:
                 log.exception('Failed printing original and sectored data shapes.')
             # Need to pass all arguments, can not have = in args arg for Process
@@ -452,15 +452,15 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             mp_waiting = True
         for job in mp_jobs:
             if not job.is_alive():
-                log.info('{0} MPLOG Removing job: {1} {2}'.format(plog, job.ident, job.name))
+                log.info('MPLOG Removing job: {0} {1}'.format(job.ident, job.name))
                 DATETIMES['endmp_{0}{1}'.format(job.ident, job.name)] = datetime.utcnow()
                 mp_time = (DATETIMES['endmp_{0}{1}'.format(job.ident, job.name)] -
                            DATETIMES['startmp_{0}{1}'.format(job.ident, job.name)])
-                log.info('{0} MPLOG {1} {2} ran for {3}'.format(plog, job.ident, job.name, mp_time))
+                log.info('MPLOG {0} {1} ran for {2}'.format(job.ident, job.name, mp_time))
                 mp_jobs.remove(job)
         if not mp_jobs:
             mp_num_times_cleared += 1
-            log.info('{0} MPLOG cleared out all multiprocessing processes'.format(plog))
+            log.info('MPLOG cleared out all multiprocessing processes')
 
     return mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem
 
