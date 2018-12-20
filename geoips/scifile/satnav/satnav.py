@@ -441,7 +441,9 @@ class SatNav(object):
                 fname, sector.name, sect_num_lines, sect_num_samples, sect_clat, sect_clon)
             md_dict.update(ad.proj_dict)
         md_dict.pop('datetime')
+        log.info(md_dict.__str__())
         md_hash = md5(md_dict.__str__()).hexdigest()
+        log.info(md_hash)
         fname = '{}_{}.DAT'.format(fname, md_hash)
 
         return os.path.join(cache, fname)
