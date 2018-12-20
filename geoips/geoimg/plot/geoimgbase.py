@@ -133,7 +133,7 @@ class GeoImgBase(object):
         if bgname:
             extra_lines += ['Plotted over: %s %s'%(bgname, extra_extra)]
 
-        from geoimg.title import Title
+        from geoips.geoimg.title import Title
         self._title = Title.from_objects(self.datafile, self.sector, self.product, extra_lines = extra_lines)
 
 

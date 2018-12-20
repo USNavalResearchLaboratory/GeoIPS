@@ -432,7 +432,7 @@ class SatNav(object):
             fname = '{}_{}_{}x{}_{}x{}'.format(
                 fname, sector.name, sect_num_lines, sect_num_samples, sect_clat, sect_clon)
             md_dict.update(ad.proj_dict)
-
+        md_dict.pop('datetime')
         md_hash = md5(md_dict.__str__()).hexdigest()
         fname = '{}_{}.DAT'.format(fname, md_hash)
 
