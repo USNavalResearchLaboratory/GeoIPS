@@ -163,8 +163,8 @@ class Winds_Text_Reader(Reader):
         with open(fname) as fp:
             while not metadata['top']['start_datetime']:
                 parts = fp.readline().split()
-                if 'SECURITY' in parts and 'CLASSIFICATION:' in parts:
-                    metadata['top']['security_classification'] = parts[-1]
+                if 'CLASSIFICATION:' in parts:
+                    metadata['top']['classification'] = parts[-1]
                     continue
                 if len(parts) == 12:
                     typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi,interv = parts

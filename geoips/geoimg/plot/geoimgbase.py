@@ -1314,16 +1314,14 @@ class GeoImgBase(object):
                 # out
                 ax.set_title(titlestr, position=[xpos, ypos])
 
-            if self.datafile.security_classification is not None:
+            if self.datafile.classification is not None:
                 textcolor = 'black'
-                if 'SECRET' in self.datafile.security_classification or '//' in self.datafile.security_classification:
-                    textcolor = 'red'
-                ax.text(0,1, self.datafile.security_classification,
+                ax.text(0,1, self.datafile.classification,
                     horizontalalignment = 'right',
                     verticalalignment = 'bottom',
                     color = textcolor,
                     transform = ax.transAxes)
-                ax.text(1,0, self.datafile.security_classification,
+                ax.text(1,0, self.datafile.classification,
                     horizontalalignment = 'left',
                     verticalalignment = 'top',
                     color = textcolor,
