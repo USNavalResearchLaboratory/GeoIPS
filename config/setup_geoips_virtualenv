@@ -1,12 +1,13 @@
-if [ ! -e $GEOIPS_VIRTUALENV_DIR ]; then
-    virtualenv $GEOIPS_VIRTUALENV_DIR
+if [ -d $GEOIPS_VIRTUALENV_DIR ]; then
+    unset PYTHONPATH
+    source $GEOIPS_VIRTUALENV_DIR/bin/activate
+    
+    export GEOS_DIR=$GEOIPS_VIRTUALENV_DIR/../geosdir
+    export LD_LIBRARY_PATH=$GEOIPS_VIRTUALENV_DIR/../geosdir/lib:$LD_LIBRARY_PATH
+    
+    export XRIT_DECOMPRESS_PATH=$GEOIPS_VIRTUALENV_DIR/../xRITDecompress/xRITDecompress/xRITDecompress
 fi
+
 # This needs to be run if the virtualenv directory moves
+# Taken care of in geoips/makefile
 #virtualenv $GEOIPS_VIRTUALENV_DIR
-unset PYTHONPATH
-source $GEOIPS_VIRTUALENV_DIR/bin/activate
-
-export GEOS_DIR=$GEOIPS_VIRTUALENV_DIR/../geosdir
-export LD_LIBRARY_PATH=$GEOIPS_VIRTUALENV_DIR/../geosdir/lib:$LD_LIBRARY_PATH
-
-export XRIT_DECOMPRESS_PATH=$GEOIPS_VIRTUALENV_DIR/../xRITDecompress/xRITDecompress/xRITDecompress

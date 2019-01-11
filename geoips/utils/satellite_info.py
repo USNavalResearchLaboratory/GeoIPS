@@ -75,7 +75,7 @@ class SatInfo(object):
         self._select_sensor(sensor)
         # This is used in scifile/containers.py register. Has to match biggest possible
         # pixel size (at edge of scan)
-        self.interpolation_radius_of_influence = 4.0
+        self.interpolation_radius_of_influence = 100
         # If these values were not set in _set_satinfo, set them
         # to None here.  tle_name is the name used in
         # celestrak TLE files, tscan_name is name used in tscan
@@ -1749,6 +1749,7 @@ class SEVIRISensorInfo(SensorInfo):
         # outer is 1100km
         #self.swath_width_km = 900
         self.mins_per_file = 15
+        self.interpolation_radius_of_influence = 4000
         self.FName['runfulldir'] = True
         self.swath_width_km = 12000
         # Don't think legacy path is used anymore, can't run tdfs, and not downloading them.

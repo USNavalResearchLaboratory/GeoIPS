@@ -24,6 +24,12 @@ import random
 import operator
 from datetime import datetime,timedelta
 
+#for remote debugging in wingware
+try:
+    import wingdbstub
+except:
+    print('Could not find wingdbstub from downloader.py.  I hope you\'re not trying to dubug remotely...')
+
 
 # Installed libraries
 

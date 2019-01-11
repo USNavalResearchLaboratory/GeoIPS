@@ -3,6 +3,8 @@ import os
 import logging
 from datetime import timedelta
 
+from geoips.utils.plugin_paths import paths as gpaths
+
 log = logging.getLogger(__name__)
 
 def winds(datafile, sector, product, workdir):
@@ -26,7 +28,7 @@ def winds(datafile, sector, product, workdir):
                     datafile.metadata['top']['alg_source'],
                     datafile.start_datetime - timedelta(minutes=60),
                     datafile.start_datetime + timedelta(minutes=5),
-                    'nesdisstar',
+                    '*',
             ))
     matching_files = find_datafiles_in_range(sector,
         datafile.metadata['top']['alg_platform'],
@@ -34,6 +36,7 @@ def winds(datafile, sector, product, workdir):
         datafile.start_datetime - timedelta(minutes=60),
         datafile.start_datetime + timedelta(minutes=5),
         dataprovider='*',
+        basedir=gpaths['PREREGISTERED_DATA_PATH'],
         )
     if matching_files:
         log.info('Found matching files:\n%s\nUsing: %s'%
@@ -45,8 +48,8 @@ def winds(datafile, sector, product, workdir):
 
     for dsname in datafile.datasets.keys():
         #if '1d' not in dsname or '800' not in dsname:
-        if '1d' not in dsname:
-            continue
+        #if '1d' not in dsname:
+        #    continue
         outdata[dsname] = {}
 
         if matching_files:

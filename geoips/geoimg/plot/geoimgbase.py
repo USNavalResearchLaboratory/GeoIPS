@@ -109,11 +109,14 @@ class GeoImgBase(object):
 
     def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
         extra_extra = ''
+        # Platform name and source name should end up in the title, so do not
+        # need to be repeated in the bgname extra_lines. If it is a different
+        # platform/source with bgname, it should be included in bgname
         if platform_name:
-            extra_extra = '%s %s'%(extra_extra, platform_name)
+            #extra_extra = '%s %s'%(extra_extra, platform_name)
             self.datafile._finfo['platform_name'] = platform_name
         if source_name:
-            extra_extra = '%s %s'%(extra_extra, source_name)
+            #extra_extra = '%s %s'%(extra_extra, source_name)
             self.datafile._finfo['source_name'] = source_name
         if start_dt:
             self.datafile._finfo['start_datetime'] = start_dt
@@ -124,12 +127,13 @@ class GeoImgBase(object):
 
         extra_lines = []
 
+        # Just make prodname exactly what you want printed in line 3
         if prodname:
-            extra_lines += ['Using: '+prodname]
+            extra_lines += [prodname]
         if bgname:
             extra_lines += ['Plotted over: %s %s'%(bgname, extra_extra)]
 
-        from geoimg.title import Title
+        from geoips.geoimg.title import Title
         self._title = Title.from_objects(self.datafile, self.sector, self.product, extra_lines = extra_lines)
 
 
@@ -463,9 +467,14 @@ class GeoImgBase(object):
             # This has to be self._image, not self.image! Can't set self.image.
             self._image = np.flipud(new)
         else:
-            delattr(self,'_image')
-            delattr(self,'_registered_data')
+            if hasattr(self,'_image'):
+                delattr(self,'_image')
+            if hasattr(self,'_registered_data'):
+                delattr(self,'_registered_data')
             datasets = []
+            other_req_vars = None
+            if otherimg.source_name != self.datafile.source_name:
+                other_req_vars = productfile.open_product(otherimg.source_name,self.product.name).get_required_source_vars(otherimg.source_name)
             for dsname in self.datafile.datasets.keys():
                 log.info('Trying to merge dataset '+dsname)
                 for var in self.req_vars:
@@ -479,7 +488,15 @@ class GeoImgBase(object):
                         # Note hstack/vstack takes a tuple!  Extra ()
                         # This may not always be hstack - has to be merged in the correct order.
                         # hstack stacks on shape[0]
-                        other_width = otherimg.variables[var].shape[0]
+                        if other_req_vars is not None:
+                            try:
+                                othervar = other_req_vars.pop()
+                            except IndexError:
+                                log.warning('Ran out of other_req_vars! Using last one')
+                            log.info('Using othervar %s for source %s product %s, with primary source %s var %s'%(othervar,otherimg.source_name,self.product.name, self.datafile.source_name,var))
+                        else:
+                            othervar = var
+                        other_width = otherimg.variables[othervar].shape[0]
                         self_width = self.datafile.variables[var].shape[0]
                         if other_width != self_width:
                             if other_width > self_width:
@@ -487,19 +504,19 @@ class GeoImgBase(object):
                                 pad_width = other_width - self_width
                                 pad_array = np.ma.masked_all((pad_width,self.datafile.variables[var].shape[1]))
                                 data = np.ma.hstack(
-                                    (otherimg.variables[var],
+                                    (otherimg.variables[othervar],
                                      np.ma.vstack((self.datafile.variables[var],pad_array))))
                             else:
                                 #If self is bigger, must pad other.                               
                                 pad_width = self_width - other_width
-                                pad_array = np.ma.masked_all((pad_width,otherimg.variables[var].shape[1]))
+                                pad_array = np.ma.masked_all((pad_width,otherimg.variables[othervar].shape[1]))
                                 data = np.ma.hstack(
-                                    (np.ma.vstack((otherimg.variables[var],pad_array)),
+                                    (np.ma.vstack((otherimg.variables[othervar],pad_array)),
                                      self.datafile.variables[var])
                                     )
                         else:
                             data = np.ma.hstack(
-                                (otherimg.variables[var],
+                                (otherimg.variables[othervar],
                                  self.datafile.variables[var])
                                 )
                         varinfo = self.datafile.datasets[dsname].variables[var]._varinfo
@@ -1310,16 +1327,14 @@ class GeoImgBase(object):
                 # out
                 ax.set_title(titlestr, position=[xpos, ypos])
 
-            if self.datafile.security_classification:
+            if self.datafile.classification is not None:
                 textcolor = 'black'
-                if 'SECRET' in self.datafile.security_classification or '//' in self.datafile.security_classification:
-                    textcolor = 'red'
-                ax.text(0,1, self.datafile.security_classification,
+                ax.text(0,1, self.datafile.classification,
                     horizontalalignment = 'right',
                     verticalalignment = 'bottom',
                     color = textcolor,
                     transform = ax.transAxes)
-                ax.text(1,0, self.datafile.security_classification,
+                ax.text(1,0, self.datafile.classification,
                     horizontalalignment = 'left',
                     verticalalignment = 'top',
                     color = textcolor,
