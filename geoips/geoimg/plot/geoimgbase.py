@@ -599,8 +599,10 @@ class GeoImgBase(object):
         
         if self.intermediate_data_output:
             # Remove image attribute to force reprocessing
-            delattr(self,'_image')
-            delattr(self,'_registered_data')
+            if hasattr(self,'_image'):
+                delattr(self,'_image')
+            if hasattr(self,'_registered_data'):
+                delattr(self,'_registered_data')
             
             self.plot()
         #print_mem_usage(self.logtag+'gimgafterfilemerges',True)
