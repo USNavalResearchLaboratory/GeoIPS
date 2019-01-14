@@ -106,6 +106,7 @@ def open_products_db(db=products_db):
     if not os.path.exists(os.path.dirname(db)):
         os.makedirs(os.path.dirname(db))
 
+    import sqlite3
     conn = sqlite3.connect(db)
     cc = conn.cursor()
     # Try to create the table - if it already exists, it will just fail 
