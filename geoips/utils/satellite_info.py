@@ -557,7 +557,7 @@ class MT2SatInfo(SatInfo):
 
 class MULTISatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['tpw_cira', 'tpw_mimic']
+        self.sensornames = ['tpw_cira', 'tpw_mimic','merged']
         #self.orbital_period = 98 * 60
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -690,6 +690,15 @@ class SCATSAT1SatInfo(SatInfo):
         self.geostationary = False
         self.mins_per_file = 50
 
+class SMAPSatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        self.sensornames = ['smap-spd']
+        # self.orbital_period = 
+        # tle names for celestrak and tscan, default to satname
+        # if not, defined in _set_satinfo
+        self.celestrak_tle_name = 'SMAP'
+        self.tscan_tle_name = None
+        self.geostationary = False
 
 class TERRASatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -1752,6 +1761,19 @@ class SEVIRISensorInfo(SensorInfo):
 
         #self.data_types = {}
 
+class SMAPSensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        # This must match appropriate DataFileName class name in utils/path/datafilename.py
+        # RS_S2B00563.20143021221
+        #self.OrigFName['cls'] = 'RSCATFileName'
+        #self.OrigFName['nameformat'] = 'datatype_YYYYJJJHHMN'
+        #self.OrigFName['fieldsep'] = '_'
+        #self.OrigFName['fillvalue'] = 'x'
+        # outer is 1100km
+        self.swath_width_km = 1000         #the real number is?
+        self.pathnameformat = ''
+        self.interpolation_radius_of_influence = 25000
+        #self.data_types = {}
 
 class SMOSSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
@@ -2060,6 +2082,7 @@ SensorInfo_classes = {
         'smos':  SMOSSensorInfo,
         'windsat':  WINDSATSensorInfo,
         'saphir': SAPHIRSensorInfo,
+        'smap-spd':  SMAPSensorInfo,
         'ssmi':  SSMISensorInfo,
         'ssmis':  SSMISSensorInfo,
         'ols':  OLSSensorInfo,
@@ -2134,6 +2157,7 @@ SatInfo_classes = {
         'm2a': M2ASatInfo,
         'multi': MULTISatInfo,
         'navgem': NAVGEMSatInfo,
+        'smap': SMAPSatInfo,
         'windvectors': WindVectorsSatInfo,
         'terra': TERRASatInfo,
         'trmm': TRMMSatInfo,
