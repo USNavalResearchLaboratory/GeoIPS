@@ -10,7 +10,7 @@
 <product method="basic" name="Visible-Gray">
     <basic_args>
         <source name='seviri'>
-            <var zenith='yes'>B02Ref</var> <!-- 0.86um B03 ABI   VIS008  0.8um MSG Veggie band, near-IR                                         -->
+            <var>B02Ref</var> <!-- 0.86um B03 ABI   VIS008  0.8um MSG Veggie band, near-IR                                         -->
         </source>
         <img>
             <equation>B02Ref</equation>

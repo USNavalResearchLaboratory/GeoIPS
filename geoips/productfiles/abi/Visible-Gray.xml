@@ -10,8 +10,7 @@
 <product method='basic' name='Visible-Gray' testonly='no'>
     <basic_args>
         <source name='abi'>
-        <var zenith='yes'>B03Ref</var>
-        <gvar>SunZenith</gvar> 
+        <var>B03Ref</var>
         </source>
         <img>
             <equation>B03Ref</equation>
