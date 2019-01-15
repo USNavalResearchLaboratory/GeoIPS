@@ -16,8 +16,6 @@ from pyresample.kd_tree import get_neighbour_info
 
 from geoips.utils.plugin_paths import paths as gpaths
 
-from IPython import embed as shell
-
 debug = False
 nproc = 1
 ne.set_num_threads(nproc)
@@ -312,9 +310,9 @@ class SatNav(object):
         # If they don't exist, then recacluate them
         log.debug('Gathering solar angles for {} sector.'.format(sector.name))
         if sector == self._curr_sector:
-            if 'sat_zen' in self._curr_data and 'sat_azm' in self._curr_data:
+            if 'sun_zen' in self._curr_data and 'sun_azm' in self._curr_data:
                 log.debug('Sector is the same as the last request.  Returning the same data.')
-                return self._curr_data['sat_zen'], self._curr_data['sat_azm']
+                return self._curr_data['sun_zen'], self._curr_data['sun_azm']
         # If this is a different sector, reset
         elif self._curr_sector is not None:
             self._curr_sector = None
