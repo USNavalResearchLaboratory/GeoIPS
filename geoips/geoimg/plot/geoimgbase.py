@@ -467,14 +467,17 @@ class GeoImgBase(object):
             # This has to be self._image, not self.image! Can't set self.image.
             self._image = np.flipud(new)
         else:
+            other_req_vars = None
+            if otherimg.source_name != self.datafile.source_name:
+                try:
+                    other_req_vars = productfile.open_product(otherimg.source_name,self.product.name).get_required_source_vars(otherimg.source_name)
+                except AttributeError:
+                    return
             if hasattr(self,'_image'):
                 delattr(self,'_image')
             if hasattr(self,'_registered_data'):
                 delattr(self,'_registered_data')
             datasets = []
-            other_req_vars = None
-            if otherimg.source_name != self.datafile.source_name:
-                other_req_vars = productfile.open_product(otherimg.source_name,self.product.name).get_required_source_vars(otherimg.source_name)
             for dsname in self.datafile.datasets.keys():
                 log.info('Trying to merge dataset '+dsname)
                 for var in self.req_vars:
