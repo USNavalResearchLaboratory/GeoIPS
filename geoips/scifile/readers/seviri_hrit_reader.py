@@ -20,7 +20,6 @@ from ..satnav import SatNav
 from .hrit_reader import HritFile, HritError
 
 # Installed Libraries
-from IPython import embed as shell
 
 # GeoIPS Libraries
 from .reader import Reader
@@ -99,6 +98,41 @@ IR_CALIB = {'msg1': {'B04': {'wn': 2567.330, 'a': 0.9956, 'b': 3.410},
                      'B11': {'wn': 748.585, 'a': 0.9981, 'b': 0.5635}}}
 
 
+def calculate_chebyshev_polynomial(coefs, start_dt, end_dt, dt):
+    start_to_end = (end_dt - start_dt).seconds
+    dt_to_end = (end_dt - dt).seconds
+    start_to_dt = (dt - start_dt).seconds
+    t = (start_to_dt - 0.5*(start_to_end)) / (0.5*(start_to_end))
+    t2 = 2*t
+
+    # I think this is what was in the documentation
+    # MSG_Level_1_5_Image_Data_Format_Description.pdf 
+    # p 87 earth fixed coordinate frame
+    # p 124 decoding chebychev polynomial function
+    d = 0
+    dd = 0 
+    for j in range(7,1,-1):
+        save = d
+        d = t2 * d - dd + coefs[j]
+        dd = save
+    d = t * d - dd + 0.5 * coefs[0] 
+
+    #f = -0.5 * coefs[0] # First term of Chebyshev polynomial
+    #f = f + coefs[0] # second term of Chebyshev polynomial
+    #f = f + coefs[1]*t # third term
+    #T_k_minus_3 = 1
+    #T_k_minus_2 = t
+    #T_k_minus_1 = t2*T_k_minus_2 - T_k_minus_3
+    ## remaining terms recursively defined
+    #for xcoef in coefs[3:]:
+    #    f = f + xcoef * T_k_minus_1
+    #    T_k_minus_3 = T_k_minus_2
+    #    T_k_minus_2 = T_k_minus_1
+    #    T_k_minus_1 = t2*T_k_minus_2 - T_k_minus_3
+    ##from IPython import embed as shell; shell()
+
+    return d
+
 class XritError(Exception):
     def __init__(self, msg, code=None):
         self.code = code
@@ -128,8 +162,11 @@ def compare_dicts(d1, d2, skip=None):
     return True
 
 
-def get_top_level_metadata(fname, sect):
-    df = HritFile(fname)
+def get_top_level_metadata(fnames, sect):
+    for fname in fnames:
+        df = HritFile(fname)
+        if 'block_2' in df.metadata.keys():
+            break
     md = {}
     if 'GEOS' in df.metadata['block_2']['projection']:
         md['sector_name'] = 'Full-Disk'
@@ -139,7 +176,20 @@ def get_top_level_metadata(fname, sect):
     md['end_datetime'] = df.start_datetime
     md['data_provider'] = 'nesdisstar'
     # MLS Check platform_name
-    md['platform_name'] = df.annotation_metadata['platform'].lower().replace('_iodc','')
+    # Turn msg4_iodc into msg4.  Then pull geoips satname (meteoEU/meteoIO) 
+    # from utils/satellite_info.py
+    msg_satname = df.annotation_metadata['platform'].lower().replace('_iodc','')
+    # Save actual satellite name (msg1 / msg4) for the coefficient tables above.
+    # geoips specific platform_name should be meteoEU or meteoIO
+    md['satellite_name'] = msg_satname
+    from geoips.utils.satellite_info import open_satinfo
+    try:
+        satinfo = open_satinfo(msg_satname)
+        if hasattr(satinfo, 'geoips_satname'):
+            msg_satname = satinfo.geoips_satname
+    except KeyError:
+        raise HritError('Unknown satname encountered: {}'.format(msg_satname))
+    md['platform_name'] = msg_satname
     md['source_name'] = 'seviri'
     md['sector_definition'] = sect
     md['NO_GRANULE_COMPOSITES'] = True
@@ -172,10 +222,11 @@ def countsToRad(counts, slope, offset):
 def radToRef(rad, sun_zen, platform, band):
     irrad = VIS_CALIB[platform][band]
     ref = np.full_like(rad, -999.0)
-    ref[rad > 0] = rad[rad > 0] * 100.0 / irrad
+    # 0 to 1 rather than 0 to 100
+    ref[rad > 0] = rad[rad > 0] / irrad
     ref[rad > 0] = np.pi * rad[rad > 0] / (irrad * np.cos((np.pi / 180) * sun_zen[rad > 0]))
     ref[ref < 0] = 0
-    ref[ref > 100] = 100
+    ref[ref > 1] = 1
     ref[sun_zen > 90] = -999.0
     ref[sun_zen <= -999] = -999.0
     return ref
@@ -270,7 +321,8 @@ class SEVIRI_HRIT_Reader(Reader):
     @staticmethod
     def format_test(path):
         # MLS Temporary until we completely replace msg_hrit_reader.py
-        # return False
+        #return False
+        
         if not os.path.isdir(path):
             return False
 
@@ -282,17 +334,19 @@ class SEVIRI_HRIT_Reader(Reader):
         # First three bytes should be >u1 equal to 0 and >u2 equal to 16
         # This should catch any non-hrit files
         df = open(singlefname, 'r')
-        if np.fromfile(df, dtype='>u1', count=1)[0] != 0:
-            return False
-        if np.fromfile(df, dtype='>u2', count=1)[0] != 16:
-            return False
-
+	try: 
+	    if np.fromfile(df, dtype='>u1', count=1)[0] != 0:
+		return False
+	    if np.fromfile(df, dtype='>u2', count=1)[0] != 16:
+		return False
+	except Exception as err:
+	    return False
         # This will attempt to read the hrit file and check the platform name
         try:
             df = HritFile(singlefname)
         except Exception:
             return False
-        try:
+        try: 
             if 'MSG' in df.metadata['block_4']['annotation']:
                 return True
         except KeyError:
@@ -321,8 +375,10 @@ class SEVIRI_HRIT_Reader(Reader):
         else:
             adname = 'FULL_DISK'
 
-        # Gather top-level metadata
-        metadata['top'] = get_top_level_metadata(fnames[0], sector_definition)
+        # Gather top-level metadata. MUst pass ALL fnames to make sure we 
+ 		# use a datafile, and not pro or epi (they do not contain projection 
+		# information)
+        metadata['top'] = get_top_level_metadata(fnames, sector_definition)
 
         # chans == [] specifies we don't want to read ANY data, just metadata.
         # chans == None specifies that we are not specifying a channel list,
@@ -351,7 +407,22 @@ class SEVIRI_HRIT_Reader(Reader):
             # Get prologue
             if df.file_type == 'prologue':
                 pro = df.prologue
-                metadata['top']['prologue'] = pro
+                dt = metadata['top']['start_datetime']
+                #metadata['top']['prologue'] = pro
+                for poly in df.prologue['satelliteStatus']['orbit']['orbitPolynomial']:
+                    if dt <= poly['endTime'] and dt >= poly['startTime']:
+                        log.info('Calculating x/y/z satellite location')
+                        
+                        st=poly['startTime'];et=poly['endTime'];xcoef=poly['X'];ycoef=poly['Y'];zcoef=poly['Z']
+                        x = calculate_chebyshev_polynomial(xcoef,st,et,dt); y = calculate_chebyshev_polynomial(ycoef,st,et,dt); z = calculate_chebyshev_polynomial(zcoef,st,et,dt)
+                        metadata['top']['satECF_m'] = {}
+                        metadata['top']['satECF_m']['x'] = x*1000
+                        metadata['top']['satECF_m']['y'] = y*1000
+                        metadata['top']['satECF_m']['z'] = z*1000
+                        
+                        #from IPython import embed as shell; shell()
+        
+
             # Get epilogue
             elif df.file_type == 'epilogue':
                 epi = df.epilogue
@@ -394,7 +465,7 @@ class SEVIRI_HRIT_Reader(Reader):
         # Drop files for channels other than those requested and decompress
         outdir = os.path.join(gpaths['LOCALSCRATCH'],
                               metadata['top']['source_name'],
-                              metadata['top']['platform_name'],
+                              metadata['top']['satellite_name'],
                               metadata['top']['start_datetime'].strftime('%Y%m%d%H%M'))
         if not os.path.isdir(outdir):
             os.makedirs(outdir)
@@ -402,7 +473,12 @@ class SEVIRI_HRIT_Reader(Reader):
             if band not in chlist.bands:
                 dfs.pop(band)
             else:
-                dfs[band] = {seg: df.decompress(outdir) for seg, df in dfs[band].items()}
+                #dfs[band] = {seg: df.decompress(outdir) for seg, df in dfs[band].items()}
+                for seg, df in dfs[band].items():
+                    try:
+                        dfs[band][seg] = df.decompress(outdir)
+                    except HritError:
+                        log.error('FAILED DECOMPRESSING, SKIPPING FILE '+df.name)
 
         # Create data arrays for requested data and read count data
         num_lines = pro['imageDescription']['referenceGridVIS_IR']['numberOfLines']
@@ -417,7 +493,10 @@ class SEVIRI_HRIT_Reader(Reader):
                 seg_num_lines = df.metadata['block_1']['num_lines']
                 start_line = seg_num_lines * (seg - 1)
                 end_line = seg_num_lines * seg
-                data[start_line:end_line, 0:] = df._read_image_data()
+                try:
+                    data[start_line:end_line, 0:] = df._read_image_data()
+                except ValueError as resp:
+                    log.error('FAILED READING SEGMENT, SKIPPING %s'%(resp))
             log.info('Read band %s %s'%(band, df.annotation_metadata['band']))
             if 'Lines' in gvars[adname]:
                 count_data[band] = data[gvars[adname]['Lines'], gvars[adname]['Samples']]
@@ -441,19 +520,19 @@ class SEVIRI_HRIT_Reader(Reader):
                 log.info('Calculating reflectances for %s'%(chan.band))
                 datavars[adname][chan.name] = radToRef(radiances[chan.band],
                                                        gvars[adname]['SunZenith'],
-                                                       metadata['top']['platform_name'],
+                                                       metadata['top']['satellite_name'],
                                                        chan.band)
             if chan.type == 'BT':
                 log.info('Calculating brightness temperatures for %s'%(chan.band))
                 datavars[adname][chan.name] = radToBT(radiances[chan.band],
-                                                      metadata['top']['platform_name'],
+                                                      metadata['top']['satellite_name'],
                                                       chan.band)
             if adname not in metadata['datavars'].keys():
                 metadata['datavars'][adname] = {}
             if chan.name not in metadata['datavars'].keys():
                 metadata['datavars'][adname][chan.name] = {}
 
-            metadata['datavars'][adname][chan.name]['wavelength'] = float(annotation_metadata[chan.band]['band'][3:4]+'.'+annotation_metadata[chan.band]['band'][4:])
+            metadata['datavars'][adname][chan.name]['wavelength'] = float(annotation_metadata[chan.band]['band'][3:5]+'.'+annotation_metadata[chan.band]['band'][5:])
 
         for var in datavars[adname].keys():
             datavars[adname][var] = np.ma.masked_less_equal(np.flipud(datavars[adname][var]), -999)

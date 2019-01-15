@@ -47,7 +47,8 @@ log = logging.getLogger(__name__)
 # finfo contains data that will be stored at the file level
 _empty_finfo = {'source_name': None,
                 'platform_name': None,
-                'security_classification': None,
+                'classification': None,
+                'classification_full': None,
                 'start_datetime': None,
                 'end_datetime': None,
                 'filename_datetime': None,
@@ -821,16 +822,28 @@ class DataSet(object):
         self._dsinfo_prop_deleter('platform_name')
 
     @property
-    def security_classification(self):
-        return self._dsinfo_prop_getter('security_classification')
+    def classification(self):
+        return self._dsinfo_prop_getter('classification')
 
-    @security_classification.setter
-    def security_classification(self, val):
-        self._dsinfo_prop_setter('security_classification', val)
+    @classification.setter
+    def classification(self, val):
+        self._dsinfo_prop_setter('classification', val)
 
-    @security_classification.deleter
-    def security_classification(self):
-        self._dsinfo_prop_deleter('security_classification')
+    @classification.deleter
+    def classification(self):
+        self._dsinfo_prop_deleter('classification')
+
+    @property
+    def classification_full(self):
+        return self._dsinfo_prop_getter('classification_full')
+
+    @classification_full.setter
+    def classification_full(self, val):
+        self._dsinfo_prop_setter('classification_full', val)
+
+    @classification_full.deleter
+    def classification_full(self):
+        self._dsinfo_prop_deleter('classification_full')
 
     @property
     def sensor_name(self):
@@ -1338,6 +1351,10 @@ class DataSet(object):
         # print_mem_usage('cont2beforeresample',True)
         # MLS 20160203 huge memory usage during resample, but comes back down
         #       to pre-dstack levels immediately after (can be >2x during)
+        try:
+            log.info('Running Interpolation for {0}.  Using method {1}.'.format(ad.area_id,interp_method))
+        except:
+            log.info('Running Interpolation using method {}.'.format(interp_method))
         if interp_method == 'nearest':
             joined = kd_tree.resample_nearest(self.data_box_definition,
                                           # joined, ad, radius_of_influence=sensor_info.interpolation_radius_of_influence,
@@ -1404,6 +1421,10 @@ class DataSet(object):
 
             joined = joined_new
 
+        try:
+            log.info('Done running Interpolation for {0} using method {1}.'.format(ad.area_id,interp_method))
+        except:
+            log.info('Done running Interpolation using method {}.'.format(interp_method))        
         # Map Coordinates require a specific coordinate system
         # elif interp_method == 'mapcoord':
         #    lati = self.geolocation_variables['Latitude']
@@ -1997,8 +2018,12 @@ class Variable(MaskedArray):
         return self._dsinfo['platform_name']
 
     @property
-    def security_classification(self):
-        return self._dsinfo['security_classification']
+    def classification(self):
+        return self._dsinfo['classification']
+
+    @property
+    def classification_full(self):
+        return self._dsinfo['classification_full']
 
     # Probably Variable specific.  Should be in _optinfo if needed.
     # @property
@@ -2139,8 +2164,8 @@ class Variable(MaskedArray):
             you can remove tese two lines. 
             '''
             # Share the mask
-            #val._set_mask_inplace(self._mask | val.mask)
-            #self._mask = val._mask
+            val._set_mask_inplace(self._mask | val.mask)
+            self._mask = val._mask
             #else:
             #    for attr in self._dsinfo.keys():
             #        print '  Variable.dataset self: '+' '+str(attr)+' '+str(getattr(self,attr))

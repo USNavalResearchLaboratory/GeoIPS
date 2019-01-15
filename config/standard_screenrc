@@ -8,6 +8,10 @@ vbell off
 # Prior to starting screen, run
 # unset PROMPT_COMMAND
 # to maintain titles / hardstatus string set below.
+# THIS MAY HAVE TO BE DONE WITHIN .bashrc, else it 
+# could get reset before opening tabs.
+# Can also source geoips/config/color_prompt 
+#   (which does unset PROMPT_COMMAND)
 
 #termcapinfo xterm ti@:te@
 
@@ -24,7 +28,7 @@ bind -c selectHighs 9 select 19
 
 bind - command -c selectHighs # bind the hyphen to command-class selectHighs
 
-#shelltitle "data"
+#shelltitle "alg"
 screen -t alg 0
 
 #shelltitle "out"
@@ -38,10 +42,12 @@ screen -t sects 4
 screen -t rscr 5
 screen -t "**abi" 6
 screen -t ahi 7
-screen -t msg 8
-screen -t data 9
-screen -t out 10
-screen -t out 11
+screen -t met8 8
+screen -t met11 9
+screen -t data 10
+screen -t prep 11
+screen -t out 12
+screen -t logs 13
 
 hardstatus alwayslastline
 

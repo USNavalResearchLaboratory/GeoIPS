@@ -899,8 +899,12 @@ class SciFile(object):
     def platform_name(self):
         return self._finfo['platform_name']
     @property
-    def security_classification(self):
-        return self._finfo['security_classification']
+    def classification(self):
+        return self._finfo['classification']
+
+    @property
+    def classification_full(self):
+        return self._finfo['classification_full']
     @property
     def start_datetime(self):
         return self._finfo['start_datetime']

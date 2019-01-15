@@ -16,8 +16,6 @@ from pyresample.kd_tree import get_neighbour_info
 
 from geoips.utils.plugin_paths import paths as gpaths
 
-from IPython import embed as shell
-
 debug = False
 nproc = 1
 ne.set_num_threads(nproc)
@@ -28,13 +26,21 @@ DONT_AUTOGEN_GEOLOCATION = False
 if os.getenv('DONT_AUTOGEN_GEOLOCATION'):
     DONT_AUTOGEN_GEOLOCATION = True
 
-GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files/geolocation')
-if os.getenv('GEOLOCDIR'):
-    GEOLOCDIR = os.getenv('GEOLOCDIR')
+# 20181220 MLS: Updated satnav with Cervando's previous update to 
+# geolocation generation in ABI and AHI readers.
+# Initially satnav was set up to allow overriding the geolocation directory using an
+# environment variable, we have since consolidated the geolocation to $SATOPS
+# 20180910 CAB:
+# Geolocation files are now no longer moved to localscratch and are now from 
+# the SATOPS directory. Also the path is slightly different for dynamic sectors
 
-DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'intermediate_files')
-if os.getenv('DYNAMIC_GEOLOCDIR'):
-    DYNAMIC_GEOLOCDIR = os.getenv('DYNAMIC_GEOLOCDIR')
+GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files', 'geolocation')
+#if os.getenv('GEOLOCDIR'):
+#    GEOLOCDIR = os.getenv('GEOLOCDIR')
+
+DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files', 'geolocation_dynamic')
+#if os.getenv('DYNAMIC_GEOLOCDIR'):
+#    DYNAMIC_GEOLOCDIR = os.getenv('DYNAMIC_GEOLOCDIR')
 
 READ_GEOLOCDIRS = []
 if os.getenv('READ_GEOLOCDIRS'):
@@ -304,9 +310,9 @@ class SatNav(object):
         # If they don't exist, then recacluate them
         log.debug('Gathering solar angles for {} sector.'.format(sector.name))
         if sector == self._curr_sector:
-            if 'sat_zen' in self._curr_data and 'sat_azm' in self._curr_data:
+            if 'sun_zen' in self._curr_data and 'sun_azm' in self._curr_data:
                 log.debug('Sector is the same as the last request.  Returning the same data.')
-                return self._curr_data['sat_zen'], self._curr_data['sat_azm']
+                return self._curr_data['sun_zen'], self._curr_data['sun_azm']
         # If this is a different sector, reset
         elif self._curr_sector is not None:
             self._curr_sector = None
@@ -432,8 +438,10 @@ class SatNav(object):
             fname = '{}_{}_{}x{}_{}x{}'.format(
                 fname, sector.name, sect_num_lines, sect_num_samples, sect_clat, sect_clon)
             md_dict.update(ad.proj_dict)
-
+        md_dict.pop('datetime')
+        log.info(md_dict.__str__())
         md_hash = md5(md_dict.__str__()).hexdigest()
+        log.info(md_hash)
         fname = '{}_{}.DAT'.format(fname, md_hash)
 
         return os.path.join(cache, fname)

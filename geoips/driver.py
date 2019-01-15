@@ -21,6 +21,12 @@ import socket
 from datetime import timedelta, datetime
 import multiprocessing
 
+#for remote debugging in wingware
+try:
+    import wingdbstub
+except:
+    print('Could not find wingdbstub from driver.py.  I hope you\'re not trying to dubug remotely...')
+
 # Installed Libraries
 try:
     # Don't fail if this doesn't exist (not even used at the moment)
@@ -364,18 +370,18 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             log.info('{0} MPLOG Waited for {1}'.format(plog, (waittimes[mp_num_waits])))
             mp_waiting = False
         if no_multiproc:
-            log.info('{0} NOT USING MULTIPROCESSING'.format(plog))
+            log.info('{0} NOMPLOG NOT USING MULTIPROCESSING'.format(plog))
             orig_shape = [dsvars.shape for dss in data_file.datasets.values() for dsvars in
                           dss.variables.values()]
             sectored_shape = [dsvars.shape for dss in sectored.datasets.values() for dsvars in
                               dss.variables.values()]
-            log.info('Original data shape: {0}'.format(orig_shape))
-            log.info('Sectored data shape: {0}'.format(sectored_shape))
+            log.info('{0} Original data shape: {1}'.format(plog, orig_shape))
+            log.info('{0} Sectored data shape: {1}'.format(plog, sectored_shape))
             # utils.path.productfilename needs sector_file for calling pass_prediction
             # Pass rather than opening again.
             if separate_datasets:
                 dfnew = SciFile()
-                log.info('Running each dataset separately through process')
+                log.info('{0} NOMPLOG Running each dataset separately through process'.format(plog))
                 dfnew.metadata = sectored.metadata.copy()
                 olddsname = None
                 for dsname in sectored.datasets.keys():
@@ -391,19 +397,20 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                     process(dfnew, curr_sector, productlist, forcereprocess=forcereprocess,
                         sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
             else:
+                log.info('{0} NOMPLOG Running process'.format(plog))
                 process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
                     sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
             # MLS 20160126 Try this for memory usage ? Probably doesn't do anything
             gc.collect()
         else:
-            log.info('{0} STARTING MULTIPROCESSING'.format(plog))
+            log.info('{0} MPLOG STARTING MULTIPROCESSING'.format(plog))
             try:
                 orig_shape = [dsvars.shape for dss in data_file.datasets.values() for dsvars in
                               dss.variables.values()]
                 sectored_shape = [dsvars.shape for dss in sectored.datasets.values() for dsvars in
                                   dss.variables.values()]
-                log.info('Original data shape: {0}'.format(orig_shape))
-                log.info('Sectored data shape: {0}'.format(sectored_shape))
+                log.info('{0} Original data shape: {1}'.format(plog, orig_shape))
+                log.info('{0} Sectored data shape: {1}'.format(plog, sectored_shape))
             except:
                 log.exception('Failed printing original and sectored data shapes.')
             # Need to pass all arguments, can not have = in args arg for Process
@@ -423,7 +430,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                 mp_num_procs += 1
                 # print mpp
             except OSError:             # OSerror caused by a lack of memory
-                log.info('{0} OSError (lack of memory) occurred when trying to start job. {1}'.format(
+                log.info('{0} MPLOG OSError (lack of memory) occurred when trying to start job. {1}'.format(
                     plog, curr_sector.name))
             # MLS 20160126 Try this for memory usage ? Probably doesn't do anything
             gc.collect()
@@ -434,7 +441,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         DATETIMES['end_{0}'.format(curr_sector.name)] = datetime.utcnow()
         sect_time = (DATETIMES['end_{0}'.format(curr_sector.name)] -
                      DATETIMES['start_{0}'.format(curr_sector.name)])
-        log.info('{0} process {1} time: {2}'.format(plog, curr_sector.name, sect_time))
+        log.info('{0} MPLOG process {1} time: {2}'.format(plog, curr_sector.name, sect_time))
     else:
         if not mp_waiting:
             # If we hadn't been waiting, initialize the wait timer, for
@@ -449,7 +456,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                 DATETIMES['endmp_{0}{1}'.format(job.ident, job.name)] = datetime.utcnow()
                 mp_time = (DATETIMES['endmp_{0}{1}'.format(job.ident, job.name)] -
                            DATETIMES['startmp_{0}{1}'.format(job.ident, job.name)])
-                log.info('{0} {1} ran for {2}'.format(job.ident, job.name, mp_time))
+                log.info('MPLOG {0} {1} ran for {2}'.format(job.ident, job.name, mp_time))
                 mp_jobs.remove(job)
         if not mp_jobs:
             mp_num_times_cleared += 1

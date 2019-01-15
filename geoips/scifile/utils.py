@@ -8,7 +8,7 @@ from geoips.utils.plugin_paths import paths as gpaths
 
 log = logging.getLogger(__name__)
 
-def get_filename(basedir, source_name, secclass, sector, sdt, edt, platform_name, numfiles, dataprovider=None, filetype='h5'):
+def get_filename(basedir, source_name, classif, sector, sdt, edt, platform_name, numfiles, dataprovider=None, filetype='h5'):
     if isinstance(numfiles, int):
         numfilesstr = '%03d'%(numfiles)
     else:
@@ -26,7 +26,7 @@ def get_filename(basedir, source_name, secclass, sector, sdt, edt, platform_name
 
     uniq_hash = sector.uniq_hash
 
-    dirname = '%s/%s_%s'%(basedir,source_name,secclass)
+    dirname = '%s/%s_%s'%(basedir,source_name,classif)
     baseoutfilename = '%s_%s-%s_%s_%s_%s_%s_%s'%(
                         sector.name,    
                         sdtstr,
@@ -63,30 +63,30 @@ def hourrange(start_date, end_date):
         yield start_date + timedelta(seconds = (n*3600))
 
 def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_time, basedir=gpaths['PRESECTORED_DATA_PATH'], dataprovider=None, filetype='h5'):
-    secclass = '*'
+    classif = '*'
     numfiles = '*'
     edtstr = '*'
     filenames = []
     if (min_time - max_time) < timedelta(minutes=30):
         for sdt in minrange(min_time, max_time):
             sdtstr = sdt.strftime('%Y%m%d.%H%M*')
-            dirname, baseoutfilename, suf =  get_filename(basedir, source_name, secclass, sector, sdtstr, edtstr, platform_name, numfiles, dataprovider, filetype)
+            dirname, baseoutfilename, suf =  get_filename(basedir, source_name, classif, sector, sdtstr, edtstr, platform_name, numfiles, dataprovider, filetype)
             #print '%s'%(os.path.join(dirname,baseoutfilename+suf))
             filenames += glob(os.path.join(dirname,baseoutfilename+suf))
     return filenames
 
-def write_datafile(basedir, datafile, sector, secclass=None, filetype='h5'):
+def write_datafile(basedir, datafile, sector, classif=None, filetype='h5'):
     if filetype != 'h5':
         raise TypeError('Currently only h5 filetypes supported for write')
 
 
-    if not secclass and datafile.security_classification:
-        secclass = datafile.security_classification.replace('/','-')
+    if not classif and datafile.classification:
+        classif = datafile.classification.replace('/','-')
         for ds in datafile.datasets.values():
-            if 'SECRET' in ds.security_classification or '\/\/' in ds.security_classification:
-                secclass = ds.security_classification.replace('/','-')
-    elif secclass:
-        secclass = secclass.replace('/','-')
+            if ds.classification:
+                classif = ds.classification.replace('/','-')
+    elif classif:
+        classif = classif.replace('/','-')
 
     sdt = datetime.strptime('99991231','%Y%m%d')
     edt = datetime.strptime('19000101','%Y%m%d')
@@ -106,7 +106,7 @@ def write_datafile(basedir, datafile, sector, secclass=None, filetype='h5'):
 
     dirname, baseoutfilename, suf = get_filename(basedir, 
                 datafile.source_name, 
-                secclass, 
+                classif, 
                 sector, 
                 sdt, edt, 
                 datafile.platform_name,
@@ -276,7 +276,10 @@ def recursively_load_dict_contents_from_group(h5file, path):
             # same order.
             for ffkey in sorted(h5file[path+pathkey].keys()):
                 if 'list' in ffkey:
-                    anslist += [h5file[path+pathkey][ffkey].value]
+                    if hasattr(h5file[path+pathkey][ffkey], 'value'):
+                        anslist += [h5file[path+pathkey][ffkey].value]
+                    elif hasattr(h5file[path+pathkey][ffkey], 'items'):
+                        anslist += [h5file[path+pathkey][ffkey].items()]
                 elif 'list' not in ffkey:
                     islist = False
                 if islist:

@@ -14,7 +14,7 @@ def fields_plot(gi, imgkey=None):
         return
 
     #log.info('Setting up fig and ax for dataset: %s with bgname: %s'%(prodname, bgname))
-    #set_winds_plotting_params(gi, speeddata, platform=ds.platform_name, source=ds.source_name,
+    #set_winds_plotting_params(gi, speeddata, None, None, platform=ds.platform_name, source=ds.source_name,
     #            prodname=prodname, bgname=bgname,
     #            start_dt=ds.start_datetime, end_dt=ds.end_datetime)
 

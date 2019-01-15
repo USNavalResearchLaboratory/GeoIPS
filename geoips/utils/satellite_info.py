@@ -75,7 +75,7 @@ class SatInfo(object):
         self._select_sensor(sensor)
         # This is used in scifile/containers.py register. Has to match biggest possible
         # pixel size (at edge of scan)
-        self.interpolation_radius_of_influence = 4.0
+        self.interpolation_radius_of_influence = 100
         # If these values were not set in _set_satinfo, set them
         # to None here.  tle_name is the name used in
         # celestrak TLE files, tscan_name is name used in tscan
@@ -86,6 +86,9 @@ class SatInfo(object):
             self.old_celestrak_tle_names = []
         if not hasattr(self, 'tscan_tle_name'):
             self.tscan_tle_name = None
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
         if not hasattr(self, 'orig_file_satname'):
             self.orig_file_satname = None
 
@@ -302,6 +305,9 @@ class GOESESatInfo(SatInfo):
         self.celestrak_tle_name = 'GOES 13'
         self.tscan_tle_name = 'goes-13'
         self.geoips_satname = 'goesE'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
         self.orig_file_satname = 'g13'
         self.geostationary = True
 
@@ -337,6 +343,9 @@ class GOESWSatInfo(SatInfo):
         self.celestrak_tle_name = 'GOES 15'
         self.tscan_tle_name = 'goes-15'
         self.geoips_satname = 'goesW'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
         self.orig_file_satname = 'g15'
         self.geostationary = True
 
@@ -398,7 +407,13 @@ class ME8SatInfo(SatInfo):
         # if not, defined in _set_satinfo
         # None if not available (no ISS from tscan, no TLEs for GEO)
         self.celestrak_tle_name = 'METEOSAT-8 (MSG-1)'
-        self.tscan_tle_name = None
+        self.geoips_satname = 'meteoIO'
+        self.tscan_tle_name = 'msg-1'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
+        # ie, don't leave out the __
+        self.orig_file_satname = 'MSG1__'
         self.geostationary = True
 
 
@@ -434,6 +449,12 @@ class ME11SatInfo(SatInfo):
         # None if not available (no ISS from tscan, no TLEs for GEO)
         self.celestrak_tle_name = 'METEOSAT-11 (MSG-4)'
         self.tscan_tle_name = 'msg-4'
+        self.geoips_satname = 'meteoEU'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
+        # ie, don't leave out the __
+        self.orig_file_satname = 'MSG4__'
         self.geostationary = True
 
 
@@ -461,29 +482,6 @@ class METEO7SatInfo(SatInfo):
         self.tscan_tle_name = 'meteo-7'
         self.geostationary = True
 
-
-class METEOIOSatInfo(SatInfo):
-    def _set_satinfo(self, sensor=None):
-        self.sensornames = ['seviri']
-        #self.orbital_period = 92.5 * 60
-        # tle names for celestrak and tscan, default to satname
-        # if not, defined in _set_satinfo
-        # None if not available (no ISS from tscan, no TLEs for GEO)
-        self.celestrak_tle_name = 'METEOSAT-8 (MSG-1)'
-        self.tscan_tle_name = None
-        self.geostationary = True
-
-
-class METEOEUSatInfo(SatInfo):
-    def _set_satinfo(self, sensor=None):
-        self.sensornames = ['seviri']
-        #self.orbital_period = 92.5 * 60
-        # tle names for celestrak and tscan, default to satname
-        # if not, defined in _set_satinfo
-        # None if not available (no ISS from tscan, no TLEs for GEO)
-        self.celestrak_tle_name = 'METEOSAT-10 (MSG-3)'
-        self.tscan_tle_name = None
-        self.geostationary = True
 
 
 class METOPASatInfo(SatInfo):
@@ -559,7 +557,7 @@ class MT2SatInfo(SatInfo):
 
 class MULTISatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['tpw_cira', 'tpw_mimic']
+        self.sensornames = ['tpw_cira', 'tpw_mimic','merged']
         #self.orbital_period = 98 * 60
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -692,6 +690,15 @@ class SCATSAT1SatInfo(SatInfo):
         self.geostationary = False
         self.mins_per_file = 50
 
+class SMAPSatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        self.sensornames = ['smap-spd']
+        # self.orbital_period = 
+        # tle names for celestrak and tscan, default to satname
+        # if not, defined in _set_satinfo
+        self.celestrak_tle_name = 'SMAP'
+        self.tscan_tle_name = None
+        self.geostationary = False
 
 class TERRASatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -1742,6 +1749,7 @@ class SEVIRISensorInfo(SensorInfo):
         # outer is 1100km
         #self.swath_width_km = 900
         self.mins_per_file = 15
+        self.interpolation_radius_of_influence = 4000
         self.FName['runfulldir'] = True
         self.swath_width_km = 12000
         # Don't think legacy path is used anymore, can't run tdfs, and not downloading them.
@@ -1753,6 +1761,19 @@ class SEVIRISensorInfo(SensorInfo):
 
         #self.data_types = {}
 
+class SMAPSensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        # This must match appropriate DataFileName class name in utils/path/datafilename.py
+        # RS_S2B00563.20143021221
+        #self.OrigFName['cls'] = 'RSCATFileName'
+        #self.OrigFName['nameformat'] = 'datatype_YYYYJJJHHMN'
+        #self.OrigFName['fieldsep'] = '_'
+        #self.OrigFName['fillvalue'] = 'x'
+        # outer is 1100km
+        self.swath_width_km = 1000         #the real number is?
+        self.pathnameformat = ''
+        self.interpolation_radius_of_influence = 25000
+        #self.data_types = {}
 
 class SMOSSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
@@ -2061,6 +2082,7 @@ SensorInfo_classes = {
         'smos':  SMOSSensorInfo,
         'windsat':  WINDSATSensorInfo,
         'saphir': SAPHIRSensorInfo,
+        'smap-spd':  SMAPSensorInfo,
         'ssmi':  SSMISensorInfo,
         'ssmis':  SSMISSensorInfo,
         'ols':  OLSSensorInfo,
@@ -2113,8 +2135,8 @@ SatInfo_classes = {
         'mt1': MT1SatInfo,
         'nrljc': NRLJCSatInfo,
         'proteus': PROTEUSSatInfo,
-        'meteoIO': METEOIOSatInfo,
-        'meteoEU': METEOEUSatInfo,
+        'meteoIO': ME8SatInfo,
+        'meteoEU': ME11SatInfo,
         'me10': ME10SatInfo,
         'me11': ME11SatInfo,
         'me9': ME9SatInfo,
@@ -2135,6 +2157,7 @@ SatInfo_classes = {
         'm2a': M2ASatInfo,
         'multi': MULTISatInfo,
         'navgem': NAVGEMSatInfo,
+        'smap': SMAPSatInfo,
         'windvectors': WindVectorsSatInfo,
         'terra': TERRASatInfo,
         'trmm': TRMMSatInfo,

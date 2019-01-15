@@ -32,11 +32,7 @@ def extalg(datafile, sector, product, workdir):
     ##    if 'preprocessed' not in dfname:
     ##        write_file = True
     ##if write_file:
-    ##    if datafile.security_classification:
-    ##        dirname = os.getenv('GEOIPS_OUTDIRS')+'/data/preprocessed/%s_%s'%(datafile.source_name,
-    ##                                        datafile.security_classification.replace('/','-'))
-    ##    else:
-    ##        dirname = os.getenv('GEOIPS_OUTDIRS')+'/data/preprocessed/%s'%(datafile.source_name)
+    ##    dirname = os.getenv('GEOIPS_OUTDIRS')+'/data/preprocessed/%s'%(datafile.source_name)
     ##    baseh5filename = '%s/%s_%s'%(dirname,
     ##                        sector.name,
     ##                        '_'.join(sorted(datafile.datasets.keys())))
