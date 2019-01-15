@@ -5,25 +5,26 @@
     Notes:
         See ../productfiles.dtd in this directory for full notes.  All DTD information
         is contained there.
-        Arunas 20140407 varged celcius to celsius
 -->
 <product_file>
-<product method="basic" name="Infrared-Gray">
+<product method='basic' name='Visible-Gray'>
     <basic_args>
-        <source name='seviri'>
-            <var>B09BT</var> <!--11.2um  B14 ABI   IR_108 10.8um MSG IR Longwave Window band, IR                                  -->
+        <source name='ahi'>
+            <var zenith='yes'>B04Ref</var>
+            <gvar>SunZenith</gvar>
         </source>
         <img>
-            <equation>B09BT</equation>
+            <equation>B04Ref</equation>
             <range>
-                <min_value>173</min_value>
-                <max_value>323</max_value>
+                <min_value>0</min_value>
+                <max_value>1.0</max_value>
                 <outbounds>crop</outbounds>
-                <units>kelvin</units>
+                <units>Albedo</units>
             </range>
+            <gamma1>1.5</gamma1>
         </img>
-        <day_night>both</day_night>
-        <cmap>Greys</cmap>
+        <day_night>day</day_night>
+        <cmap>Greys_r</cmap>
         <coastcolor>255 180 0</coastcolor>
         <gridcolor>255 180 0</gridcolor>
     </basic_args>
