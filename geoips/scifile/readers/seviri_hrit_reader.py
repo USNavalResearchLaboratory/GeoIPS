@@ -222,7 +222,7 @@ def countsToRad(counts, slope, offset):
 def radToRef(rad, sun_zen, platform, band):
     irrad = VIS_CALIB[platform][band]
     ref = np.full_like(rad, -999.0)
-    ref[rad > 0] = rad[rad > 0] * 100.0 / irrad
+    ref[rad > 0] = rad[rad > 0] / irrad
     ref[rad > 0] = np.pi * rad[rad > 0] / (irrad * np.cos((np.pi / 180) * sun_zen[rad > 0]))
     ref[ref < 0] = 0
     ref[ref > 100] = 100

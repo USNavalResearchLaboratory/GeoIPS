@@ -10,10 +10,10 @@
 <product method='basic' name='Infrared-Gray' testonly='yes'>
     <basic_args>
         <source name='abi'>
-            <var zenith='no'>B13BT</var>
+            <var zenith='no'>B14BT</var>
         </source>
         <img>
-            <equation>B13BT</equation>
+            <equation>B14BT</equation>
             <range>
                 <min_value>173</min_value>
                 <max_value>323</max_value>
