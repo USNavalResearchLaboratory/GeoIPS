@@ -110,7 +110,7 @@ class Winds_Text_Reader(Reader):
             return False
 
         with open(fname) as f:
-            for linenum in range(0,5):
+            for linenum in range(0,20):
                 line = f.readline()
                 if 'lat' in line and 'lon' in line and 'spd' in line and 'dir' in line:
                     return True
@@ -163,8 +163,8 @@ class Winds_Text_Reader(Reader):
         with open(fname) as fp:
             while not metadata['top']['start_datetime']:
                 parts = fp.readline().split()
-                if 'SECURITY' in parts and 'CLASSIFICATION:' in parts:
-                    metadata['top']['security_classification'] = parts[-1]
+                if 'CLASSIFICATION:' in parts:
+                    metadata['top']['classification'] = parts[-1]
                     continue
                 if len(parts) == 12:
                     typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi,interv = parts
@@ -177,7 +177,8 @@ class Winds_Text_Reader(Reader):
                     rff = 0
                     qi = 0
                 else:
-                    log.error('Unsupported format for %s'%(parts))
+                    log.info('Skipping header line %s'%(parts))
+                    continue
                 interv = 0
                 try:
                     metadata['top']['start_datetime'] = datetime.strptime(day+hms,'%Y%m%d%H%M')

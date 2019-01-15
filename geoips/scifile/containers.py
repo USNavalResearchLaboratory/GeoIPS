@@ -47,8 +47,8 @@ log = logging.getLogger(__name__)
 # finfo contains data that will be stored at the file level
 _empty_finfo = {'source_name': None,
                 'platform_name': None,
-                'security_classification': None,
-                'security_classification_full': None,
+                'classification': None,
+                'classification_full': None,
                 'start_datetime': None,
                 'end_datetime': None,
                 'filename_datetime': None,
@@ -822,28 +822,28 @@ class DataSet(object):
         self._dsinfo_prop_deleter('platform_name')
 
     @property
-    def security_classification(self):
-        return self._dsinfo_prop_getter('security_classification')
+    def classification(self):
+        return self._dsinfo_prop_getter('classification')
 
-    @security_classification.setter
-    def security_classification(self, val):
-        self._dsinfo_prop_setter('security_classification', val)
+    @classification.setter
+    def classification(self, val):
+        self._dsinfo_prop_setter('classification', val)
 
-    @security_classification.deleter
-    def security_classification(self):
-        self._dsinfo_prop_deleter('security_classification')
+    @classification.deleter
+    def classification(self):
+        self._dsinfo_prop_deleter('classification')
 
     @property
-    def security_classification_full(self):
-        return self._dsinfo_prop_getter('security_classification_full')
+    def classification_full(self):
+        return self._dsinfo_prop_getter('classification_full')
 
-    @security_classification_full.setter
-    def security_classification_full(self, val):
-        self._dsinfo_prop_setter('security_classification_full', val)
+    @classification_full.setter
+    def classification_full(self, val):
+        self._dsinfo_prop_setter('classification_full', val)
 
-    @security_classification_full.deleter
-    def security_classification_full(self):
-        self._dsinfo_prop_deleter('security_classification_full')
+    @classification_full.deleter
+    def classification_full(self):
+        self._dsinfo_prop_deleter('classification_full')
 
     @property
     def sensor_name(self):
@@ -2018,12 +2018,12 @@ class Variable(MaskedArray):
         return self._dsinfo['platform_name']
 
     @property
-    def security_classification(self):
-        return self._dsinfo['security_classification']
+    def classification(self):
+        return self._dsinfo['classification']
 
     @property
-    def security_classification_full(self):
-        return self._dsinfo['security_classification_full']
+    def classification_full(self):
+        return self._dsinfo['classification_full']
 
     # Probably Variable specific.  Should be in _optinfo if needed.
     # @property

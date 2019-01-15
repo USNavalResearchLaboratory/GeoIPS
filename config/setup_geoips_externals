@@ -1,6 +1,6 @@
 # This setup is required if using the pre-built externals
 # If dependencies installed elsewhere, these not included
-if [ -d $GEOIPS_VIRTUALENV_DIR ]; then
+if [ -d $GEOIPS_EXT_INSTALLDIR ]; then
     export LD_LIBRARY_PATH=$GEOIPS_EXT_INSTALLDIR/lib:$LD_LIBRARY_PATH
     export LIBRARY_DIRS=$GEOIPS_EXT_INSTALLDIR/lib
     export INCLUDE_DIRS=$GEOIPS_EXT_INSTALLDIR/include
