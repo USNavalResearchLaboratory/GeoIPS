@@ -403,6 +403,16 @@ class Product(object):
         return self._day_ngt
 
     @property
+    def max_sat_zen_ang(self):
+        if not hasattr(self, '_max_sat_zen_ang'):
+            self._max_sat_zen_ang= self.product_args.find('max_sat_zen_ang')
+            try:
+                self._max_sat_zen_ang= self._max_sat_zen_ang.pyval
+            except AttributeError:
+                self._max_sat_zen_ang = 90
+        return self._max_sat_zen_ang
+
+    @property
     def day_ang(self):
         if not hasattr(self, '_day_ang'):
             self._day_ang = self.product_args.find('max_day_zen_ang')

@@ -24,6 +24,7 @@
         </img>
         <day_night>day</day_night>
         <cmap>Greys_r</cmap>
+        <max_sat_zen_ang>84</max_sat_zen_ang>
         <coastcolor>255 180 0</coastcolor>
         <gridcolor>255 180 0</gridcolor>
     </basic_args>
