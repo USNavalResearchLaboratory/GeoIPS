@@ -1995,7 +1995,7 @@ class TiffPage(object):
         if 'image_depth' not in tags:
             self.image_depth = 1
 
-        if 'image_length' in tags:
+        if 'image_length' in tags and hasattr(self,'image_length') and hasattr(self,'rows_per_strip'):
             self.strips_per_image = int(math.floor(
                 float(self.image_length + self.rows_per_strip - 1) /
                 self.rows_per_strip))
