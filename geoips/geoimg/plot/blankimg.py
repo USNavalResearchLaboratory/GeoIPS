@@ -19,11 +19,6 @@ from datetime import datetime
 # Installed Libraries
 import numpy as np
 
-try:
-    from IPython import embed as shell
-except:
-    print 'Failed import IPython in geoimg/plot/rgbimg.py. If you need it, install it.'
-
 
 # GeoIPS Libraries
 from .geoimgbase import GeoImgBase
@@ -40,7 +35,7 @@ class BlankImg(GeoImgBase):
     @property
     def image(self):
         pass
-        self._image = something
+        self._image = []
         return self._image
 
     def plot(self):
