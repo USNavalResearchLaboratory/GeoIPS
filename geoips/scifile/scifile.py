@@ -1085,3 +1085,9 @@ class SciFile(object):
             #Mask each dataset
             ds.mask_day(max_zenith=max_zenith)
 
+    def mask_edge_of_scan(self, max_sat_zenith=90):
+        '''Mask data where the sat zenith angle is above max_sat_zenith.'''
+        for dsname, ds in self.datasets.items():
+            #Mask each dataset
+            ds.mask_edge_of_scan(max_sat_zenith=max_sat_zenith)
+
