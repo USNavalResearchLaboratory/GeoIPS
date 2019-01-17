@@ -380,69 +380,69 @@ def process_overpass(satellite,
         overall_start_dt = overall_start_dt - timedelta(minutes=480)
     log.info('Overall start and end times: '+str(overall_start_dt)+' to '+str(overall_end_dt))
 
-    if download == True:
-        log.interactive('queue: '+str(queue)+'\n\n')
-        data_type = default_data_type[sensor]
-        host_type = default_host_type[data_type]
-        #Can't we do something to minimize the copypaste done here?  Hard to maintain...
-        if (data_type,host_type) in non_qsubbed:
-            for opass in opasses:
-                log.info('sectorfiles: '+str(sectorfiles))
-                sector_file = sectorfile.open(
-                        allstatic=allstatic,
-                        alldynamic=alldynamic,
-                        tc=tc,
-                        start_datetime = opass.startdt-timedelta(hours=6),
-                        end_datetime = opass.enddt,
-                        one_per_sector=True)
-                if not sectorfiles:
-                    currsectorfiles = sector_file.names
-                else:
-                    currsectorfiles = sectorfiles
-                log.info('currsectorfiles: '+str(currsectorfiles))
-                log.interactive('Downloading opass: '+str(opass)+'\n\n')
-                si = SatSensorInfo(satellite,sensor)
-                # If they are very long files (ie, full orbit), make
-                # sure we get the file before the overpass time
-                startdt = opass.startdt-timedelta(minutes=si.mins_per_file)
-                downloader(data_type,host_type,
-                    sector_file=sector_file,
-                    sectorlist=sectorlist,
-                    sectorfiles = currsectorfiles,
-                    productlist=productlist,
-                    data_outpath=data_outpath,
-                    product_outpath=product_outpath,
-                    start_datetime=startdt,
-                    end_datetime=opass.enddt,
-                    queue=queue,
-                    allstatic=allstatic,
-                    alldynamic=alldynamic,
-                    tc=tc,
-                    volcano=volcano,
-                    #max_connections=8,
-                    max_wait_seconds=None,
-                    )
-                time.sleep(5)
-        else:
-            log.interactive(sectorfiles)
-            downloader(data_type,host_type,
-                sector_file=sector_file,
-                sectorlist=sectorlist,
-                sectorfiles = sectorfiles,
-                productlist=productlist,
-                data_outpath=data_outpath,
-                product_outpath=product_outpath,
-                start_datetime=overall_start_dt,
-                end_datetime=overall_end_dt,
-                queue=queue,
-                allstatic=allstatic,
-                alldynamic=alldynamic,
-                tc=tc,
-                opasses=opasses,
-                #max_connections=8,
-                max_wait_seconds=None,
-                )
-            time.sleep(5)
+    #if download == True:
+    #    log.interactive('queue: '+str(queue)+'\n\n')
+    #    data_type = default_data_type[sensor]
+    #    host_type = default_host_type[data_type]
+    #    #Can't we do something to minimize the copypaste done here?  Hard to maintain...
+    #    if (data_type,host_type) in non_qsubbed:
+    #        for opass in opasses:
+    #            log.info('sectorfiles: '+str(sectorfiles))
+    #            sector_file = sectorfile.open(
+    #                    allstatic=allstatic,
+    #                    alldynamic=alldynamic,
+    #                    tc=tc,
+    #                    start_datetime = opass.startdt-timedelta(hours=6),
+    #                    end_datetime = opass.enddt,
+    #                    one_per_sector=True)
+    #            if not sectorfiles:
+    #                currsectorfiles = sector_file.names
+    #            else:
+    #                currsectorfiles = sectorfiles
+    #            log.info('currsectorfiles: '+str(currsectorfiles))
+    #            log.interactive('Downloading opass: '+str(opass)+'\n\n')
+    #            si = SatSensorInfo(satellite,sensor)
+    #            # If they are very long files (ie, full orbit), make
+    #            # sure we get the file before the overpass time
+    #            startdt = opass.startdt-timedelta(minutes=si.mins_per_file)
+    #            downloader(data_type,host_type,
+    #                sector_file=sector_file,
+    #                sectorlist=sectorlist,
+    #                sectorfiles = currsectorfiles,
+    #                productlist=productlist,
+    #                data_outpath=data_outpath,
+    #                product_outpath=product_outpath,
+    #                start_datetime=startdt,
+    #                end_datetime=opass.enddt,
+    #                queue=queue,
+    #                allstatic=allstatic,
+    #                alldynamic=alldynamic,
+    #                tc=tc,
+    #                volcano=volcano,
+    #                #max_connections=8,
+    #                max_wait_seconds=None,
+    #                )
+    #            time.sleep(5)
+    #    else:
+    #        log.interactive(sectorfiles)
+    #        downloader(data_type,host_type,
+    #            sector_file=sector_file,
+    #            sectorlist=sectorlist,
+    #            sectorfiles = sectorfiles,
+    #            productlist=productlist,
+    #            data_outpath=data_outpath,
+    #            product_outpath=product_outpath,
+    #            start_datetime=overall_start_dt,
+    #            end_datetime=overall_end_dt,
+    #            queue=queue,
+    #            allstatic=allstatic,
+    #            alldynamic=alldynamic,
+    #            tc=tc,
+    #            opasses=opasses,
+    #            #max_connections=8,
+    #            max_wait_seconds=None,
+    #            )
+    #        time.sleep(5)
 
     all_files = []
     # Reverse=True for newest first
