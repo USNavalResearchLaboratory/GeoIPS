@@ -50,6 +50,25 @@ def add_to_products_db(geoimgobj):
 
     cc,conn = open_products_db()
 
+    atcf_stormfilename = None
+    filename = None
+    ext = None
+    last_updated = None
+    op_start_datetime = None
+    op_end_datetime = None
+    sector_name = None
+    product_name = None
+    resolution = None
+    min_lat = None
+    min_lon = None
+    max_lat = None
+    max_lon = None
+    coverage = None
+    data_provider = None
+    tc_start_vmax = None
+    tc_start_name = None
+    tc_vmax = None
+
     cc.execute("SELECT * FROM atcf_deck_stormfiles WHERE filename = ?", (atcf_stormfilename,))
     data = cc.fetchall()
     if data:
