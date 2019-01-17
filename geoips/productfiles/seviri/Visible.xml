@@ -10,10 +10,10 @@
 <product method="basic" name="Visible">
     <basic_args>
         <source name='seviri'>
-            <var zenith='yes'>VIS008</var>
+            <var zenith='yes'>B02Ref</var> <!-- 0.86um B03 ABI   VIS008  0.8um MSG Veggie band, near-IR                                         -->
         </source>
         <img>
-            <equation>VIS008</equation>
+            <equation>B02Ref</equation>
             <range>
                 <min_value>0.0</min_value>
                 <max_value>100.0</max_value>

@@ -158,8 +158,8 @@ class Title(object):
         line_parts = [self.satellite.upper(),
                       self.sensor.upper(),
                       self.product,
-                      self.time_range,
-                      self.copyright,
+                      #self.time_range,
+                      #self.copyright,
                       ]
         line = ' '.join(line_parts)
         self._first_line = line
@@ -201,7 +201,7 @@ class Title(object):
         may not want to explicitly set the title when creating the geoimg obj.
         '''
         #self._lines = [self.first_line, self.second_line]
-        self._lines = [self.first_line]
+        self._lines = [self.first_line, self.second_line]
         if self.extra_lines is not None:
             self._lines.extend(self.extra_lines)
         return self._lines
@@ -375,9 +375,12 @@ class Title(object):
         sourcename = datafile.source_name_display
         platformname = datafile.platform_name_display
 
+        sect_sourcename = 'False'
+        sect_platformname = 'False'
         # If display names in sectorfile doesn't match, use those
-        sect_sourcename = sector.sources.sources_dict[datafile.source_name]['source_name_display']
-        sect_platformname = sector.sources.sources_dict[datafile.source_name]['platform_name_display']
+        if datafile.source_name in sector.sources.sources_dict.keys():
+            sect_sourcename = sector.sources.sources_dict[datafile.source_name]['source_name_display']
+            sect_platformname = sector.sources.sources_dict[datafile.source_name]['platform_name_display']
 
         if sect_sourcename != "False" and sect_sourcename != sourcename:
             sourcename = sect_sourcename

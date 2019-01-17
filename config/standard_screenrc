@@ -1,0 +1,54 @@
+vbell off
+
+# TO KILL A SCREEN SESSION (all windows)
+# C-a : quit
+#
+# NOTE sometimes if PROMPT_COMMAND is set, 
+# screen will clobber the titles you set
+# Prior to starting screen, run
+# unset PROMPT_COMMAND
+# to maintain titles / hardstatus string set below.
+# THIS MAY HAVE TO BE DONE WITHIN .bashrc, else it 
+# could get reset before opening tabs.
+# Can also source geoips/config/color_prompt 
+#   (which does unset PROMPT_COMMAND)
+
+#termcapinfo xterm ti@:te@
+
+bind -c selectHighs 0 select 10 # these commands are added to the 
+bind -c selectHighs 1 select 11 # command-class selectHighs
+bind -c selectHighs 2 select 12
+bind -c selectHighs 3 select 13
+bind -c selectHighs 4 select 14
+bind -c selectHighs 5 select 15
+bind -c selectHighs 6 select 16
+bind -c selectHighs 7 select 17
+bind -c selectHighs 8 select 18
+bind -c selectHighs 9 select 19
+
+bind - command -c selectHighs # bind the hyphen to command-class selectHighs
+
+#shelltitle "alg"
+screen -t alg 0
+
+#shelltitle "out"
+screen -t plot 1
+
+#shelltitle "out"
+screen -t rdrs 2
+
+screen -t prods 3
+screen -t sects 4
+screen -t rscr 5
+screen -t "**abi" 6
+screen -t ahi 7
+screen -t met8 8
+screen -t met11 9
+screen -t data 10
+screen -t prep 11
+screen -t out 12
+screen -t logs 13
+
+hardstatus alwayslastline
+
+hardstatus string '%{= kG}%-Lw%{= kW}%50> %n%f* %t%{= kG}%+Lw%< %{= kG}%-=Y.%m.%d %c%{-}'

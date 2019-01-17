@@ -12,23 +12,4 @@
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # included license for more details.
 
-from solar_angle_calc import solar_angle_calc
-from IPython import embed as shell
-
-function_map = {'SunZenith': solar_angle_calc,
-                'SunAzimuth': solar_angle_calc,
-               }
-
-def satnav(varname, dt, lons, lats, index=None):
-    try:
-        func = function_map[varname]
-    except KeyError:
-        raise KeyError('Unable to find function to calculate %s.' % varname)
-
-    if index is not None:
-        lats = lats[index]
-        lons = lons[index]
-    else:
-        pass
-
-    return func(varname, dt, lons, lats)
+from .satnav import SatNav

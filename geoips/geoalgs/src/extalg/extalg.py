@@ -1,4 +1,3 @@
-#!/bin/env python
 import os
 import logging
 from IPython import embed as shell
@@ -28,39 +27,35 @@ def extalg(datafile, sector, product, workdir):
     This pre-processed file will have all datatypes that were read in
     included - navgem, abi, ahi, viirs, etc
     '''
-    write_file = False
-    for dfname in datafile.datafiles.keys():
-        if 'preprocessed' not in dfname:
-            write_file = True
-    if write_file:
-        if datafile.security_classification:
-            dirname = os.getenv('GEOIPS_OUTDIRS')+'/data/preprocessed/%s_%s'%(datafile.source_name,
-                                            datafile.security_classification.replace('/','-'))
-        else:
-            dirname = os.getenv('GEOIPS_OUTDIRS')+'/data/preprocessed/%s'%(datafile.source_name)
-        baseh5filename = '%s/%s_%s'%(dirname,
-                            sector.name,
-                            '_'.join(sorted(datafile.datasets.keys())))
-        if not os.path.isdir(dirname):
-            os.makedirs(dirname)
-        h5filename = baseh5filename+'.h5'
-        ii = 0
-        while os.path.exists(h5filename):
-            h5filename = '%s_%03d%s'%(baseh5filename, ii, '.h5')
-            ii+=1
-        log.info('Writing out pre-sectored h5 data file: '+h5filename)
+    ##write_file = False
+    ##for dfname in datafile.datafiles.keys():
+    ##    if 'preprocessed' not in dfname:
+    ##        write_file = True
+    ##if write_file:
+    ##    dirname = os.getenv('GEOIPS_OUTDIRS')+'/data/preprocessed/%s'%(datafile.source_name)
+    ##    baseh5filename = '%s/%s_%s'%(dirname,
+    ##                        sector.name,
+    ##                        '_'.join(sorted(datafile.datasets.keys())))
+    ##    if not os.path.isdir(dirname):
+    ##        os.makedirs(dirname)
+    ##    h5filename = baseh5filename+'.h5'
+    ##    ii = 0
+    ##    while os.path.exists(h5filename):
+    ##        h5filename = '%s_%03d%s'%(baseh5filename, ii, '.h5')
+    ##        ii+=1
+    ##    log.info('Writing out pre-sectored h5 data file: '+h5filename)
 
 
     '''
     Example if you want to register some data in here
     '''
-    log.info('Registering datasets...')
-    registered_data = datafile.register(sector.area_definition,
-            interp_method = None,
-            roi = None,
-            #required_datasets = ['B13BT'],
-            )
-
+#    log.info('Registering datasets...')
+#    registered_data = datafile.register(sector.area_definition,
+#            interp_method = None,
+#            roi = None,
+#            #required_datasets = ['B13BT'],
+#            )
+#
 
     '''
     This is a ridiculous process, but calling
@@ -71,9 +66,9 @@ def extalg(datafile, sector, product, workdir):
     dynamically
     '''
 
-    from .extalg_config import extalg_config
-    sat_config = {}
-    extalg_config(sat_config)
+    ##from .extalg_config import extalg_config
+    ##sat_config = {}
+    ##extalg_config(sat_config)
 
 
     '''
@@ -84,11 +79,14 @@ def extalg(datafile, sector, product, workdir):
     each entry!!!!
     '''
     outdata = {}
-    for ds in registered_data.datasets.values():
-        # Grab the appropriate variable name out of the sat_config dict
-        srcname = ds.source_name
-        varname = sat_config[srcname]['varname'][0]
-        # now set the outdata dictionary to the appropriate data array.
-        outdata[srcname+'irvar'] = ds.variables[varname]
+    outdata['rainrate'] = {}
+    outdata['rainrate']['liquid'] = liquid_data_array
+    outdata['rainrate']['frozen'] = frozen_data_array
+    ##for ds in registered_data.datasets.values():
+    ##    # Grab the appropriate variable name out of the sat_config dict
+    ##    srcname = ds.source_name
+    ##    varname = sat_config[srcname]['varname'][0]
+    ##    # now set the outdata dictionary to the appropriate data array.
+    ##    outdata[srcname+'irvar'] = ds.variables[varname]
 
     return outdata

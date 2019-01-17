@@ -165,7 +165,15 @@ class SciFile_Reader(Reader):
                     gvars[dsname][varname] = np.ma.array(vargroup[varname].value)
                 _varinfo.update(_dsinfo)
                 _varinfo.update(_finfo)
-                metadata['top'] = _varinfo
+                # MLS 20181124 Previously was just indiscriminately setting metadata['top'] to _varinfo
+                # Now go through _varinfo keys, if metadata['top'][key] is None, overwrite it with _varinfo value
+                # Please watch elevation reader, to ensure this doesn't lose keys
+                if 'top' not in metadata.keys():
+                    metadata['top'] = _varinfo
+                else:
+                    for key in _varinfo.keys():
+                        if key in metadata['top'].keys() and metadata['top'][key] is None:
+                            metadata['top'][key] = _varinfo[key]
 
         # MLS 20180405 whatever was going on here appears to no longer be necessary.
         # comment out for now.

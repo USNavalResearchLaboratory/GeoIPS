@@ -1,0 +1,63 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<product_file>
+<product method='externalalg' name='Fields' finalonly='yes'>
+    <externalalg_args>
+        <source name='navgem' granule_composites='no'>
+            <var optional='yes'>av1000</var> <!-- Absolute Vorticity -->
+            <var optional='yes'>av250</var> 
+            <var optional='yes'>av500</var> 
+            <var optional='yes'>av700</var> 
+            <var optional='yes'>av850</var> 
+            <var optional='yes'>cmr1000</var> <!-- Cloud Mixing Ratio-->
+            <var optional='yes'>cmr250</var> 
+            <var optional='yes'>cmr500</var> 
+            <var optional='yes'>cmr700</var> 
+            <var optional='yes'>cmr850</var> 
+            <var optional='yes'>geoph1000</var> <!-- Geopotential Height-->
+            <var optional='yes'>geoph250</var> 
+            <var optional='yes'>geoph500</var> 
+            <var optional='yes'>geoph700</var> 
+            <var optional='yes'>geoph850</var> 
+            <var optional='yes'>rh1000</var> <!-- Relative Humidity-->
+            <var optional='yes'>rh250</var> 
+            <var optional='yes'>rh500</var> 
+            <var optional='yes'>rh700</var> 
+            <var optional='yes'>rh850</var> 
+            <var optional='yes'>temp1000</var> <!-- Temperature -->
+            <var optional='yes'>temp250</var> 
+            <var optional='yes'>temp500</var> 
+            <var optional='yes'>temp700</var> 
+            <var optional='yes'>temp850</var> 
+            <var optional='yes'>uwind1000</var> <!-- U component of wind-->
+            <var optional='yes'>uwind250</var> 
+            <var optional='yes'>uwind500</var> 
+            <var optional='yes'>uwind700</var> 
+            <var optional='yes'>uwind850</var> 
+            <var optional='yes'>vwind1000</var> <!-- V component of wind-->
+            <var optional='yes'>vwind250</var> 
+            <var optional='yes'>vwind500</var> 
+            <var optional='yes'>vwind700</var> 
+            <var optional='yes'>vwind850</var> 
+            <var optional='yes'>vv1000</var> <!-- Vertical Velocity-->
+            <var optional='yes'>vv250</var> 
+            <var optional='yes'>vv500</var> 
+            <var optional='yes'>vv700</var> 
+            <var optional='yes'>vv850</var> 
+        </source>
+        <day_night>both</day_night>
+        <max_day_zen_ang>90</max_day_zen_ang>
+        <min_ngt_zen_ang>90</min_ngt_zen_ang>
+        <coastcolor>0 180 180 180</coastcolor>
+        <gridcolor>0 180 180 180</gridcolor>
+    </externalalg_args>
+</product>
+</product_file>
+
+

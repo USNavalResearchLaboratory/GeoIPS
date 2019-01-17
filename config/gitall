@@ -22,7 +22,10 @@ function gitall {
             # Print directory
             echo -e "\033[1;35m"`pwd`"\033[0m":
             # Run the git command on passed arguments
-            git $@
+            mkdir -p $GEOIPS_OUTDIRS/gitlog
+            logf=$GEOIPS_OUTDIRS/gitlog/`date +%Y%m%d%H%M`.log 
+            git $@ | tee -a $logf
+            echo "Logged in $logf"
         fi
         echo 
     done

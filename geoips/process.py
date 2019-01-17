@@ -25,11 +25,6 @@ try: from memory_profiler import profile
 except: print 'Failed importing memory_profiler in process.py'
 from matplotlib import rcParams
 rcParams['path.simplify'] = False
-if not os.getenv('GEOIPS_OPERATIONAL_USER'):
-    from IPython import embed as shell
-else:
-    def shell():
-        pass
 
 # GeoIPS Libraries
 import geoips.sectorfile as sectorfile
@@ -95,11 +90,12 @@ def create_imagery(data_file, sector, productlist, outdir,
         # Check whether required channels exist in data file, do this before 
         # day/night check.
         req_vars = curr_product.get_required_source_vars(data_file.source_name)
+        opt_vars = curr_product.get_optional_source_vars(data_file.source_name)
 
         # Skip if no required variables available for the current product
-        if not data_file.has_all_vars(req_vars):
-            log.warning(pplog+' SKIPPING: No required variables available')
-            log.interactive('SKIPPING: No required variables available')
+        if not data_file.has_all_vars(req_vars) and not data_file.has_any_vars(opt_vars):
+            log.warning(pplog+' SKIPPING: All required variables not available')
+            log.interactive('SKIPPING: All required variables not available')
             return None
 
         # Skip if appropriate data is not found (day vs night)
@@ -177,10 +173,24 @@ def create_imagery(data_file, sector, productlist, outdir,
             images, just the FULLCOMPOSITE and FINAL, so skip this step
             to save time/IO
         '''
-        if 'NO_GRANULE_COMPOSITES' in data_file.metadata['top'].keys() \
+
+        granule_composites = True 
+
+        if hasattr(curr_product, 'granule_composites') and not curr_product.granule_composites:
+            granule_composites = False
+            log.info('\n\n\n\n      '+pplog+' TEMPORARY SINGLE GRANULE images not required based on product specification, skipping .... \n')
+
+        elif data_file.source_name in curr_product.sources.keys() and \
+            not curr_product.sources[data_file.source_name].granule_composites:
+            granule_composites = False
+            log.info('\n\n\n\n      '+pplog+' TEMPORARY SINGLE GRANULE images not required based on product source specification, skipping .... \n')
+
+        elif 'NO_GRANULE_COMPOSITES' in data_file.metadata['top'].keys() \
             and data_file.metadata['top']['NO_GRANULE_COMPOSITES']:
-            log.info('\n\n\n\n      '+pplog+' TEMPORARY SINGLE GRANULE images not required, skipping .... \n')
-        else:
+            granule_composites = False
+            log.info('\n\n\n\n      '+pplog+' TEMPORARY SINGLE GRANULE images not required based on metadata specification, skipping .... \n')
+
+        if granule_composites:
             if currcovg > 0.0:
                 log.info('\n\n\n\n       '+pplog+' Running geoimg.produce_imagery for TEMPORARY SINGLE GRANULE image... \n')
                 if isinstance(img.image, dict):
@@ -210,9 +220,9 @@ def create_imagery(data_file, sector, productlist, outdir,
         if hasattr(curr_product,'finalonly') and curr_product.finalonly:
             log.info('      finalonly set on product %s, not creating FULLCOMPOSITE image'%curr_product.name)
             finalimg = img
-        elif 'NO_GRANULE_COMPOSITES' in data_file.metadata['top'].keys() \
-            and data_file.metadata['top']['NO_GRANULE_COMPOSITES']:
-            log.info('\n\n\n\n      '+pplog+' NO_GRANULE_COMPOSITES set in SciFile Metadata - no granule or swath compositing .... \n')
+
+        elif not granule_composites:
+            log.info('\n\n\n\n      '+pplog+' NO_GRANULE_COMPOSITES specified - no granule or swath compositing .... \n')
             finalimg = img
             finalimg.merged_type = 'FULLCOMPOSITE'
             # This is necessary for overlays - expects imagery in fullcomposite directory.
@@ -241,11 +251,11 @@ def create_imagery(data_file, sector, productlist, outdir,
                 return None
 
             '''
-            sector.composite_on specifies whether we want to do swath composites
+            sector.swathstitching_on specifies whether we want to do swath stitching
             for this particular sector. Some sectors in arctic / antarctic do
-            not need composited, because all swaths overlap.
+            not need swath stitched, because all swaths overlap.
             '''
-            if sector.composite_on:
+            if sector.swathstitching_on:
                 log.info('\n\n\n\n       '+pplog+' Running merge_swaths and produce_imagery for TEMPORARY FULLCOMPOSITE image... \n')
                 try:
                     finalimg = swathimg.merge_swaths()
@@ -290,10 +300,13 @@ def create_imagery(data_file, sector, productlist, outdir,
                 curr_geoips_only = check_if_testonly(finalimg, geoips_only)
                 if isinstance(finalimg.image, dict):
                     for imgkey in finalimg.image.keys():
+                        log.info('Looping through final images and producing imagery for '+imgkey)
+                        finalimg.coverage(imgkey)
                         finalimg._is_final = True
                         final_productnames += [finalimg.get_filename(imgkey=imgkey).name]
                         finalimg.produce_imagery(final=True, geoips_only=curr_geoips_only, imgkey=imgkey)
                 else:
+                    log.info('No separate images, producing single final imagery')
                     finalimg.produce_imagery(final=True, geoips_only=curr_geoips_only)
             except (IOError,OSError),resp:
                 log.error(str(resp)+pplog+' Failed writing FINAL MERGED image. Someone else did it for us? Skipping to next product')

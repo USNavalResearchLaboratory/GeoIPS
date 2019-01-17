@@ -27,7 +27,7 @@ from IPython import embed as shell
 
 # GeoIPS Libraries
 from .reader import Reader
-from ..satnav import satnav
+from ..solar_angle_calc import satnav
 from ..scifileexceptions import SciFileError
 from ..containers import _empty_varinfo, _empty_dsinfo, Variable, DataSet
 from geoips.utils.satellite_info import all_sats_for_sensor,SatSensorInfo

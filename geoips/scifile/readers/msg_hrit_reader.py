@@ -41,17 +41,18 @@ reader_class_name = 'MSG_XRIT_Reader'
 class MSG_XRIT_Reader(Reader):
 
     dataset_info = { 
-                          'LO': {'VIS006':'VIS006',
-                                 'VIS008':'VIS008',
-                                 'IR_016':'IR_016',
-                                 'IR_039':'IR_039',
-                                 'IR_087':'IR_087',
-                                 'IR_097':'IR_097',
-                                 'IR_108':'IR_108',
-                                 'IR_120':'IR_120',
-                                 'IR_134':'IR_134',
-                                 'WV_062':'WV_062',
-                                 'WV_073':'WV_073',},
+                          'LO': {'B01Ref':'VIS006',
+                                 'B02Ref': 'VIS008',
+                                 'B03Ref': 'IR_016',
+                                 'B04BT': 'IR_039',
+                                 'B05BT': 'WV_062',
+                                 'B06BT': 'WV_073',
+                                 'B07BT': 'IR_087',
+                                 'B08BT': 'IR_097',
+                                 'B09BT': 'IR_108',
+                                 'B10BT': 'IR_120',
+                                 'B11BT': 'IR_134',
+                                },
                           'HI': { 'HRV': 'HRV',},
                         }
 
@@ -110,6 +111,8 @@ class MSG_XRIT_Reader(Reader):
 
     @staticmethod
     def format_test(fname):
+        # For now turn off msg_hrit_reader and turn on seviri_hrit_reader
+        return False
         #
         #  /satdata/realtime/seviri/meteoIO/meteosat8_nesdisstar-hrit/20170215/000000
         #
@@ -194,10 +197,28 @@ class MSG_XRIT_Reader(Reader):
                             log.info('    Saving Latitude to gvars')
                             gvars[dsname]['Latitude'] = np.ma.array(ad.get_lonlats()[1])
                         if 'SunZenith' not in gvars[dsname].keys():
-                            from scifile.satnav import satnav
+                            from geoips.scifile.solar_angle_calc import satnav
                             log.info('        Using satnav, can only calculate Sun Zenith angles')
                             gvars[dsname]['SunZenith'] = satnav('SunZenith',metadata['top']['start_datetime'],gvars[dsname]['Longitude'],gvars[dsname]['Latitude'])
-                        datavars[dsname][geoipsvarname] =\
-                         np.ma.array(sectored_data.datasets[spvarname.name].data,
-                         mask=sectored_data.datasets[spvarname.name].mask)
+                        self.set_variable_metadata(metadata, dsname, geoipsvarname)
+                        try:
+                            datavars[dsname][geoipsvarname] =\
+                             np.ma.array(sectored_data.datasets[spvarname.name].data,
+                             mask=sectored_data.datasets[spvarname.name].mask)
+                            log.warning('Sectored variable %s '%(spvarname.name))
+                        except AttributeError:
+                            log.warning('Variable %s does not contain a mask, masking invalid values! Might take longer'%(spvarname.name))
+                            datavars[dsname][geoipsvarname] =\
+                                np.ma.masked_invalid(sectored_data.datasets[spvarname.name].data)
+
         # datavars, gvars, and metadata are passed by reference, so we do not have to return anything.
+
+    @staticmethod
+    def set_variable_metadata(scifile_metadata, dsname, varname):
+        if dsname not in scifile_metadata['datavars'].keys():
+            scifile_metadata['datavars'][dsname] = {}
+        if varname not in scifile_metadata['datavars'][dsname].keys():
+            scifile_metadata['datavars'][dsname][varname] = {}
+        wavelength = varname.replace('VIS','').replace('IR_','').replace('WV_','')
+        wavelength = float(wavelength[0:2]+'.'+wavelength[2])
+        scifile_metadata['datavars'][dsname][varname]['wavelength'] = wavelength

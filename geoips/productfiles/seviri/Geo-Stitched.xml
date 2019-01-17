@@ -1,0 +1,47 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<product_file>
+<product method='externalalg' name='Geo-Stitched' finalonly='yes'>
+    <externalalg_args>
+
+        <source name='seviri' granule_composites='no'>
+            <var optional='yes'>B01Rad</var> <!-- 0.64um B02 ABI   VIS006  0.6um MSG Red band, visible                                            -->
+            <var optional='yes'>B02Rad</var> <!-- 0.86um B03 ABI   VIS008  0.8um MSG Veggie band, near-IR                                         -->
+            <var optional='yes'>B03Rad</var> <!-- 1.6um  B05 ABI   IR_016  1.6um MSG Snow/Ice band, near-IR	                                  -->
+            <var optional='yes'>B04Rad</var> <!-- 3.9um  B07 ABI   IR_039  3.9um MSG Shortwave window band, IR (with reflected daytime component) -->
+            <var optional='yes'>B05Rad</var> <!-- 6.2um  B08 ABI   WV_062  6.2um MSG Upper-level tropospheric Water Vapor band, IR                -->
+            <var optional='yes'>B06Rad</var> <!-- 7.3um  B10 ABI   WV_073  7.3um MSG Lower-level tropospheric Water Vapor band, IR                -->
+            <var optional='yes'>B07Rad</var> <!-- 8.4um  B11 ABI   IR_087  8.7um MSG Cloud-Top Phase band, IR                                     -->
+            <var optional='yes'>B08Rad</var> <!-- 9.6um  B12 ABI   IR_097  9.7um MSG Ozone band, IR                                               -->
+            <var optional='yes'>B09Rad</var> <!--11.2um  B14 ABI   IR_108 10.8um MSG IR Longwave Window band, IR                                  -->
+            <var optional='yes'>B10Rad</var> <!--12.3um  B15 ABI   IR_120 12.0um MSG Dirty IR Longwave Window band, IR                            -->
+            <var optional='yes'>B11Rad</var> <!--13.3um  B16 ABI   IR_134 13.4um MSG CO2 Longwave infrared, IR                                    -->
+
+            <var optional='yes'>B01Ref</var> <!-- 0.64um B02 ABI   VIS006  0.6um MSG Red band, visible                                            -->
+            <var optional='yes'>B02Ref</var> <!-- 0.86um B03 ABI   VIS008  0.8um MSG Veggie band, near-IR                                         -->
+            <var optional='yes'>B03Ref</var> <!-- 1.6um  B05 ABI   IR_016  1.6um MSG Snow/Ice band, near-IR	                                  -->
+
+            <var optional='yes'>B04BT</var> <!-- 3.9um  B07 ABI   IR_039  3.9um MSG Shortwave window band, IR (with reflected daytime component) -->
+            <var optional='yes'>B05BT</var> <!-- 6.2um  B08 ABI   WV_062  6.2um MSG Upper-level tropospheric Water Vapor band, IR                -->
+            <var optional='yes'>B06BT</var> <!-- 7.3um  B10 ABI   WV_073  7.3um MSG Lower-level tropospheric Water Vapor band, IR                -->
+            <var optional='yes'>B07BT</var> <!-- 8.4um  B11 ABI   IR_087  8.7um MSG Cloud-Top Phase band, IR                                     -->
+            <var optional='yes'>B08BT</var> <!-- 9.6um  B12 ABI   IR_097  9.7um MSG Ozone band, IR                                               -->
+            <var optional='yes'>B09BT</var> <!--11.2um  B14 ABI   IR_108 10.8um MSG IR Longwave Window band, IR                                  -->
+            <var optional='yes'>B10BT</var> <!--12.3um  B15 ABI   IR_120 12.0um MSG Dirty IR Longwave Window band, IR                            -->
+            <var optional='yes'>B11BT</var> <!--13.3um  B16 ABI   IR_134 13.4um MSG CO2 Longwave infrared, IR                                    -->
+        </source>
+        <day_night>both</day_night>
+        <max_day_zen_ang>90</max_day_zen_ang>
+        <min_ngt_zen_ang>90</min_ngt_zen_ang>
+        <coastcolor>0 180 180 180</coastcolor>
+        <gridcolor>0 180 180 180</gridcolor>
+    </externalalg_args>
+</product>
+</product_file>
+
