@@ -339,7 +339,7 @@ class SatNav(object):
         # If the most recently used sector is the current sector
         # then return the stored lines and samples
         # Otherwise, gather new lines and samples
-        if self._curr_sector == sector:
+        if self._curr_sector == sector and hasattr(self,'_curr_lines') and hasattr(self,'_curr_samples'):
             return self._curr_lines, self._curr_samples
 
         cache = self._get_cache_filename('GEOINDS', sector)
