@@ -1558,6 +1558,18 @@ class DataSet(object):
         # Determine where day and create DataSet level mask
         self._set_mask_inplace(np.ma.make_mask(self.geolocation_variables['SunZenith'] < max_zenith))
 
+    def mask_edge_of_scan(self, max_sat_zenith=90):
+        '''Mask all variables in the DataSet where SatZenith is greater than max_sat_zenith.'''
+        # Read SatZenith without reading the rest of the variables to save time here
+        # Replace SatZenith variable in self.geolocation_variables
+        if 'SatZenith' in self.geolocation_variables.keys():
+            if self.geolocation_variables['SatZenith'].empty:
+                self.geolocation_variables._force_append(self.geolocation_variables['SatZenith'].read())
+            # Determine where day and create DataSet level mask
+            self._set_mask_inplace(np.ma.make_mask(self.geolocation_variables['SatZenith'] > max_sat_zenith))
+        else:
+            log.warning('SatZenith not defined, not masking edge of scan!!')
+
     @property
     def scifile(self):
         return self._scifile()
