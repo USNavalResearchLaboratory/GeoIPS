@@ -436,7 +436,7 @@ class GOESImager_NCDF3_Reader(Reader):
         lat = np.ma.masked_equal(fileobj.variables['lat'][...], 2.1432893e9).squeeze()
         gvars[datasettag]['Longitude'] = lon
         gvars[datasettag]['Latitude'] = lat
-        gvars[datasettag]['SunZenith'] = satnav('SunZenith', varinfo['start_datetime'], lon, lat)
+        gvars[datasettag]['SunZenith'] = satnav('SunZenith', metadata['top']['start_datetime'], lon, lat)
         datavars[datasettag][geoipsvarname] = data
 
         return 
