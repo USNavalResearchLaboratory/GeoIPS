@@ -80,7 +80,6 @@ class GeoImgBase(object):
         self._product = product
         self._title = title
         self._ticks = ticks
-        self.datafile.mask_edge_of_scan(self.product.max_sat_zen_ang)
         
 
         
