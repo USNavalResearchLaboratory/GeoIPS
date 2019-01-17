@@ -10,6 +10,11 @@ import string
 
 
 # Installed Libraries
+from IPython import embed as shell
+# If this reader is not installed on the system, don't fail altogether, just skip this import. This reader will
+# not work if the import fails, and the package will have to be installed to process data of this type.
+try: import pygrib as pg
+except: print 'Failed import netCDF4 in scifile/readers/amsr2_ncdf4_reader.py. If you need it, install it.'
 import numpy as np
 
 
@@ -20,6 +25,11 @@ from geoips.utils.path.datafilename import DataFileName
 from geoips.utils.satellite_info import SatSensorInfo
 
 log = logging.getLogger(__name__)
+
+
+
+
+
 
 # For now must include this string for automated importing of classes.
 reader_class_name = 'SSMIS_BINARY_Reader'
@@ -34,7 +44,15 @@ class SSMIS_BINARY_Reader(Reader):
                               'surface':'surface',
                               'rain':'rain',
                             },
-                     'ENVIRO': {'ch12':'ch12',
+                     'ENVIROEVEN': {'ch12e':'ch12e',
+                              'ch13e':'ch13e',
+                              'ch14e':'ch14e',
+                              'ch15e':'ch15e',
+                              'ch16e':'ch16e',
+                              #'sea_ice':'sea_ice',
+                              #'surface':'surface',
+                            },
+                     'ENVIROODD': {'ch12':'ch12',
                               'ch13':'ch13',
                               'ch14':'ch14',
                               'ch15':'ch15',
@@ -42,7 +60,7 @@ class SSMIS_BINARY_Reader(Reader):
                               'ch15_5x5':'ch15_5x5',
                               'ch16_5x5':'ch16_5x5',
                               'ch17_5x5':'ch17_5x5',
-                              'ch18_5x5':'ch18_5x5',
+                              'ch18_5x5o':'ch18_5x5o',
                               'ch17_5x4':'ch17_5x4',
                               'ch18_5x4':'ch18_5x4',
                               #'sea_ice':'sea_ice',
@@ -80,7 +98,11 @@ class SSMIS_BINARY_Reader(Reader):
                          'Latitude': 'latitude',
                          'Longitude': 'longitude',
                         },
-                  'ENVIRO': {
+                  'ENVIROEVEN': {
+                         'Latitude': 'latitude',
+                         'Longitude': 'longitude',
+                        },
+                  'ENVIROODD': {
                          'Latitude': 'latitude',
                          'Longitude': 'longitude',
                         },
@@ -106,19 +128,27 @@ class SSMIS_BINARY_Reader(Reader):
         if not bin_format_test(fname):
             return False
 
+        #if 'US058SORB-RAW' not in fname:
+        #    return False
+
         #Calling in the individual bytes to check the header
         f1 = open(fname,'rb')
+        # short sw_rev, 1 int16
         sw_rev = np.fromstring(f1.read(2),dtype=np.dtype('short')).byteswap()[0]
+        # char endian and file id, 1 byte each
         endian,fileid = np.fromstring(f1.read(2),dtype=np.dtype('int8')).byteswap()
+        # int rev and year, 4 bytes each
         rev = np.fromstring(f1.read(4),dtype=np.dtype('int32')).byteswap()
         year = np.fromstring(f1.read(4),dtype=np.dtype('int32')).byteswap()
+        # short jday as 1 byte each
         jday = np.fromstring(f1.read(2),dtype=np.dtype('short')).byteswap()
+        # char hour and minute as 1 byte each
         hour,minu = np.fromstring(f1.read(2),dtype=np.dtype('int8')).byteswap()
         satid,nsdr = np.fromstring(f1.read(4),dtype=np.dtype('short')).byteswap()
         spare1,spare2,spare3= np.fromstring(f1.read(3),dtype=np.dtype('int8')).byteswap()
         proc_stat_flags = np.fromstring(f1.read(1),dtype=np.dtype('int8')).byteswap()
-        spare4= np.fromstring(f1.read(4),dtype=np.dtype('int32')).byteswap()
-        f1.close()
+        spare4= np.fromstring(f1.read(2),dtype=np.dtype('short')).byteswap()
+        #shell()
 
         if year > 1900 and year <4000 and \
            jday >=1 and jday <=366 and \
@@ -129,33 +159,35 @@ class SSMIS_BINARY_Reader(Reader):
 
 
     def read(self,fname,datavars,gvars,metadata,chans=None,sector_definition=None):
+        # Since the variables are all contained within separate files, we need to allow for 
+        # a loop to cycle through the files
 
+        #print 'Entering IPython shell in '+self.name+' for development purposes'
+        #shell()
         f1 = open(fname,'rb')
-
         #READ HEARDER
+        # short (short) sw_rev, 1 int16
         sw_rev = np.fromstring(f1.read(2),dtype=np.dtype('short')).byteswap()[0]
+        # char (int8) endian and fileid, 1 byte each
         endian,fileid = np.fromstring(f1.read(2),dtype=np.dtype('int8')).byteswap()
+        # int (int32) rev and year as 2 bytes each
         rev = np.fromstring(f1.read(4),dtype=np.dtype('int32')).byteswap()
         year = np.fromstring(f1.read(4),dtype=np.dtype('int32')).byteswap()
+        #rev = int(float(rev))
+        #year = int(float(year))
         jday = np.fromstring(f1.read(2),dtype=np.dtype('short')).byteswap()
         hour,minu = np.fromstring(f1.read(2),dtype=np.dtype('int8')).byteswap()
         satid,nsdr = np.fromstring(f1.read(4),dtype=np.dtype('short')).byteswap()
         spare1,spare2,spare3= np.fromstring(f1.read(3),dtype=np.dtype('int8')).byteswap()
         proc_stat_flags = np.fromstring(f1.read(1),dtype=np.dtype('int8')).byteswap()
-        spare4= np.fromstring(f1.read(4),dtype=np.dtype('int32')).byteswap()
+        spare4= np.fromstring(f1.read(2),dtype=np.dtype('short')).byteswap()
         #Need to set up time to be read in by the metadata (year and jday are arrays)
         time= '%04d%03d%02d%02d' % (year[0],jday[0],hour,minu)
-        nbytes=28 #bytes that have been read in
+        #Read in the number of bytes being read in by the header
+        nbytes=26 #bytes that have been read in
         #Read scan records at 512-byte boundaries
-        nfiller= 512- (nbytes % 512)  # skip nfiller bytes so that the scan header will start at the 513th byte of the data records, 
-        filler_bytes= np.fromstring(f1.read(nfiller),dtype=np.dtype('int8')).byteswap()
-
-        # Rev 6A of the SSMIS SDR software changed the scalling of channel 12-16 to 100 (it was 10 before this change)
-        #     effective with orbit rev 12216 for F-16 and thereafter for all future satellites
-        rev6a=1
-        if satid==1 and rev[0] < 12216:
-           rev6a=0   
-
+        nfiller= 512-( nbytes % 512 )
+        filler_bytes= np.fromstring(f1.read(nfiller),dtype=np.dtype('int8')).byteswap()[0]
         if satid == 1:
             satid= 'f16'
         elif satid==2:
@@ -166,7 +198,7 @@ class SSMIS_BINARY_Reader(Reader):
             satid= 'f19'
         else:
             return False
-
+        #shell()
         #Enter metadata
         metadata['top']['start_datetime'] = datetime.strptime(time,'%Y%j%H%M')
         metadata['top']['end_datetime'] = datetime.strptime(time,'%Y%j%H%M')
@@ -189,13 +221,25 @@ class SSMIS_BINARY_Reader(Reader):
         if chans == []:
             return
 
+        #Need to create a loop for the nbytes, the C code is:
+        #for(n= 0; n< rev.nsdr; n++){
+        #    nsdr++;
+        #    nbytes= 0;
         bad_value= -999
-
-        for nn in range(nsdr):          #loop number of sdr data records
+        tarray= np.zeros(nsdr*28)
+        iarray= np.zeros(180*nsdr*28)
+        bufch08= np.ma.masked_equal(iarray,bad_value)
+        #for a in range(nsdr*28*180):
+            #bufch08[a]=bad_value
+        bufdate= np.ma.masked_equal(tarray,bad_value)
+        buftime= np.ma.masked_equal(tarray,bad_value)
+        ttime=[]
+        tdate=[]
+        for nn in range(nsdr):
             log.info('    Reading sdr #'+str(nn)+' of '+str(nsdr))
             nbytes=0
 
-            #SCAN HEADER
+        #SCAN HEADER
             syncword= np.fromstring(f1.read(4),dtype=np.dtype('int32')).byteswap()
             scan_year= np.fromstring(f1.read(4),dtype=np.dtype('int32')).byteswap()
             scan_jday= np.fromstring(f1.read(2),dtype=np.dtype('short')).byteswap()
@@ -211,16 +255,22 @@ class SSMIS_BINARY_Reader(Reader):
             start_scantime_uas= np.fromstring(f1.read(16),dtype=np.dtype('int32')).byteswap()
             scenecounts_uas= np.fromstring(f1.read(4),dtype=np.dtype('uint8')).byteswap()
             spare= np.fromstring(f1.read(20),dtype=np.dtype('int32')).byteswap()
-            nbytes+= 360   #total bytes of the scan header
+            nbytes+= 360
             nscan0 = scan - 1
+            #shell()
 #-----------------------------------------------------------------------------------------
             try:
                 imager_read= np.ma.zeros((nscan_imager,180))
                 np.ma.masked_all_like(imager_read)
+                #imager_read= np.ma.masked_all((nscan_imager,scenecounts_imager[0]))
+                #imager_read.fill(-999)
             except:
                 print 'Shell dropped for imager_read'
-            if scenecounts_imager[0] < 0 :
+                #shell()
+            if scenecounts_imager[0] < 0 or scan_year != 2017:
                 print "IMAGER is negative"
+                #shell()
+            #imager_read= np.ma.zeros((nscan_imager,scenecounts_imager[0]))
             lt = np.ma.masked_values(imager_read,bad_value)
             lg = np.ma.masked_values(imager_read,bad_value)
             ch08 = np.ma.masked_values(imager_read,bad_value)
@@ -231,12 +281,20 @@ class SSMIS_BINARY_Reader(Reader):
             ch18 = np.ma.masked_values(imager_read,bad_value)
             surf = np.ma.masked_values(imager_read,bad_value)
             rain = np.ma.masked_values(imager_read,bad_value)
-
+            #shell()
             #IMAGER READ DATA
             for ii in range(nscan_imager):
                 if start_scantime_imager[ii] == -999:
                     print 'value of imager scan is %d'% ii
                     continue
+                #if start_scantime_imager[ii] >=0 and start_scantime_imager[ii] <= 86400000:
+                #    itime= '%04d%03d' % (scan_year[0],scan_jday[0])
+                #    tdate= datetime.strptime(itime,'%Y%j')
+                #    ttime= 0.001*start_scantime_imager[ii]
+                #    k= int(nscan0+ii)
+                #    #shell()
+                #    bufdate[k]=itime
+                #    buftime[k]=ttime
                 for jj in range(scenecounts_imager[ii]):
                     imager_lat, imager_lon, imager_scene= np.fromstring(f1.read(6),dtype=np.dtype('short')).byteswap()
                     imager_surf, imager_rain= np.fromstring(f1.read(2),dtype=np.dtype('int8')).byteswap()
@@ -245,21 +303,22 @@ class SSMIS_BINARY_Reader(Reader):
                     k= 180*(nscan0+ii)+jj
                     lat= 0.01*imager_lat
                     lon= 0.01*imager_lon
+                    #bufch08[k]= imager_ch08
                     try:
                         lt[ii][jj] = lat
                         lg[ii][jj] = lon
-                        ch08[ii][jj] = imager_ch08    #150    Ghz
-                        ch09[ii][jj] = imager_ch09    #183+-7
-                        ch10[ii][jj] = imager_ch10    #183+-3
-                        ch11[ii][jj] = imager_ch11    #183+-1
-                        ch17[ii][jj] = imager_ch17    #91V
-                        ch18[ii][jj] = imager_ch18    #91H
+                        ch08[ii][jj] = imager_ch08
+                        ch09[ii][jj] = imager_ch09
+                        ch10[ii][jj] = imager_ch10
+                        ch11[ii][jj] = imager_ch11
+                        ch17[ii][jj] = imager_ch17
+                        ch18[ii][jj] = imager_ch18
                         surf[ii][jj] = imager_surf
                         rain[ii][jj] = imager_rain
                     except:
                         print 'Failed setting arrays in scan_imager'
-            
-	    if 'Latitude' not in gvars['IMAGER'].keys():
+                        #shell()
+            if 'Latitude' not in gvars['IMAGER'].keys():
                     gvars['IMAGER']['Latitude']=lt
                     gvars['IMAGER']['Longitude']=lg
                     datavars['IMAGER']['ch08']=ch08
@@ -291,32 +350,38 @@ class SSMIS_BINARY_Reader(Reader):
                     datavars['IMAGER']['ch18']= np.ma.masked_values(datavars['IMAGER']['ch18'],bad_value)
                     datavars['IMAGER']['surface']= np.ma.masked_values(datavars['IMAGER']['surface'],bad_value)
                     datavars['IMAGER']['rain']= np.ma.masked_values(datavars['IMAGER']['rain'],bad_value)
+            #bufch08 = datavars['IMAGER']['ch08']
+            #datavars['IMAGER']['ch08'] = bufch08
+            #if nn==49:
+            #    shell()
 #-----------------------------------------------------------------------------------------
             enviro_read= np.ma.zeros((nscan_enviro,90))
             np.ma.masked_all_like(enviro_read)
             if scenecounts_enviro[0] < 0:
                 print "ENVIRO is negative"
+                #shell()
             lt = np.ma.masked_equal(enviro_read,bad_value)
             lg = np.ma.masked_equal(enviro_read,bad_value)
-            ch12 = np.ma.masked_equal(enviro_read,bad_value)
-            ch13 = np.ma.masked_equal(enviro_read,bad_value)
-            ch14 = np.ma.masked_equal(enviro_read,bad_value)
-            ch15 = np.ma.masked_equal(enviro_read,bad_value)
-            ch16 = np.ma.masked_equal(enviro_read,bad_value)
+            ch12o = np.ma.masked_equal(enviro_read,bad_value)
+            ch13o = np.ma.masked_equal(enviro_read,bad_value)
+            ch14o = np.ma.masked_equal(enviro_read,bad_value)
+            ch15o = np.ma.masked_equal(enviro_read,bad_value)
+            ch16o = np.ma.masked_equal(enviro_read,bad_value)
             ch15_5x5 = np.ma.masked_equal(enviro_read,bad_value)
             ch16_5x5 = np.ma.masked_equal(enviro_read,bad_value)
             ch17_5x5 = np.ma.masked_equal(enviro_read,bad_value)
-            ch18_5x5 = np.ma.masked_equal(enviro_read,bad_value)
+            ch18_5x5o = np.ma.masked_equal(enviro_read,bad_value)
             ch17_5x4 = np.ma.masked_equal(enviro_read,bad_value)
             ch18_5x4 = np.ma.masked_equal(enviro_read,bad_value)
 
-            #ENVIRO READ DATA
+            #shell()
+            #ENVIROODD READ DATA
             for ii in range(nscan_enviro):
-                if ii%2==0:                   #for odd scan numbers
+                if ii%2==0:
                     if start_scantime_enviro[ii] == -999:
                         print 'value of enviro odd scan is %d'% ii
                         continue
-                    for jj in range(scenecounts_enviro[ii]):
+                    for jj in range(scenecounts_enviro[0]):
                         enviroodd_lat,enviroodd_lon,enviroodd_scene= np.fromstring(f1.read(6),dtype=np.dtype('short')).byteswap()
                         enviroodd_seaice,enviroodd_surf= np.fromstring(f1.read(2),dtype=np.dtype('int8')).byteswap()
                         enviroodd_ch12,enviroodd_ch13,enviroodd_ch14,enviroodd_ch15,enviroodd_ch16,enviroodd_ch15_5x5,enviroodd_ch16_5x5,enviroodd_ch17_5x5,enviroodd_ch18_5x5,enviroodd_ch17_5x4,enviroodd_ch18_5x4= np.fromstring(f1.read(22),dtype=np.dtype('short')).byteswap()
@@ -325,38 +390,79 @@ class SSMIS_BINARY_Reader(Reader):
                         nbytes+= 36
                         lat= 0.01*enviroodd_lat
                         lon= 0.01*enviroodd_lon
-                        lt[ii][jj]= lat
+                        lt[ii][jj] = lat
                         lg[ii][jj]= lon
-                        if rev6a == 1:
-                           ch12[ii][jj] = enviroodd_ch12            #19H
-                           ch13[ii][jj] = enviroodd_ch13            #19V
-                           ch14[ii][jj] = enviroodd_ch14            #22V
-                           ch15[ii][jj] = enviroodd_ch15            #37H
-                           ch16[ii][jj] = enviroodd_ch16            #37V
-                           ch15_5x5[ii][jj] = enviroodd_ch15_5x5
-                           ch16_5x5[ii][jj] = enviroodd_ch16_5x5
-                           ch17_5x5[ii][jj] = enviroodd_ch17_5x5
-                           ch18_5x5[ii][jj] = enviroodd_ch18_5x5
-                           ch17_5x4[ii][jj] = enviroodd_ch17_5x4
-                           ch18_5x4[ii][jj] = enviroodd_ch18_5x4
-                        else:
-                           ch12[ii][jj] = 10*enviroodd_ch12
-                           ch13[ii][jj] = 10*enviroodd_ch13
-                           ch14[ii][jj] = 10*enviroodd_ch14
-                           ch15[ii][jj] = 10*enviroodd_ch15
-                           ch16[ii][jj] = 10*enviroodd_ch16
-                           ch15_5x5[ii][jj] = 10*enviroodd_ch15_5x5
-                           ch16_5x5[ii][jj] = 10*enviroodd_ch16_5x5
-                           ch17_5x5[ii][jj] = 10*enviroodd_ch17_5x5
-                           ch18_5x5[ii][jj] = 10*enviroodd_ch18_5x5
-                           ch17_5x4[ii][jj] = 10*enviroodd_ch17_5x4
-                           ch18_5x4[ii][jj] = 10*enviroodd_ch18_5x4
-
-                if ii%2==1:              # for even scan numbers
+                        ch12o[ii][jj] = enviroodd_ch12
+                        ch13o[ii][jj] = enviroodd_ch13
+                        ch14o[ii][jj] = enviroodd_ch14
+                        ch15o[ii][jj] = enviroodd_ch15
+                        ch16o[ii][jj] = enviroodd_ch16
+                        ch15_5x5[ii][jj] = enviroodd_ch15_5x5
+                        ch16_5x5[ii][jj] = enviroodd_ch16_5x5
+                        ch17_5x5[ii][jj] = enviroodd_ch17_5x5
+                        ch18_5x5o[ii][jj] = enviroodd_ch18_5x5
+                        ch17_5x4[ii][jj] = enviroodd_ch17_5x4
+                        ch18_5x4[ii][jj] = enviroodd_ch18_5x4
+            if 'Latitude' not in gvars['ENVIROODD'].keys():
+                        gvars['ENVIROODD']['Latitude']= lt
+                        gvars['ENVIROODD']['Longitude']= lg
+                        datavars['ENVIROODD']['ch12']=ch12o 
+                        datavars['ENVIROODD']['ch13']=ch13o 
+                        datavars['ENVIROODD']['ch14']=ch14o
+                        datavars['ENVIROODD']['ch15']=ch15o 
+                        datavars['ENVIROODD']['ch16']=ch16o
+                        datavars['ENVIROODD']['ch15_5x5'] =ch15_5x5 
+                        datavars['ENVIROODD']['ch16_5x5'] =ch16_5x5 
+                        datavars['ENVIROODD']['ch17_5x5'] =ch17_5x5 
+                        datavars['ENVIROODD']['ch18_5x5o'] =ch18_5x5o 
+                        datavars['ENVIROODD']['ch17_5x4'] =ch17_5x4 
+                        datavars['ENVIROODD']['ch18_5x4'] =ch18_5x4 
+            else:
+                        gvars['ENVIROODD']['Latitude']= np.ma.vstack((gvars['ENVIROODD']['Latitude'],lt))
+                        gvars['ENVIROODD']['Longitude']= np.ma.vstack((gvars['ENVIROODD']['Longitude'],lg))
+                        datavars['ENVIROODD']['ch12']= np.ma.vstack((datavars['ENVIROODD']['ch12'],ch12o))
+                        datavars['ENVIROODD']['ch13']= np.ma.vstack((datavars['ENVIROODD']['ch13'],ch13o))
+                        datavars['ENVIROODD']['ch14']= np.ma.vstack((datavars['ENVIROODD']['ch14'],ch14o))
+                        datavars['ENVIROODD']['ch15']= np.ma.vstack((datavars['ENVIROODD']['ch15'],ch15o))
+                        datavars['ENVIROODD']['ch16']= np.ma.vstack((datavars['ENVIROODD']['ch16'],ch16o))
+                        datavars['ENVIROODD']['ch15_5x5']= np.ma.vstack((datavars['ENVIROODD']['ch15_5x5'],ch15_5x5))
+                        datavars['ENVIROODD']['ch16_5x5']= np.ma.vstack((datavars['ENVIROODD']['ch16_5x5'],ch16_5x5))
+                        datavars['ENVIROODD']['ch17_5x5']= np.ma.vstack((datavars['ENVIROODD']['ch17_5x5'],ch17_5x5))
+                        datavars['ENVIROODD']['ch18_5x5o']= np.ma.vstack((datavars['ENVIROODD']['ch18_5x5o'],ch18_5x5o))
+                        datavars['ENVIROODD']['ch17_5x4']= np.ma.vstack((datavars['ENVIROODD']['ch17_5x4'],ch17_5x4))
+                        datavars['ENVIROODD']['ch18_5x4']= np.ma.vstack((datavars['ENVIROODD']['ch18_5x4'],ch18_5x4))
+                        gvars['ENVIROODD']['Latitude']= np.ma.masked_equal(gvars['ENVIROODD']['Latitude'],bad_value)
+                        gvars['ENVIROODD']['Longitude']= np.ma.masked_equal(gvars['ENVIROODD']['Longitude'],bad_value)
+                        datavars['ENVIROODD']['ch12']= np.ma.masked_equal(datavars['ENVIROODD']['ch12'],bad_value)
+                        datavars['ENVIROODD']['ch13']= np.ma.masked_equal(datavars['ENVIROODD']['ch13'],bad_value)
+                        datavars['ENVIROODD']['ch14']= np.ma.masked_equal(datavars['ENVIROODD']['ch14'],bad_value)
+                        datavars['ENVIROODD']['ch15']= np.ma.masked_equal(datavars['ENVIROODD']['ch15'],bad_value)
+                        datavars['ENVIROODD']['ch16']= np.ma.masked_equal(datavars['ENVIROODD']['ch16'],bad_value)
+                        datavars['ENVIROODD']['ch15_5x5']= np.ma.masked_equal(datavars['ENVIROODD']['ch15_5x5'],bad_value)
+                        datavars['ENVIROODD']['ch16_5x5']= np.ma.masked_equal(datavars['ENVIROODD']['ch16_5x5'],bad_value)
+                        datavars['ENVIROODD']['ch17_5x5']= np.ma.masked_equal(datavars['ENVIROODD']['ch17_5x5'],bad_value)
+                        datavars['ENVIROODD']['ch18_5x5o']= np.ma.masked_equal(datavars['ENVIROODD']['ch18_5x5o'],bad_value)
+                        datavars['ENVIROODD']['ch17_5x4']= np.ma.masked_equal(datavars['ENVIROODD']['ch17_5x4'],bad_value)
+                        datavars['ENVIROODD']['ch18_5x4']= np.ma.masked_equal(datavars['ENVIROODD']['ch18_5x4'],bad_value)
+#-----------------------------------------------------------------------------------------
+            if scenecounts_enviro[0] < 0:
+                print "ENVIRO EVEN is negative"
+                #shell()
+            lt = np.ma.masked_equal(enviro_read,bad_value)
+            lg = np.ma.masked_equal(enviro_read,bad_value)
+            ch12e = np.ma.masked_equal(enviro_read,bad_value)
+            ch13e = np.ma.masked_equal(enviro_read,bad_value)
+            ch14e = np.ma.masked_equal(enviro_read,bad_value)
+            ch15e = np.ma.masked_equal(enviro_read,bad_value)
+            ch16e = np.ma.masked_equal(enviro_read,bad_value)
+            
+            #ENVIROEVEN READ DATA
+            for ii in range(nscan_enviro):
+                if ii%2==1:
                     if start_scantime_enviro[ii] == -999:
                         print 'value of enviro even scan is %d'% ii
                         continue
-                    for jj in range(scenecounts_enviro[ii]):
+                    for jj in range(scenecounts_enviro[0]):
                         enviroeven_lat,enviroeven_lon,enviroeven_scene= np.fromstring(f1.read(6),dtype=np.dtype('short')).byteswap()
                         enviroeven_seaice,enviroeven_surf= np.fromstring(f1.read(2),dtype=np.dtype('int8')).byteswap()
                         enviroeven_ch12,enviroeven_ch13,enviroeven_ch14,enviroeven_ch15,enviroeven_ch16= np.fromstring(f1.read(10),dtype=np.dtype('short')).byteswap()
@@ -365,65 +471,42 @@ class SSMIS_BINARY_Reader(Reader):
                         lon= 0.01*enviroeven_lon
                         lt[ii][jj] = lat
                         lg[ii][jj] = lon
-                        if rev6a == 1:
-                           ch12[ii][jj] = enviroeven_ch12
-                           ch13[ii][jj] = enviroeven_ch13
-                           ch14[ii][jj] = enviroeven_ch14
-                           ch15[ii][jj] = enviroeven_ch15
-                           ch16[ii][jj] = enviroeven_ch16
-                        else:
-                           ch12[ii][jj] = 10*enviroeven_ch12
-                           ch13[ii][jj] = 10*enviroeven_ch13
-                           ch14[ii][jj] = 10*enviroeven_ch14
-                           ch15[ii][jj] = 10*enviroeven_ch15
-                           ch16[ii][jj] = 10*enviroeven_ch16
-
-            if 'Latitude' not in gvars['ENVIRO'].keys():
-                        gvars['ENVIRO']['Latitude']= lt
-                        gvars['ENVIRO']['Longitude']= lg
-                        datavars['ENVIRO']['ch12']=ch12 
-                        datavars['ENVIRO']['ch13']=ch13 
-                        datavars['ENVIRO']['ch14']=ch14
-                        datavars['ENVIRO']['ch15']=ch15 
-                        datavars['ENVIRO']['ch16']=ch16
-                        datavars['ENVIRO']['ch15_5x5'] =ch15_5x5 
-                        datavars['ENVIRO']['ch16_5x5'] =ch16_5x5 
-                        datavars['ENVIRO']['ch17_5x5'] =ch17_5x5 
-                        datavars['ENVIRO']['ch18_5x5'] =ch18_5x5 
-                        datavars['ENVIRO']['ch17_5x4'] =ch17_5x4 
-                        datavars['ENVIRO']['ch18_5x4'] =ch18_5x4 
+                        ch12e[ii][jj] = enviroeven_ch12
+                        ch13e[ii][jj] = enviroeven_ch13
+                        ch14e[ii][jj] = enviroeven_ch14
+                        ch15e[ii][jj] = enviroeven_ch15
+                        ch16e[ii][jj] = enviroeven_ch16
+            if 'Latitude' not in gvars['ENVIROEVEN'].keys():
+                        gvars['ENVIROEVEN']['Latitude'] = lt
+                        gvars['ENVIROEVEN']['Longitude']= lg
+                        datavars['ENVIROEVEN']['ch12e'] = ch12e
+                        datavars['ENVIROEVEN']['ch13e'] = ch13e
+                        datavars['ENVIROEVEN']['ch14e'] = ch14e
+                        datavars['ENVIROEVEN']['ch15e'] = ch15e
+                        datavars['ENVIROEVEN']['ch16e'] = ch16e
             else:
-                        gvars['ENVIRO']['Latitude']= np.ma.vstack((gvars['ENVIRO']['Latitude'],lt))
-                        gvars['ENVIRO']['Longitude']= np.ma.vstack((gvars['ENVIRO']['Longitude'],lg))
-                        datavars['ENVIRO']['ch12']= np.ma.vstack((datavars['ENVIRO']['ch12'],ch12))
-                        datavars['ENVIRO']['ch13']= np.ma.vstack((datavars['ENVIRO']['ch13'],ch13))
-                        datavars['ENVIRO']['ch14']= np.ma.vstack((datavars['ENVIRO']['ch14'],ch14))
-                        datavars['ENVIRO']['ch15']= np.ma.vstack((datavars['ENVIRO']['ch15'],ch15))
-                        datavars['ENVIRO']['ch16']= np.ma.vstack((datavars['ENVIRO']['ch16'],ch16))
-                        datavars['ENVIRO']['ch15_5x5']= np.ma.vstack((datavars['ENVIRO']['ch15_5x5'],ch15_5x5))
-                        datavars['ENVIRO']['ch16_5x5']= np.ma.vstack((datavars['ENVIRO']['ch16_5x5'],ch16_5x5))
-                        datavars['ENVIRO']['ch17_5x5']= np.ma.vstack((datavars['ENVIRO']['ch17_5x5'],ch17_5x5))
-                        datavars['ENVIRO']['ch18_5x5']= np.ma.vstack((datavars['ENVIRO']['ch18_5x5'],ch18_5x5))
-                        datavars['ENVIRO']['ch17_5x4']= np.ma.vstack((datavars['ENVIRO']['ch17_5x4'],ch17_5x4))
-                        datavars['ENVIRO']['ch18_5x4']= np.ma.vstack((datavars['ENVIRO']['ch18_5x4'],ch18_5x4))
-                        gvars['ENVIRO']['Latitude']= np.ma.masked_equal(gvars['ENVIRO']['Latitude'],bad_value)
-                        gvars['ENVIRO']['Longitude']= np.ma.masked_equal(gvars['ENVIRO']['Longitude'],bad_value)
-                        datavars['ENVIRO']['ch12']= np.ma.masked_equal(datavars['ENVIRO']['ch12'],bad_value)
-                        datavars['ENVIRO']['ch13']= np.ma.masked_equal(datavars['ENVIRO']['ch13'],bad_value)
-                        datavars['ENVIRO']['ch14']= np.ma.masked_equal(datavars['ENVIRO']['ch14'],bad_value)
-                        datavars['ENVIRO']['ch15']= np.ma.masked_equal(datavars['ENVIRO']['ch15'],bad_value)
-                        datavars['ENVIRO']['ch16']= np.ma.masked_equal(datavars['ENVIRO']['ch16'],bad_value)
-                        datavars['ENVIRO']['ch15_5x5']= np.ma.masked_equal(datavars['ENVIRO']['ch15_5x5'],bad_value)
-                        datavars['ENVIRO']['ch16_5x5']= np.ma.masked_equal(datavars['ENVIRO']['ch16_5x5'],bad_value)
-                        datavars['ENVIRO']['ch17_5x5']= np.ma.masked_equal(datavars['ENVIRO']['ch17_5x5'],bad_value)
-                        datavars['ENVIRO']['ch18_5x5']= np.ma.masked_equal(datavars['ENVIRO']['ch18_5x5'],bad_value)
-                        datavars['ENVIRO']['ch17_5x4']= np.ma.masked_equal(datavars['ENVIRO']['ch17_5x4'],bad_value)
-                        datavars['ENVIRO']['ch18_5x4']= np.ma.masked_equal(datavars['ENVIRO']['ch18_5x4'],bad_value)
-#-----------------------------------------------------------------------------------------
+                        gvars['ENVIROEVEN']['Latitude']= np.ma.vstack((gvars['ENVIROEVEN']['Latitude'],lt)) 
+                        gvars['ENVIROEVEN']['Longitude']= np.ma.vstack((gvars['ENVIROEVEN']['Longitude'],lg))
+                        datavars['ENVIROEVEN']['ch12e']= np.ma.vstack((datavars['ENVIROEVEN']['ch12e'],ch12e))
+                        datavars['ENVIROEVEN']['ch13e']= np.ma.vstack((datavars['ENVIROEVEN']['ch13e'],ch13e))
+                        datavars['ENVIROEVEN']['ch14e']= np.ma.vstack((datavars['ENVIROEVEN']['ch14e'],ch14e))
+                        datavars['ENVIROEVEN']['ch15e']= np.ma.vstack((datavars['ENVIROEVEN']['ch15e'],ch15e))
+                        datavars['ENVIROEVEN']['ch16e']= np.ma.vstack((datavars['ENVIROEVEN']['ch16e'],ch16e))
+                        gvars['ENVIROEVEN']['Latitude']= np.ma.masked_equal(gvars['ENVIROEVEN']['Latitude'],bad_value)
+                        gvars['ENVIROEVEN']['Longitude']= np.ma.masked_equal(gvars['ENVIROEVEN']['Longitude'],bad_value)
+                        datavars['ENVIROEVEN']['ch12e']= np.ma.masked_equal(datavars['ENVIROEVEN']['ch12e'],bad_value)
+                        datavars['ENVIROEVEN']['ch13e']= np.ma.masked_equal(datavars['ENVIROEVEN']['ch13e'],bad_value)
+                        datavars['ENVIROEVEN']['ch14e']= np.ma.masked_equal(datavars['ENVIROEVEN']['ch14e'],bad_value)
+                        datavars['ENVIROEVEN']['ch15e']= np.ma.masked_equal(datavars['ENVIROEVEN']['ch15e'],bad_value)
+                        datavars['ENVIROEVEN']['ch16e']= np.ma.masked_equal(datavars['ENVIROEVEN']['ch16e'],bad_value)
+                        #if nn == 118:
+                        #    shell()
+#---------------------------------------------------------------------------------------------
             las_read= np.ma.zeros((nscan_las,60))
             np.ma.masked_all_like(las_read)
             if scenecounts_las[0] < 0:
                 print "LAS is negative"
+                #shell()
             lt = np.ma.masked_equal(las_read,bad_value)
             lg = np.ma.masked_equal(las_read,bad_value)
             ch01_3x3 = np.ma.masked_equal(las_read,bad_value)
@@ -442,12 +525,15 @@ class SSMIS_BINARY_Reader(Reader):
             height_1000mb = np.ma.masked_equal(las_read,bad_value)
             surf = np.ma.masked_equal(las_read,bad_value)
 
+            #shell()
             #LAS READ DATA
             for ii in range(nscan_las):
                 if start_scantime_las[ii] == -999:
                     print 'value of las scan is %d'% ii
                     continue
-                for jj in range(scenecounts_las[ii]):
+                for jj in range(scenecounts_las[0]):
+                    #if nn == 118 and jj == 7:
+                    #    shell()
                     try:
                         las_lati,las_long,las_ch01_3x3,las_ch02_3x3,las_ch03_3x3,las_ch04_3x3,las_ch05_3x3,las_ch06_3x3,las_ch07_3x3,las_ch08_5x5,las_ch09_5x5,las_ch10_5x5,las_ch11_5x5,las_ch18_5x5,las_ch24_3x3,las_height_1000mb,las_surf= np.fromstring(f1.read(34),dtype=np.dtype('short')).byteswap()
                         las_tqflag,las_hqflag= np.fromstring(f1.read(2),dtype=np.dtype('int8')).byteswap()
@@ -457,24 +543,24 @@ class SSMIS_BINARY_Reader(Reader):
                     lat= 0.01*las_lati
                     lon= 0.01*las_long
                     nbytes+= 40
+                    #shell()
                     lt[ii][jj] = lat
                     lg[ii][jj] = lon
-                    ch01_3x3[ii][jj] = las_ch01_3x3           #50.3 V
-                    ch02_3x3[ii][jj] = las_ch02_3x3           #52.8 V
-                    ch03_3x3[ii][jj] = las_ch03_3x3           #53.60V
-                    ch04_3x3[ii][jj] = las_ch04_3x3           #54.4 V
-                    ch05_3x3[ii][jj] = las_ch05_3x3           #55.5 V
-                    ch06_3x3[ii][jj] = las_ch06_3x3           #57.3 RCP
-                    ch07_3x3[ii][jj] = las_ch07_3x3           #59.4 RCP
-                    ch08_5x5[ii][jj] = las_ch08_5x5           #150 H
-                    ch09_5x5[ii][jj] = las_ch09_5x5           #183.31+-7 H
-                    ch10_5x5[ii][jj] = las_ch10_5x5           #183.31+-3 H
-                    ch11_5x5[ii][jj] = las_ch11_5x5           #183.31+-1 H
-                    ch18_5x5[ii][jj] = las_ch18_5x5           #91 H
-                    ch24_3x3[ii][jj] = las_ch24_3x3           #60.79+-36+-0.05 RCP
+                    ch01_3x3[ii][jj] = las_ch01_3x3
+                    ch02_3x3[ii][jj] = las_ch02_3x3
+                    ch03_3x3[ii][jj] = las_ch03_3x3
+                    ch04_3x3[ii][jj] = las_ch04_3x3
+                    ch05_3x3[ii][jj] = las_ch05_3x3
+                    ch06_3x3[ii][jj] = las_ch06_3x3
+                    ch07_3x3[ii][jj] = las_ch07_3x3
+                    ch08_5x5[ii][jj] = las_ch08_5x5
+                    ch09_5x5[ii][jj] = las_ch09_5x5
+                    ch10_5x5[ii][jj] = las_ch10_5x5
+                    ch11_5x5[ii][jj] = las_ch11_5x5
+                    ch18_5x5[ii][jj] = las_ch18_5x5
+                    ch24_3x3[ii][jj] = las_ch24_3x3
                     height_1000mb[ii][jj] = las_height_1000mb
                     surf[ii][jj] = las_surf
-
             if 'Latitude' not in gvars['LAS'].keys():
                     gvars['LAS']['Latitude']= lt
                     gvars['LAS']['Longitude']= lg
@@ -528,11 +614,14 @@ class SSMIS_BINARY_Reader(Reader):
                     datavars['LAS']['ch24_3x3']= np.ma.masked_equal(datavars['LAS']['ch24_3x3'],bad_value)
                     datavars['LAS']['height_1000mb']= np.ma.masked_equal(datavars['LAS']['height_1000mb'],bad_value)
                     datavars['LAS']['surf']= np.ma.masked_equal(datavars['LAS']['surf'],bad_value)
+                    #if nn==118 and jj==7:
+                    #    shell()
 #---------------------------------------------------------------------------------
             uas_read= np.ma.zeros((nscan_uas,30))
             np.ma.masked_all_like(uas_read)
             if scenecounts_uas[0] < 0:
                 print "UAS is negative"
+                #shell()
             lt = np.ma.masked_equal(uas_read,bad_value)
             lg = np.ma.masked_equal(uas_read,bad_value)
             ch19_6x6 = np.ma.masked_equal(uas_read,bad_value)
@@ -544,12 +633,13 @@ class SSMIS_BINARY_Reader(Reader):
             sceneu = np.ma.masked_equal(uas_read,bad_value)
             tqflag = np.ma.masked_equal(uas_read,bad_value)
 
+            #shell()
             #UAS READ DATA
             for ii in range(nscan_uas):
                 if start_scantime_uas[ii] == -999:
                     print 'value of uas scan is %d'% ii
                     continue
-                for jj in range(scenecounts_uas[ii]):
+                for jj in range(scenecounts_uas[0]):
                     uas_lat,uas_lon,uas_ch19_6x6,uas_ch20_6x6,uas_ch21_6x6,uas_ch22_6x6,uas_ch23_6x6,uas_ch24_6x6,uas_scene,uas_tqflag= np.fromstring(f1.read(20),dtype=np.dtype('short')).byteswap()
                     uas_field,uas_bdotk2= np.fromstring(f1.read(8),dtype=np.dtype('int32')).byteswap()
                     nbytes+= 28
@@ -557,15 +647,14 @@ class SSMIS_BINARY_Reader(Reader):
                     lon= 0.01*uas_lon
                     lt[ii][jj]= lat
                     lg[ii][jj]= lon
-                    ch19_6x6[ii][jj] = uas_ch19_6x6      #63.28+-0.28 RCP GHz
-                    ch20_6x6[ii][jj] = uas_ch20_6x6      #60.79+-0.36 RCP
-                    ch21_6x6[ii][jj] = uas_ch21_6x6      #60.79+-0.36+-0.002 RCP
-                    ch22_6x6[ii][jj] = uas_ch22_6x6      #60.79+-0.36+-0.0055 RCP
-                    ch23_6x6[ii][jj] = uas_ch23_6x6      #60.79+-0.36+-0.0016 RCP 
-                    ch24_6x6[ii][jj] = uas_ch24_6x6      #60.79+-0.36+-0.050 RCP
+                    ch19_6x6[ii][jj] = uas_ch19_6x6
+                    ch20_6x6[ii][jj] = uas_ch20_6x6
+                    ch21_6x6[ii][jj] = uas_ch21_6x6
+                    ch22_6x6[ii][jj] = uas_ch22_6x6
+                    ch23_6x6[ii][jj] = uas_ch23_6x6
+                    ch24_6x6[ii][jj] = uas_ch24_6x6
                     sceneu[ii][jj] = uas_scene
                     tqflag[ii][jj] = uas_tqflag
-
             if 'Latitude' not in gvars['UAS'].keys():
                     gvars['UAS']['Latitude']= lt
                     gvars['UAS']['Longitude']= lg
@@ -598,14 +687,32 @@ class SSMIS_BINARY_Reader(Reader):
                     datavars['UAS']['ch24_6x6']= np.ma.masked_equal(datavars['UAS']['ch24_6x6'],bad_value)
                     datavars['UAS']['scene']= np.ma.masked_equal(datavars['UAS']['scene'],bad_value)
                     datavars['UAS']['uas_tqflag']= np.ma.masked_equal(datavars['UAS']['uas_tqflag'],bad_value)
-           
-            print 'nfiller=', nfiller 
-            nfiller= 512 - ( nbytes % 512 )   # nfiller bytes to be skipped so that the next scan header will start at the 513th byte.
+            
+            nfiller= 512 - ( nbytes % 512 )
+            #These are hard coded nfiller values.  This was done due to several lines of data missing
+            #within the binary file.  We need to figure out the magic number on how manys lines of
+            #missing data vs. the number of nfiller bytes that need to be added 
+            if nbytes == 158340:
+                nfiller = 1916
+            if nbytes == 142980:
+                nfiller = 2940
+            if nbytes == 145200:
+                nfiller = 17104
             try:
                 filler_bytes= np.fromstring(f1.read(nfiller),dtype=np.dtype('int8')).byteswap()[0]
             except:
                 continue
-        f1.close()
+            #if nn==33:
+            #    print "Shell in nbytes test loop"
+            #    shell()
+        #Check for timegaps to identify missing lines
+        for mm in range(nsdr*24):
+            sec= 86400.0*bufdate[mm] + buftime[mm]
+            sec_prev= sec-1.899
+            lines= ((sec - sec_prev)/1.899) + 0.5
+        #if nn==47:
+        #    print 'Shell in time test loop'
+        #    shell()
 #-----------------------------------------------------------------------------------------------------
         # Loop through each dataset name found in the dataset_info property above.
         for dsname in self.dataset_info.keys():
@@ -615,7 +722,7 @@ class SSMIS_BINARY_Reader(Reader):
                 data = datavars[dsname][geoipsvarname]
                 fillvalue = -999
                 datavars[dsname][geoipsvarname] = (np.ma.masked_equal(data,fillvalue)/100) + 273.15
-
+        #shell()
         # Loop through each dataset name found in the gvar_info property above.
         for dsname in self.gvar_info.keys():
             for geoipsvarname,dfvarname in self.gvar_info[dsname].items():

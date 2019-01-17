@@ -81,7 +81,7 @@ class Site(object):
         log.info('in hourrange')
         log.info((end_date - start_date).seconds)
         tr = end_date - start_date
-        for n in range((tr.days * 24 + tr.seconds / 3600) + 1):
+        for n in range(tr.days * 24 + tr.seconds / 3600):
             yield start_date + timedelta(seconds = (n * 3600))
 
     def clean_duplicates(self,localfile):

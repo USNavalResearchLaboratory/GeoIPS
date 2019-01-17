@@ -11,10 +11,10 @@
 <product method="basic" name="IR_120">
     <basic_args>
         <source name='seviri'>
-            <var>B10BT</var> <!--12.3um  B15 ABI   IR_120 12.0um MSG Dirty IR Longwave Window band, IR                            -->
+            <var>IR_120</var>
         </source>
         <img>
-            <equation>B10BT</equation>
+            <equation>IR_120</equation>
             <range>
                 <min_value>183</min_value>
                 <max_value>303</max_value>

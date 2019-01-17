@@ -155,10 +155,6 @@ class ArgParse(argparse.ArgumentParser):
                         help='''If write_sectored_datafile is included command line, write out the sectored
                                 datafile to plugin_paths.paths['PRESECTORED_DATA_PATH'] before processing''')
 
-        if 'write_registered_datafile' in arglist: self.add_argument('--write_registered_datafile', action='store_true',
-                        help='''If write_registered_datafile is included command line, write out the sectored
-                                datafile to plugin_paths.paths['PREREGISTERED_DATA_PATH'] before processing''')
-
         if 'sectorlist' in arglist: self.add_argument('-s', '--sectorlist', nargs='?', default=None,
                         help='''A list of short sector names over which the data file should be processed.
                              Short sector names are available in the "name" attribute of the "sector"

@@ -11,10 +11,10 @@
 <product method="basic" name="IR_134">
     <basic_args>
         <source name='seviri'>
-            <var>B11BT</var> <!--13.3um  B16 ABI   IR_134 13.4um MSG CO2 Longwave infrared, IR                                    -->
+            <var>IR_134</var>
         </source>
         <img>
-            <equation>B11BT</equation>
+            <equation>IR_134</equation>
             <range>
                 <min_value>183</min_value>
                 <max_value>303</max_value>

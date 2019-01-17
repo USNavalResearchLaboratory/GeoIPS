@@ -10,10 +10,10 @@
 <product method='basic' name='Water-Vapor-7p3'>
     <basic_args>
         <source name='seviri'>
-            <var>B06BT</var> <!-- 7.3um  B10 ABI   WV_073  7.3um MSG Lower-level tropospheric Water Vapor band, IR                -->
+            <var>WV_073</var>
         </source>
         <img>
-            <equation>B06BT</equation>
+            <equation>WV_073</equation>
             <range>
                 <min_value>203.15</min_value>
                 <max_value>268.15</max_value>

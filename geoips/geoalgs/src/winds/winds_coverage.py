@@ -2,6 +2,7 @@
 import os
 
 # Installed Libraries
+from IPython import embed as shell
 import logging
 import numpy as np
 
@@ -16,7 +17,5 @@ def winds_coverage(gi, imgkey=None):
     Or maybe it should loop in process - different coverage for each 
     different data array in the dictionary...
     '''
-    if imgkey:
-        return gi[imgkey]['datafile'].datasets[imgkey].variables['direction'].size
     return 100
          

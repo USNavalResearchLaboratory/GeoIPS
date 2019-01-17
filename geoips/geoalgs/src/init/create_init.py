@@ -48,8 +48,6 @@ init_header = '''
 # included license for more details.
 
 from collections import OrderedDict
-import matplotlib
-matplotlib.use('agg')
 
 def format_fortran_docstring(docstr):
     lines = docstr.split('\\n')

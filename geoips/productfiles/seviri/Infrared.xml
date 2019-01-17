@@ -11,10 +11,10 @@
 <product method="basic" name="Infrared">
     <basic_args>
         <source name='seviri'>
-            <var>B09BT</var> <!--11.2um  B14 ABI   IR_108 10.8um MSG IR Longwave Window band, IR                                  -->
+            <var>IR_108</var>
         </source>
         <img>
-            <equation>B09BT</equation>
+            <equation>IR_108</equation>
             <range>
                 <min_value>183</min_value>
                 <max_value>303</max_value>

@@ -1,126 +1,57 @@
 import os
-from datetime import datetime, timedelta
-from glob import glob
+from datetime import datetime
 import h5py
 import numpy as np
+from IPython import embed as shell
 import logging
-from geoips.utils.plugin_paths import paths as gpaths
 
 log = logging.getLogger(__name__)
 
-def get_filename(basedir, source_name, classif, sector, sdt, edt, platform_name, numfiles, dataprovider=None, filetype='h5'):
-    if isinstance(numfiles, int):
-        numfilesstr = '%03d'%(numfiles)
-    else:
-        numfilesstr = '%s'%(numfiles)
-    if isinstance(sdt, datetime):
-        sdtstr = sdt.strftime('%Y%m%d.%H%M%S')
-    else:
-        sdtstr = sdt
-    if isinstance(edt, datetime):
-        edtstr = edt.strftime('%Y%m%d.%H%M%S')
-    else:
-        edtstr = edt
-
-    suf = '.'+filetype
-
-    uniq_hash = sector.uniq_hash
-
-    dirname = '%s/%s_%s'%(basedir,source_name,classif)
-    baseoutfilename = '%s_%s-%s_%s_%s_%s_%s_%s'%(
-                        sector.name,    
-                        sdtstr,
-                        edtstr,
-                        platform_name,
-                        source_name,
-                        dataprovider,
-                        numfilesstr,
-                        uniq_hash,
-                    )
-    return dirname, baseoutfilename, suf
-
-def minrange(start_date, end_date):
-    '''Check one min at a time'''
-    #log.info('in minrange')
-    tr = end_date - start_date
-    for n in range(tr.seconds / 60):
-        yield start_date + timedelta(seconds = (n*60))
-
-def daterange(start_date, end_date):
-    '''Check one day at a time. 
-        If end_date - start_date is between 1 and 2, days will be 1,
-        and range(1) is 0. So add 2 to days to set range'''
-    #log.info('in minrange')
-    tr = end_date - start_date
-    for n in range(tr.days + 2):
-        yield start_date + timedelta(n)
-
-def hourrange(start_date, end_date):
-    '''Check one hour at a time. '''
-    log.info('in hourrange')
-    tr = end_date - start_date
-    for n in range(tr.days*24 + tr.seconds / 3600 ):
-        yield start_date + timedelta(seconds = (n*3600))
-
-def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_time, basedir=gpaths['PRESECTORED_DATA_PATH'], dataprovider=None, filetype='h5'):
-    classif = '*'
-    numfiles = '*'
-    edtstr = '*'
-    filenames = []
-    if (min_time - max_time) < timedelta(minutes=30):
-        for sdt in minrange(min_time, max_time):
-            sdtstr = sdt.strftime('%Y%m%d.%H%M*')
-            dirname, baseoutfilename, suf =  get_filename(basedir, source_name, classif, sector, sdtstr, edtstr, platform_name, numfiles, dataprovider, filetype)
-            #print '%s'%(os.path.join(dirname,baseoutfilename+suf))
-            filenames += glob(os.path.join(dirname,baseoutfilename+suf))
-    return filenames
-
-def write_datafile(basedir, datafile, sector, classif=None, filetype='h5'):
+def write_datafile(basedir, datafile, sector, secclass=None, filetype='h5'):
     if filetype != 'h5':
         raise TypeError('Currently only h5 filetypes supported for write')
 
+    suf = '.'+filetype
 
-    if not classif and datafile.classification:
-        classif = datafile.classification.replace('/','-')
+    if not secclass and datafile.security_classification:
+        secclass = datafile.security_classification.replace('/','-')
         for ds in datafile.datasets.values():
-            if ds.classification:
-                classif = ds.classification.replace('/','-')
-    elif classif:
-        classif = classif.replace('/','-')
+            if 'SECRET' in ds.security_classification or '\/\/' in ds.security_classification:
+                secclass = ds.security_classification.replace('/','-')
+    elif secclass:
+        secclass = secclass.replace('/','-')
 
     sdt = datetime.strptime('99991231','%Y%m%d')
     edt = datetime.strptime('19000101','%Y%m%d')
-    #pnames = []
-    #snames = []
+    pnames = []
+    snames = []
     numfiles = len(datafile.datafiles.keys())
     for ds in datafile.datasets.values():
-        #pnames += [ds.platform_name]
-        #snames += [ds.source_name]
+        pnames += [ds.platform_name]
+        snames += [ds.source_name]
         if ds.start_datetime < sdt:
             sdt = ds.start_datetime
         if ds.end_datetime > edt:
             edt = ds.end_datetime
 
-    #pnames = list(set(pnames))
-    #snames = list(set(snames))
+    pnames = list(set(pnames))
+    snames = list(set(snames))
 
-    dirname, baseoutfilename, suf = get_filename(basedir, 
-                datafile.source_name, 
-                classif, 
-                sector, 
-                sdt, edt, 
-                datafile.platform_name,
-                numfiles,
-                datafile.dataprovider,
-                )
-
+    dirname = '%s/%s_%s'%(basedir,datafile.source_name,secclass)
+    baseoutfilename = '%s/%s_%s-%s_%s_%s_%03d'%(dirname,
+                        sector.name,    
+                        sdt.strftime('%Y%m%d.%H%M%S'),
+                        edt.strftime('%H%M%S'),
+                        '-'.join(sorted(pnames)),
+                        '-'.join(sorted(snames)),
+                        numfiles,
+                    )
     if not os.path.isdir(dirname):
         os.makedirs(dirname)
-    outfilename = os.path.join(dirname,baseoutfilename+suf)
+    outfilename = baseoutfilename+suf
     ii = 0
     while os.path.exists(outfilename):
-        newbaseoutfilename = '%s-%03d%s'%(baseoutfilename,ii,suf)
-        outfilename = os.path.join(dirname, newbaseoutfilename)
+        outfilename = '%s_%03d%s'%(baseoutfilename,ii,suf)
         ii+=1
     log.info('Writing out %s SciFile data file: %s'%(suf,outfilename))
     datafile.write(outfilename, filetype=filetype)
@@ -162,16 +93,16 @@ def rename_dataset(base_dsname, metadata, gvars, datavars):
         dsname += '_'+dtstr
 
     # Get rid of the old dataset names, and create the new ones
-    update_dictionary(metadata['datavars'], dsname, base_dsname)
-    update_dictionary(metadata['gvars'], dsname, base_dsname)
-    update_dictionary(metadata['ds'], dsname, base_dsname)
+    update_dictionary(metadata['variables'], dsname, base_dsname)
+    update_dictionary(metadata['geolocation_variables'], dsname, base_dsname)
+    update_dictionary(metadata['datasets'], dsname, base_dsname)
     update_dictionary(datavars, dsname, base_dsname)
     update_dictionary(gvars, dsname, base_dsname)
 
     from .containers import _empty_finfo as empty_info
     for key in empty_info.keys():
-        if not metadata['ds'][dsname][key]:
-            metadata['ds'][dsname][key] = metadata['top'][key]
+        if not metadata['datasets'][dsname][key]:
+            metadata['datasets'][dsname][key] = metadata['top'][key]
 
 
 def get_props_from_metadata(metadata, vartype, dsname, varname):
@@ -202,7 +133,7 @@ def get_props_from_metadata(metadata, vartype, dsname, varname):
     else: 
         from .containers import _empty_finfo as empty_info
 
-    varinfo = empty_info.copy()
+    varinfo = {}
 
     # Default to top level metadata values
     for key,val in metadata['top'].items():
@@ -212,18 +143,16 @@ def get_props_from_metadata(metadata, vartype, dsname, varname):
     # Keep going if a dataset name was specified:
     if dsname and dsname in metadata[vartype].keys():
         # If we have dsinfo defined at dataset level, use those values
-        if dsname in metadata['ds'].keys():
-            for key,val in metadata['ds'][dsname].items():
-                if key in empty_info.keys() and val is not None:
+        if dsname in metadata['datasets'].keys():
+            for key,val in metadata['datasets'][dsname].items():
+                if key in empty_info.keys():
                     varinfo[key] = val
         # Now, if the field is set at the variables or geolocation_variables
         # level, use the value from that level
         if varname and varname in metadata[vartype][dsname].keys():
             for key,val in metadata[vartype][dsname][varname].items():
-                if key in empty_info.keys() and val is not None:
+                if key in empty_info.keys():
                     varinfo[key] = val
-    #from IPython import embed as shell
-    #shell()
 
     return varinfo
 
@@ -262,9 +191,6 @@ def recursively_load_dict_contents_from_group(h5file, path):
                 ans[key] = item.value 
             elif isinstance(item.value, (np.float32, np.int32, int, np.uint64)):
                 ans[key] = item.value
-            # Added these for AHI / ABI / SEVIRI metadata
-            elif isinstance(item.value, (np.uint8, np.uint16, np.uint32, np.float)):
-                ans[key] = item.value
         # If we are a group, recursively read in the rest of the levels
         elif isinstance(item, h5py._hl.group.Group):
             islist = True
@@ -276,10 +202,7 @@ def recursively_load_dict_contents_from_group(h5file, path):
             # same order.
             for ffkey in sorted(h5file[path+pathkey].keys()):
                 if 'list' in ffkey:
-                    if hasattr(h5file[path+pathkey][ffkey], 'value'):
-                        anslist += [h5file[path+pathkey][ffkey].value]
-                    elif hasattr(h5file[path+pathkey][ffkey], 'items'):
-                        anslist += [h5file[path+pathkey][ffkey].items()]
+                    anslist += [h5file[path+pathkey][ffkey].value]
                 elif 'list' not in ffkey:
                     islist = False
                 if islist:
@@ -314,10 +237,6 @@ def recursively_save_dict_contents_to_group(df, path, dic):
        
         # I added these and they seem to work.
         elif isinstance(item, (np.float32, np.int32, int, np.uint64)):
-            df[val] = item
-
-        # Added these for AHI / ABI / SEVIRI metadata
-        elif isinstance(item, (np.uint8, np.uint16, np.uint32, np.float)):
             df[val] = item
 
         # If the current item is a dictionary, recursively start

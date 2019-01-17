@@ -23,10 +23,8 @@ import shutil
 
 
 # Installed Libraries 
-try:
-    import paramiko
-except:
-    print 'Failed paramiko import in FTPSite.py. If you need it, install it.'
+from IPython import embed as shell
+import paramiko
 
 
 # GeoIPS Libraries

@@ -24,14 +24,9 @@ import random
 import operator
 from datetime import datetime,timedelta
 
-#for remote debugging in wingware
-try:
-    import wingdbstub
-except:
-    print('Could not find wingdbstub from downloader.py.  I hope you\'re not trying to dubug remotely...')
-
 
 # Installed libraries
+from IPython import embed as shell
 
 
 # GeoIPS packages
@@ -176,7 +171,6 @@ def downloader(data_type,
                      end_datetime,
                      sector_file,
                      sectorlist,
-                     productlist,
                      queue
                     )
     if not max_connections:
@@ -235,58 +229,23 @@ def downloader(data_type,
         geoips_args = None
         geoips_args = CMDArgs()
         geoips_args.addopt('queue', queue)
-        if hasattr(site, 'geoips_args'):
-            for arg, argval in site.geoips_args.items():
-                if argval == True:
-                    log.info('Adding %s, set to True' % (arg))
-                    geoips_args.addopt(arg)
-                elif argval == False:
-                    log.info('Not adding %s, set to False' % (arg))
-                elif arg == 'productlist':
-                    geoips_args.addopt('productlist',' '.join(argval))
-                elif arg == 'sectorlist':
-                    geoips_args.addopt('sectorlist',' '.join(argval))
-                elif arg == 'productfiles':
-                    geoips_args.addopt('productfiles',' '.join(argval))
-                elif arg == 'sectorfiles':
-                    geoips_args.addopt('sectorfiles',' '.join(argval))
-                else:
-                    log.info('Adding %s = %s' % (arg, argval))
-                    geoips_args.addopt(arg,argval)
-                    
         #site.get(files, datadir[data_type])
-        if productlist:
-            if geoips_args.hasopt('productlist'):
-                geoips_args.delopt('productlist')
-            geoips_args.addopt('productlist',' '.join(productlist))
         if sectorlist:
-            if geoips_args.hasopt('sectorlist'):
-                geoips_args.delopt('sectorlist')
             geoips_args.addopt('sectorlist',' '.join(sectorlist))
         if sectorfiles:
             log.info('adding sectorfiles option: '+str(sectorfiles))
-            if geoips_args.hasopt('secctorfiles'):
-                geoips_args.delopt('sectorfiles')
             geoips_args.addopt('sectorfiles',' '.join(sectorfiles))
         if site.sector_file.alldynamic:
             log.info('adding alldynamic option True')
-            if geoips_args.hasopt('alldynamic'):
-                geoips_args.delopt('alldynamic')
             geoips_args.addopt('alldynamic')
         if site.sector_file.allexistingdynamic:
             log.info('adding allexistingdynamic option True')
-            if geoips_args.hasopt('alldynamic'):
-                geoips_args.delopt('alldynamic')
             geoips_args.addopt('alldynamic')
         if site.sector_file.allnewdynamic:
             log.info('adding allnewdynamic option True')
-            if geoips_args.hasopt('alldynamic'):
-                geoips_args.delopt('alldynamic')
             geoips_args.addopt('alldynamic')
         if site.sector_file.allstatic:
             log.info('adding allstatic option True')
-            if geoips_args.hasopt('allstatic'):
-                geoips_args.delopt('allstatic')
             geoips_args.addopt('allstatic')
 
         total_num_files = None
@@ -341,7 +300,7 @@ def downloader(data_type,
 
 
 def open_site(host_type, data_type, start_datetime, end_datetime,
-              sector_file, sectorlist, productlist, queue=None):
+              sector_file, sectorlist, queue=None):
     #Open the site
     log.info('Opening %s %s' % (host_type, data_type))
     site = None
@@ -372,7 +331,6 @@ def open_site(host_type, data_type, start_datetime, end_datetime,
         log.info('    Done logging in')
     site.sector_file = sector_file
     site.sectorlist = sectorlist
-    site.productlist = productlist
     site.queue = queue
     return site
 

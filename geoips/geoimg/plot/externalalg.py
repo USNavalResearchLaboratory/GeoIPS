@@ -19,6 +19,12 @@ from datetime import datetime
 # Installed Libraries
 import numpy as np
 
+try:
+    from IPython import embed as shell
+except:
+    print 'Failed import IPython in geoimg/plot/rgbimg.py. If you need it, install it.'
+
+
 # GeoIPS Libraries
 from .geoimgbase import GeoImgBase
 from geoips.utils.memusg import print_mem_usage
@@ -173,7 +179,7 @@ class ExternalAlg(GeoImgBase):
 
         import geoips.geoalgs as geoalgs
         algorithm = getattr(geoalgs, '%s_coverage'%prodname)
-        log.info('Using %s coverage check algorithm for %s.'%(algorithm,imgkey))
+        log.info('Using %s coverage check algorithm.'%algorithm)
         img_dts['start_runextalgcovg'+sname+pname] = datetime.utcnow()
         covg = algorithm(self.image, imgkey=imgkey)
         img_dts['end_runextdataalgcovg'+sname+pname] = datetime.utcnow()

@@ -55,8 +55,7 @@ linkedsubdirs = ['/geoips/geoimg', '/geoips/sectorfiles/sectorfiles.dtd',
                  '/geoips/pass_prediction', '/geoips/utils',
                  '/geoips/scifile', '/geoips/geoalgs', '/geoips/downloaders',
                  '/geoips/Makefile', '/geoips/driver.py',
-                 '/geoips/process_overpass.py', '/geoips/about.py',
-                 '/geoips/manual_updates' ]
+                 '/geoips/process_overpass.py', '/geoips/about.py']
 # Link the about from each plugin package
 for pluginbase in pluginbases:
     linkedsubdirs += ['/geoips/about_'+os.path.split(pluginbase)[-1]+'.py']
@@ -100,12 +99,10 @@ for destbase in destinations:
             print gitignore_fname+' exists! Delete it if you want a new one.'
             continue
         fileobj = open(gitignore_fname,'w')
-        # Add base gitignore information from all locations
-        for currdirname in pluginbases+[destbase]:
-            if os.path.exists(currdirname+'/gitignore'):
-                fileobj.write('# Adding gitignore from '+currdirname+'/gitignore\n')
-                for line in open(currdirname+'/gitignore'):
-                    fileobj.write(line.strip()+'\n')
+        if os.path.exists(destbase+'/gitignore'):
+            fileobj.write('# Adding gitignore from '+destbase+'/gitignore\n')
+            for line in open(destbase+'/gitignore'):
+                fileobj.write(line.strip()+'\n')
     else:
         print('# Adding gitignore from '+destbase+'/gitignore\n')
 
@@ -188,7 +185,6 @@ for destbase in destinations:
                         #print 'need to link file '+pluginpath
                         if ingit(pluginpath,pluginbase) and linkedsubdir in pluginpath:
                             if not dryrun:
-                                print 'linking {}'.format(pluginpath)
                                 if hardlinks:
                                     os.link(pluginpath,destpath)
                                 else:
@@ -203,7 +199,6 @@ for destbase in destinations:
                         #print 'need to link dir '+plugindir
                         if ingit(plugindir,pluginbase) and linkedsubdir in plugindir:
                             if not dryrun:
-                                print 'linking {}'.format(plugindir)
                                 os.symlink(plugindir,destdir)
                             linkeddirs += [plugindir]
                     elif os.path.exists(destdir):

@@ -3,8 +3,9 @@ import os
 from datetime import datetime
 
 # Installed Libraries
+from IPython import embed as shell
 try: import netCDF4 as ncdf
-except: print 'Failed import netCDF4 in scifile/readers/winds_text_reader.py. If you need it, install it.'
+except: print 'Failed import netCDF4 in scifile/readers/knmirscat_ncdf3_reader.py. If you need it, install it.'
 import numpy as np
 from scipy.interpolate import griddata
 import logging
@@ -16,82 +17,6 @@ from ..containers import DataSet,Variable,_empty_varinfo
 from geoips.utils.path.datafilename import DataFileName
 
 log = logging.getLogger(__name__)
-
-dsdictkey = 'ds'
-#dsdictkey = 'datasets'
-
-channel_dict = { 
-                'GOES16' : {
-                            'satellite': 'goes16',
-                            'sensor': 'abi',
-                            'WVCA'  : 'B08BT', # 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCT'  : 'B10BT', # 7.3um, Lower-level tropospheric Water Vapor band, IR
-                            'VIS'   : 'B04Ref', # 1.37um, Cirrus band, near-IR 
-                            'IR'    : 'B11BT', # 8.4um, Cloud-Top Phase band, IR
-                            'SWIR'  : 'B07BT', # 3.9um, Shortwave window band, IR (with reflected daytime component)
-                           },
-                'HMWR08' : {
-                            'satellite': 'himawari8',
-                            'sensor': 'ahi',
-                            'WVCA'  : 'B08BT', # 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCT'  : 'B10BT', # 7.3um, Lower-level tropospheric Water Vapor band, IR
-                            'VIS'   : 'B04Ref', # 1.37um, Cirrus band, near-IR 
-                            'IR'    : 'B11BT', # 8.4um, Cloud-Top Phase band, IR
-                            'SWIR'  : 'B07BT', # 3.9um, Shortwave window band, IR (with reflected daytime component)
-                           },
-                'MET11' : {
-                            'satellite': 'meteoEU',
-                            'sensor': 'seviri',
-                            'WV'  : 'B05BT', # WV_062 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCA'  : 'B05BT', # WV_062 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCT'  : 'B06BT', # WV_073
-                            'VIS'   : 'B02Ref', # VIS008
-                            'IR'    : 'B09BT', # IR_108
-                            'SWIR'  : 'B04BT', # IR_039 3.9um, Shortwave window band, IR (with reflected daytime component)
-                           },
-                'MET8' : {
-                            'satellite': 'meteoIO',
-                            'sensor': 'seviri',
-                            'WV'  : 'B05BT', # WV_062 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCA'  : 'B05BT', # WV_062 6.2um, Upper-level tropospheric Water Vapor band, IR
-                            'WVCT'  : 'B06BT', # WV_073
-                            'VIS'   : 'B02Ref', # VIS008
-                            'IR'    : 'B09BT', # IR_108
-                            'SWIR'  : 'B04BT', # IR_039 3.9um, Shortwave window band, IR (with reflected daytime component)
-                           },
-                'meteoIO' : {
-                            'satellite': 'meteoIO',
-                            'sensor': 'seviri',
-                            'B04BT'  : 'B04BT', 
-                            'B05BT'  : 'B05BT', 
-                            'B06BT'  : 'B06BT', 
-                            'B07BT'  : 'B07BT', 
-                            'B08BT'  : 'B08BT', 
-                            'B09BT'  : 'B09BT', 
-                            'B10BT'  : 'B10BT', 
-                            'B11BT'  : 'B11BT', 
-                           },
-                'meteoEU' : {
-                            'satellite': 'meteoEU',
-                            'sensor': 'seviri',
-                            'B01Ref'  : 'B01Ref', 
-                            'B02Ref'  : 'B02Ref', 
-                            'B03Ref'  : 'B03Ref', 
-                            'B04BT'  : 'B04BT', 
-                            'B05BT'  : 'B05BT', 
-                            'B06BT'  : 'B06BT', 
-                            'B07BT'  : 'B07BT', 
-                            'B08BT'  : 'B08BT', 
-                            'B09BT'  : 'B09BT', 
-                            'B10BT'  : 'B10BT', 
-                            'B11BT'  : 'B11BT', 
-                           },
-                }
-
-dataprovider_sat_dict = {
-				'NOAA_Winds' : ['MET8','MET11','HMWR08','GOES16'],
-				'Optical_Flow_Winds' : ['meteoIO','meteoEU'],
-			}
 
 # For now must include this string for automated importing of classes.
 reader_class_name = 'Winds_Text_Reader'
@@ -110,10 +35,9 @@ class Winds_Text_Reader(Reader):
             return False
 
         with open(fname) as f:
-            for linenum in range(0,20):
-                line = f.readline()
-                if 'lat' in line and 'lon' in line and 'spd' in line and 'dir' in line:
-                    return True
+            line = f.readline()
+        if 'lat' in line and 'lon' in line and 'spd' in line and 'dir' in line:
+            return True
         return False
 
 
@@ -152,7 +76,7 @@ class Winds_Text_Reader(Reader):
         '''
         metadata['top']['platform_name'] = 'windvectors'
         metadata['top']['source_name'] = 'winds'
-        metadata['top']['dataprovider'] = None
+        metadata['top']['dataprovider'] = 'cimss'
         metadata['top']['NON_SECTORABLE'] = True
         metadata['top']['NO_GRANULE_COMPOSITES'] = True
 
@@ -163,9 +87,6 @@ class Winds_Text_Reader(Reader):
         with open(fname) as fp:
             while not metadata['top']['start_datetime']:
                 parts = fp.readline().split()
-                if 'CLASSIFICATION:' in parts:
-                    metadata['top']['classification'] = parts[-1]
-                    continue
                 if len(parts) == 12:
                     typ,sat,day,hms,lat,lon,pre,spd,dr,rff,qi,interv = parts
                 elif len(parts) == 11:
@@ -177,16 +98,12 @@ class Winds_Text_Reader(Reader):
                     rff = 0
                     qi = 0
                 else:
-                    log.info('Skipping header line %s'%(parts))
-                    continue
+                    log.error('Unsupported format for %s'%(parts))
                 interv = 0
                 try:
                     metadata['top']['start_datetime'] = datetime.strptime(day+hms,'%Y%m%d%H%M')
                     metadata['top']['end_datetime'] = metadata['top']['start_datetime']
                     metadata['top']['filename_datetime'] = metadata['top']['start_datetime']
-                    for dataprovider in dataprovider_sat_dict.keys():
-						if sat in dataprovider_sat_dict[dataprovider]:
-							metadata['top']['dataprovider'] = dataprovider
                     if chans == []:
                         '''
                         chans == [] specifies we don't want to read ANY data, just metadata.
@@ -215,24 +132,18 @@ class Winds_Text_Reader(Reader):
                 else:
                     log.error('Unsupported format for %s'%(parts))
                 pre = int(pre)
-                #if pre >= 100 and pre <= 250: # High
-                #    key = sat+typ+'100to2501d'
-                #elif pre >= 251 and pre <= 399: # High
-                #    key = sat+typ+'251to3991d'
-                #elif pre >= 400 and pre <= 599: # Medium
-                #    key = sat+typ+'400to5991d'
-                #elif pre >= 600 and pre <= 799: # Medium
-                #    key = sat+typ+'600to7991d'
-                #elif pre >= 800 and pre <= 950: # Low
-                #    key = sat+typ+'800to9501d'
-                #elif pre >= 950: # Low
-                #    key = sat+typ+'950to10141d'
-                if pre >= 0 and pre <= 400: # High
-                    key = '%s_%s_%s'%(sat,typ,'0_to_399_mb')
-                elif pre >= 400 and pre <= 800: # Medium
-                    key = '%s_%s_%s'%(sat,typ,'400_to_799_mb')
-                elif pre >= 800: # Low
-                    key = '%s_%s_%s'%(sat,typ,'800_to_1014_mb')
+                if pre >= 100 and pre <= 250:
+                    key = sat+typ+'100to2501d'
+                elif pre >= 251 and pre <= 399:
+                    key = sat+typ+'251to3991d'
+                elif pre >= 400 and pre <= 599:
+                    key = sat+typ+'400to5991d'
+                elif pre >= 600 and pre <= 799:
+                    key = sat+typ+'600to7991d'
+                elif pre >= 800 and pre <= 950:
+                    key = sat+typ+'800to9501d'
+                elif pre >= 950:
+                    key = sat+typ+'950to10141d'
                 else:
                     log.warning('Pressure outside allowable range: '+str(pre))
                     continue
@@ -240,9 +151,6 @@ class Winds_Text_Reader(Reader):
                     log.info('Starting dataset %s'%(key))
                     dat[key] = self.get_empty_datfields()
                     datavars[key] = {}
-                    metadata['top']['alg_platform'] = channel_dict[sat]['satellite']
-                    metadata['top']['alg_source'] = channel_dict[sat]['sensor']
-                    metadata[dsdictkey][key] = {}
                 dat[key]['days'] += [day]
                 dat[key]['hms']+= [hms]
                 dat[key]['lats'] += [lat]
@@ -253,9 +161,6 @@ class Winds_Text_Reader(Reader):
                 dat[key]['rffs'] += [rff]
                 dat[key]['qis']+= [qi]
                 dat[key]['intervs'] += [interv]
-                metadata[dsdictkey][key]['alg_platform'] = channel_dict[sat]['satellite']
-                metadata[dsdictkey][key]['alg_wavelength'] = typ
-                metadata[dsdictkey][key]['alg_channel'] = channel_dict[sat][typ]
 
 
         minlat = 999
@@ -271,11 +176,7 @@ class Winds_Text_Reader(Reader):
                     if datavars[typ]['lats'].max() > maxlat:
                         maxlat = datavars[typ]['lats'].max()
                 if key == 'lons':
-                    if sat == 'HMWR8' or sat == 'GOES16' or sat == 'MET8' or sat == 'MET11':
-                        # CIMSS STORES LONS OPPOSITE!!!!!
-                        datavars[typ][key] = -1.0 * np.array(map(float, arr))
-                    else:
-                        datavars[typ][key] = 1.0 * np.array(map(float, arr))
+                    datavars[typ][key] = -1.0 * np.array(map(float, arr))
 
                     # Crosses dateline
                     if abs(datavars[typ][key].min()) > 179 and abs(datavars[typ][key].max()) > 179:
@@ -293,45 +194,45 @@ class Winds_Text_Reader(Reader):
                 elif key in ['days','hms']:
                     datavars[typ][key] = np.array(map(int, arr)) 
 
-        #nx,ny = (500,500)
-        #x = np.linspace(minlon, maxlon, nx)
-        #y = np.linspace(maxlat, minlat, ny)
-        #gridlons,gridlats = np.meshgrid(x,y)
+        nx,ny = (500,500)
+        x = np.linspace(minlon, maxlon, nx)
+        y = np.linspace(maxlat, minlat, ny)
+        gridlons,gridlats = np.meshgrid(x,y)
 
-        #for typ in datavars.keys():
-        #    dsname = typ.replace('1d','grid')
-        #    if datavars[typ]['speed'].size >= 4:
-        #        log.info('Interpolating data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
-        #    else:
-        #        log.info('Not enough points to interpolate data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
-        #        continue
+        for typ in datavars.keys():
+            dsname = typ.replace('1d','grid')
+            if datavars[typ]['speed'].size >= 4:
+                log.info('Interpolating data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
+            else:
+                log.info('Not enough points to interpolate data to grid for %s, %d points'%(dsname,datavars[typ]['speed'].size))
+                continue
 
-        #    speed = datavars[typ]['speed']
-        #    direction = datavars[typ]['direction']
-        #    lats = datavars[typ]['lats']
-        #    lons = datavars[typ]['lons']
-        #    pres = datavars[typ]['pres']
-        #    u = (speed * np.cos(np.radians(direction)))#*1.94384
-        #    v = (speed * np.sin(np.radians(direction)))#*1.94384
+            speed = datavars[typ]['speed']
+            direction = datavars[typ]['direction']
+            lats = datavars[typ]['lats']
+            lons = datavars[typ]['lons']
+            pres = datavars[typ]['pres']
+            u = (speed * np.cos(np.radians(direction)))#*1.94384
+            v = (speed * np.sin(np.radians(direction)))#*1.94384
 
-        #    # interpolate
-        #    gridpres = np.ma.masked_invalid(griddata((lats,lons),pres,(gridlats,gridlons),method='linear'))
-        #    gridu = np.ma.masked_invalid(griddata((lats,lons),u,(gridlats,gridlons),method='linear'))
-        #    gridv = np.ma.masked_invalid(griddata((lats,lons),v,(gridlats,gridlons),method='linear'))
-        #    gridspeed = np.ma.masked_invalid(griddata((lats,lons),speed,(gridlats,gridlons),method='linear'))
-        #    gvars[dsname] = {}
-        #    datavars[dsname] = {}
-        #    datavars[dsname]['gridpres'] = np.ma.masked_invalid(gridpres)
-        #    datavars[dsname]['gridu'] = np.ma.masked_invalid(gridu)
-        #    datavars[dsname]['gridv'] = np.ma.masked_invalid(gridv)
-        #    datavars[dsname]['gridspeed'] = np.ma.masked_invalid(gridspeed)
+            # interpolate
+            gridpres = np.ma.masked_invalid(griddata((lats,lons),pres,(gridlats,gridlons),method='linear'))
+            gridu = np.ma.masked_invalid(griddata((lats,lons),u,(gridlats,gridlons),method='linear'))
+            gridv = np.ma.masked_invalid(griddata((lats,lons),v,(gridlats,gridlons),method='linear'))
+            gridspeed = np.ma.masked_invalid(griddata((lats,lons),speed,(gridlats,gridlons),method='linear'))
+            gvars[dsname] = {}
+            datavars[dsname] = {}
+            datavars[dsname]['gridpres'] = np.ma.masked_invalid(gridpres)
+            datavars[dsname]['gridu'] = np.ma.masked_invalid(gridu)
+            datavars[dsname]['gridv'] = np.ma.masked_invalid(gridv)
+            datavars[dsname]['gridspeed'] = np.ma.masked_invalid(gridspeed)
 
-        #    gvars[dsname]['Latitude'] = gridlats
-        #    gvars[dsname]['Longitude'] = gridlons
-        #    clat= 30
-        #    clon = 10
-        #    gridinds = np.where((gridlons>clon) & (gridlons<clon+1) & (gridlats>clat) & (gridlats<clat+1))
-        #    inds = np.where((lons>clon) & (lons<clon+1) & (lats>clat) & (lats<clat+1))
+            gvars[dsname]['Latitude'] = gridlats
+            gvars[dsname]['Longitude'] = gridlons
+            clat= 30
+            clon = 10
+            gridinds = np.where((gridlons>clon) & (gridlons<clon+1) & (gridlats>clat) & (gridlats<clat+1))
+            inds = np.where((lons>clon) & (lons<clon+1) & (lats>clat) & (lats<clat+1))
 
-        #        
-        ## datavars, gvars, and metadata are passed by reference, so we do not have to return anything.
+                
+        # datavars, gvars, and metadata are passed by reference, so we do not have to return anything.

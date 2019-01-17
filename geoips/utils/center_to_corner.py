@@ -88,8 +88,7 @@ def center_to_corner(lat_0, lon_0, dx, dy, nl, ns):
         assert dLon <= 360, ('Either dy or ns is too large.  dLon must be less than or equal to 180.'
             +'\n\tdLon = %s, dy = %s, ns = %s' % (str(dLon), str(dy), str(ns)))
     except AssertionError:
-        pass
-        #shell()
+        shell()
     llcrnrlon -= dLon/2
     urcrnrlon += dLon/2
     llcrnrlon = convert_360_to_180(llcrnrlon)

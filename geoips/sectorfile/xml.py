@@ -161,12 +161,6 @@ class AllSectorFiles(object):
             allvars.update(set(sf.get_required_vars(source,products)))
         return list(allvars)
 
-    def get_optional_vars(self,source,products=None):
-        allvars = set()
-        for sf in self.sectorfiles:
-            allvars.update(set(sf.get_optional_vars(source,products)))
-        return list(allvars)
-
     def itersectors(self):
         '''Iterates over all sector elements in the current object.'''
         for sf in self.sectorfiles:
@@ -382,12 +376,6 @@ class XMLSectorFile(object):
         allvars = set()
         for sect in self.getsectors():
             allvars.update(set(sect.get_required_vars(source,products)))
-        return list(allvars)
-
-    def get_optional_vars(self,source,products=None):
-        allvars = set()
-        for sect in self.getsectors():
-            allvars.update(set(sect.get_optional_vars(source,products)))
         return list(allvars)
 
     def getsectors(self,checksector=True):
@@ -643,17 +631,6 @@ class Sector(object):
     #     self.area_info.area_dict = val
 
     @property
-    def uniq_hash(self):
-        ''' Returns a unique hash of the currently defined sector.
-            This will provide a fully unique identifier for the current 
-            sector, so if elements of the sector are changed, the 
-            uniq_hash will be updated accordingly. This can be used
-            for creating fully unique intermediate files.'''
-        if not hasattr(self, '_uniq_hash'):
-            self._uniq_hash = hash(frozenset(self.area_definition.proj_dict.items()))
-        return self._uniq_hash 
-
-    @property
     def basemap(self):
         '''Returns a basemap for the sector instance.'''
         # MLS we need to pass the old arguments to basemap - resolution
@@ -827,20 +804,6 @@ class Sector(object):
             pf = productfile.open2(source, requested)
             if pf:
                 return pf.get_required_source_vars(source)
-            else:
-                raise productfile.ProductFileError.ProductFileError
-        else:
-            return []
-
-    def get_optional_vars(self, source, products=None):
-        '''Returns a list of the variables required from the input data source
-        for all of the products it can produce for the current sector.'''
-        requested = self.get_requested_products(source,products)
-        
-        if requested:
-            pf = productfile.open2(source, requested)
-            if pf:
-                return pf.get_optional_source_vars(source)
             else:
                 raise productfile.ProductFileError.ProductFileError
         else:
@@ -1682,15 +1645,15 @@ class Sector(object):
         self.set_bool_att('operational', val)
 
     @property
-    def sourcestitching_on(self):
-        '''Determine whether sector should be sourcestitching_on.  Returns a boolean.'''
-        self._sourcestitching_on = self.get_bool_att('sourcestitching')
-        return self._sourcestitching_on
+    def isstitched(self):
+        '''Determine whether sector should be stitched.  Returns a boolean.'''
+        self._isstitched = self.get_bool_att('stitched')
+        return self._isstitched
 
-    @sourcestitching_on.setter
-    def sourcestitching_on(self, val):
-        '''Sets whether a sector should be sourcestitching_on or not.'''
-        self.set_bool_att('sourcestitching', val)
+    @isstitched.setter
+    def isstitched(self, val):
+        '''Sets whether a sector should be stitched or not.'''
+        self.set_bool_att('stitched', val)
 
     @property
     def isactive(self):
@@ -1736,14 +1699,14 @@ class Sector(object):
         self.set_bool_att('download', val)
 
     @property
-    def swathstitching_on(self):
-        '''Determine whether sector imagery should be swathstitchingd for polar sensors.  Returns a boolean.'''
-        self._swathstitching_on = self.get_bool_att('swathstitching')
-        return self._swathstitching_on
-    @swathstitching_on.setter
-    def swathstitching_on(self, val):
-        '''Setse whether to swathstitching polar swaths for a sector or not.'''
-        self.set_bool_att('swathstitching', val)
+    def composite_on(self):
+        '''Determine whether sector imagery should be composited for polar sensors.  Returns a boolean.'''
+        self._composite_on = self.get_bool_att('composite')
+        return self._composite_on
+    @composite_on.setter
+    def composite_on(self, val):
+        '''Setse whether to composite polar swaths for a sector or not.'''
+        self.set_bool_att('composite', val)
 
 #######################################
 # Getter and setter for boolean attributes in destinations element

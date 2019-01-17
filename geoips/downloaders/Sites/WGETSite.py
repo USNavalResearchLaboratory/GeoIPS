@@ -19,8 +19,6 @@ import os
 import logging
 from subprocess import Popen,PIPE
 from datetime import datetime
-import requests
-
 
 
 # GeoIPS Libraries
@@ -56,38 +54,14 @@ class WGETSite(Site):
         return files
 
     def wget_file(self,path,localfnstr):
-        #rcj 13DEC2018 We're going to handle lance modis data downloads more pythonically
-        #so this bit is only for lance modis data from the NASA Earth Data LANCE Near Real Time data server
-        if hasattr(self,'host') and (self.host == 'nrt3.modaps.eosdis.nasa.gov' or self.host == 'nrt4.modaps.eosdis.nasa.gov'):
-            headers = { 'Authorization': 'Bearer ' + self.appkey }
-            try:
-                r = requests.get('https://'+self.host+path,headers=headers)
-                #if we get a good response, save the file to where geoips thinks it should go
-                if r.status_code == 200:
-                    log.info('After requesting modis data, the server responded with a status code of {0}.  Downloading the response object and writing to {1}'.format(r.status_code,localfnstr))
-                    with open(localfnstr, 'wb') as downloadedFile:
-                        downloadedFile.write(r.content)
-                # if there is a non 200 response something has probably gone wrong
-                elif r.status_code != 200:
-                    log.info('There was a problem requesting the modis data.  The server responded with a status code of {0}.'.format(r.status_code))
-                else:
-                    log.info('There was a problem requesting the modis data.')
-                    
-            except Exception as e:
-                log.info('There was a problem requesting the modis data: ',str(e))            
+        if hasattr(self,'username'):
+            wget_call = ['wget', path, '-4','--user='+self.username,'--password='+self.password,'--no-check-certificate','-O',localfnstr]
         else:
-            if hasattr(self,'username'):
-                wget_call = ['wget', path, '-4','--user='+self.username,'--password='+self.password,'--no-check-certificate','-O',localfnstr]
-            else:
-                wget_call = ['wget', path, '-4','--no-check-certificate','-O',localfnstr]
-            log.info('****Running '+' '.join(wget_call))
-            try:
-                stdout, stderr = Popen(wget_call, stdout=PIPE, stderr=PIPE).communicate()
-            except Exception as err:
-                print('Error making request: ' + str(err))
-            log.info(stdout)
-            log.info(stderr)
-        
+            wget_call = ['wget', path, '-4','--no-check-certificate','-O',localfnstr]
+        log.info('****Running '+' '.join(wget_call))
+        stdout, stderr = Popen(wget_call, stdout=PIPE, stderr=PIPE).communicate() 
+        #log.debug(stdout)
+        #log.info(stderr)
         return localfnstr
 
     def getsinglefilelist(self,start_time,end_time,searchstring,login=True,subdir=None):
@@ -116,21 +90,15 @@ class WGETSite(Site):
         indexhtmlfnstr  = indexhtmlfile.name
         log.info(indexhtmlfnstr)
 
-        # rcj 13DEC2018 this part doesn't need to run for lance modis data
-        # it is handled in lance_modis.py getfilelist
-        if hasattr(self,'host') and (self.host == 'nrt3.modaps.eosdis.nasa.gov' or self.host == 'nrt4.modaps.eosdis.nasa.gov'):
-            pass
-        #everything that is not lance modis that uses this script should still pass through here
-        else:
-            htmlfilelist = open(self.wget_file(fullurlpath,indexhtmlfnstr)).readlines()
-            #getfiles = self.getLinksFromHTML(htmlfilelist,r'''.*a href="GAASP-MBT_v"."r"."GW"."_s[0-9]{14}".*''')
-            #log.info(htmlfilelist)
-            links = self.getLinksFromHTML(htmlfilelist,searchstring)
-    
-            # This is defined in Site.py - finding the files in the file list is 
-            # common between HTTP and FTP (getting the lists differs, but sorting
-            # through the list and returning the desired files is shared)
-            return self.find_files_in_range(links,start_time,end_time,urlpath=fullurlpath)
+        htmlfilelist = open(self.wget_file(fullurlpath,indexhtmlfnstr)).readlines()
+        #getfiles = self.getLinksFromHTML(htmlfilelist,r'''.*a href="GAASP-MBT_v"."r"."GW"."_s[0-9]{14}".*''')
+        #log.info(htmlfilelist)
+        links = self.getLinksFromHTML(htmlfilelist,searchstring)
+
+        # This is defined in Site.py - finding the files in the file list is 
+        # common between HTTP and FTP (getting the lists differs, but sorting
+        # through the list and returning the desired files is shared)
+        return self.find_files_in_range(links,start_time,end_time,urlpath=fullurlpath)
 
 #    @retry((socket.timeout,ftplib.error_temp,socket.error))
     def getfile(self,remotefile,localfile):

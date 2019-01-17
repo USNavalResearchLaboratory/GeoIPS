@@ -142,8 +142,8 @@
 <!ATTLIST sector operational CDATA "yes">
 <!ATTLIST sector testonly CDATA "no">
 <!ATTLIST sector download CDATA "no">
-<!ATTLIST sector swathstitching CDATA "no">
-<!ATTLIST sector sourcestitching CDATA "no">
+<!ATTLIST sector composite CDATA "no">
+<!ATTLIST sector stitched CDATA "no">
 <!ATTLIST destinations tc CDATA "no">
 <!ATTLIST destinations atcf CDATA "no">
 <!ATTLIST destinations metoctiff CDATA "no">

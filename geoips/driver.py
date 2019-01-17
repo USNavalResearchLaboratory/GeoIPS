@@ -21,13 +21,12 @@ import socket
 from datetime import timedelta, datetime
 import multiprocessing
 
-#for remote debugging in wingware
-try:
-    import wingdbstub
-except:
-    print('Could not find wingdbstub from driver.py.  I hope you\'re not trying to dubug remotely...')
-
 # Installed Libraries
+try:
+    # Don't fail if this doesn't exist (not even used at the moment)
+    from IPython import embed as shell
+except:
+    print 'Failed IPython import in driver.py. If you need it, install it.'
 try:
     # Don't fail if this doesn't exist (not even used at the moment)
     from memory_profiler import profile
@@ -103,7 +102,7 @@ __doc__ = '''
 def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc, mp_max_cpus,
                 printmemusg, sects, mp_jobs, mp_waiting, geoips_only, sectors_run, mp_num_procs,
                 mp_max_num_jobs, mp_num_waits, mp_num_times_cleared, waittimes, didmem, separate_datasets,
-                write_sectored_datafile, write_registered_datafile):
+                write_sectored_datafile):
     if printmemusg and (datetime.utcnow().second % 5) == 0 and not didmem:
         print_mem_usage('drmainloop ', printmemusg)
         didmem = True
@@ -190,7 +189,6 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         log.interactive('{0} Using variables from products: {1}'.format(plog, curr_productlist))
         try:
             required_vars = curr_sector.get_required_vars(data_file.source_name, curr_productlist)
-            required_vars += curr_sector.get_optional_vars(data_file.source_name, curr_productlist)
         # This portion needs to be rethought.  Currently will skip an entire sector any time a single product file
         #   is missing.  Correct behavior would be to remove the offending product from the product list.
         except productfile.ProductFileError.ProductFileError, resp:
@@ -268,54 +266,9 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                                  'no coverage'.format(plog, curr_sector.name)))
                 return mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem
 
-        #notes = 
-        '''
-         MLS This is a good place to enter iPython in order to interrogate
-               the SECTORED data file for development purposes.
-
-           sectored.datasets.keys()
-           sectored.datasets[<dsname>].variables.keys()
-           sectored.datasets[<dsname>].variables[<varname>].min()
-           sectored.datasets[<dsname>].variables[<varname>].max()
-
-           geolocation_variables must be named 'Latitude' and 'Longitude'
-           sectored.datasets[<dsname>].geolocation_variables['Latitude']
-           sectored.datasets[<dsname>].geolocation_variables['Longitude']
-
-           metadata is set in the readers - any arbitrary metadata field
-           can be set in the reader, but scifile only absolutely requires 
-           'start_datetime' 'source_name' and 'platform_name'
-           All other fields can be accessed throughout the processing, 
-           but are not required internally to scifile
-
-           metadata at the top scifile level, _finfo fields pulled from metadata['top']:
-           sectored.metadata['top']
-           sectored._finfo
-
-           metadata at the dataset level, _dsinfo fields pulled from metadata['ds']:
-           sectored.metadata['ds']
-           sectored.datasets[<dsname>]._dsinfo
-
-           metadata at the variable level, _varinfo fields pulled from metadata['datavars']:
-           sectored.metadata['datavars']
-           sectored.datasets[<dsname>].variables[<varname>]._varinfo
-
-           metadata at the geolocation_variable level, _varinfo fields pulled from metadata['gvars']:
-           sectored.metadata['datavars']
-           sectored.datasets[<dsname>].variables[<varname>]._varinfo
-
-           sectored.source_name, sectored.platform_name, sectored.start_datetime, etc pulled directly
-           from the ._*info dictionaries (which were originally specified in the metadata dictionary
-
-           At some point I want to rename 
-           'ds' to 'datasets', 
-           'datavars' to 'variables'
-           'gvars' to 'geolocation_variables' 
-           in the metadata dictionary, but we'll have to change a bunch of readers first.
-        '''
-        #print notes
-        #from IPython import embed as shell
-        #shell()
+        # MLS This is a good place to enter iPython in order to interrogate
+        #       the SECTORED data file for development purposes.
+        # shell()
 
         '''If user requested write_sectored_datafile command line, then see if this is not
             already a PRESECTORED data file, and write if necessary
@@ -337,24 +290,6 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                 '''
                 log.info('Attempting to write out data file to  %s' % (gpaths['PRESECTORED_DATA_PATH']))
                 write_datafile(gpaths['PRESECTORED_DATA_PATH'],sectored,curr_sector, filetype='h5')
-        if write_registered_datafile:
-            write_file = False
-            ''' Currently we will NOT rewrite if all datafiles are already in
-                PREREGISTERED_DATA_PATH (meaning it was already written out)'''
-            for dfname in sectored.datafiles.keys():
-                if gpaths['PREREGISTERED_DATA_PATH'] not in dfname:
-                    write_file = True
-            if write_file:
-                from geoips.scifile.utils import write_datafile
-                ''' Currently only h5 is supported.  Will have to write new def 
-                    write for additional filetypes
-                    write_datafile determines appropriate paths and filenames
-                    based on all the datasets contained in the scifile object
-                '''
-                log.info('Attempting to register datafile')
-                sectored = sectored.register(curr_sector.area_definition)
-                log.info('Attempting to write out data file to %s' % (gpaths['PREREGISTERED_DATA_PATH']))
-                write_datafile(gpaths['PREREGISTERED_DATA_PATH'], sectored, curr_sector, filetype='h5')
 
         log.info('{0} Checking products'.format(plog))
 
@@ -370,18 +305,18 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             log.info('{0} MPLOG Waited for {1}'.format(plog, (waittimes[mp_num_waits])))
             mp_waiting = False
         if no_multiproc:
-            log.info('{0} NOMPLOG NOT USING MULTIPROCESSING'.format(plog))
+            log.info('{0} NOT USING MULTIPROCESSING'.format(plog))
             orig_shape = [dsvars.shape for dss in data_file.datasets.values() for dsvars in
                           dss.variables.values()]
             sectored_shape = [dsvars.shape for dss in sectored.datasets.values() for dsvars in
                               dss.variables.values()]
-            log.info('{0} Original data shape: {1}'.format(plog, orig_shape))
-            log.info('{0} Sectored data shape: {1}'.format(plog, sectored_shape))
+            log.info('Original data shape: {0}'.format(orig_shape))
+            log.info('Sectored data shape: {0}'.format(sectored_shape))
             # utils.path.productfilename needs sector_file for calling pass_prediction
             # Pass rather than opening again.
             if separate_datasets:
                 dfnew = SciFile()
-                log.info('{0} NOMPLOG Running each dataset separately through process'.format(plog))
+                log.info('Running each dataset separately through process')
                 dfnew.metadata = sectored.metadata.copy()
                 olddsname = None
                 for dsname in sectored.datasets.keys():
@@ -397,20 +332,19 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                     process(dfnew, curr_sector, productlist, forcereprocess=forcereprocess,
                         sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
             else:
-                log.info('{0} NOMPLOG Running process'.format(plog))
                 process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
                     sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
             # MLS 20160126 Try this for memory usage ? Probably doesn't do anything
             gc.collect()
         else:
-            log.info('{0} MPLOG STARTING MULTIPROCESSING'.format(plog))
+            log.info('{0} STARTING MULTIPROCESSING'.format(plog))
             try:
                 orig_shape = [dsvars.shape for dss in data_file.datasets.values() for dsvars in
                               dss.variables.values()]
                 sectored_shape = [dsvars.shape for dss in sectored.datasets.values() for dsvars in
                                   dss.variables.values()]
-                log.info('{0} Original data shape: {1}'.format(plog, orig_shape))
-                log.info('{0} Sectored data shape: {1}'.format(plog, sectored_shape))
+                log.info('Original data shape: {0}'.format(orig_shape))
+                log.info('Sectored data shape: {0}'.format(sectored_shape))
             except:
                 log.exception('Failed printing original and sectored data shapes.')
             # Need to pass all arguments, can not have = in args arg for Process
@@ -430,7 +364,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                 mp_num_procs += 1
                 # print mpp
             except OSError:             # OSerror caused by a lack of memory
-                log.info('{0} MPLOG OSError (lack of memory) occurred when trying to start job. {1}'.format(
+                log.info('{0} OSError (lack of memory) occurred when trying to start job. {1}'.format(
                     plog, curr_sector.name))
             # MLS 20160126 Try this for memory usage ? Probably doesn't do anything
             gc.collect()
@@ -441,7 +375,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         DATETIMES['end_{0}'.format(curr_sector.name)] = datetime.utcnow()
         sect_time = (DATETIMES['end_{0}'.format(curr_sector.name)] -
                      DATETIMES['start_{0}'.format(curr_sector.name)])
-        log.info('{0} MPLOG process {1} time: {2}'.format(plog, curr_sector.name, sect_time))
+        log.info('{0} process {1} time: {2}'.format(plog, curr_sector.name, sect_time))
     else:
         if not mp_waiting:
             # If we hadn't been waiting, initialize the wait timer, for
@@ -456,7 +390,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                 DATETIMES['endmp_{0}{1}'.format(job.ident, job.name)] = datetime.utcnow()
                 mp_time = (DATETIMES['endmp_{0}{1}'.format(job.ident, job.name)] -
                            DATETIMES['startmp_{0}{1}'.format(job.ident, job.name)])
-                log.info('MPLOG {0} {1} ran for {2}'.format(job.ident, job.name, mp_time))
+                log.info('{0} {1} ran for {2}'.format(job.ident, job.name, mp_time))
                 mp_jobs.remove(job)
         if not mp_jobs:
             mp_num_times_cleared += 1
@@ -471,8 +405,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 
 def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=None, call_next=True,
            forcereprocess=False, queue=None, no_multiproc=False, mp_max_cpus=1, 
-           printmemusg=False, separate_datasets=False, write_sectored_datafile=False, 
-            write_registered_datafile=False):
+           printmemusg=False, separate_datasets=False, write_sectored_datafile=False):
     '''
     Produce imagery from a single input data file for any number of sectors and products.
 
@@ -539,13 +472,6 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     |                        |        |                                                           |
     |                        |        | **Default:** False                                        |
     +----------------+--------+-------------------------------------------------------------------+
-    | write_registered_datafile| *bool* | **True:** write registered datafile out to                  |
-    |                        |        |                 $PREREGISTERED_DATA_PATH                    |
-    |                        |        |                                                           |
-    |                        |        | ** False:** do not write out datafile                     |
-    |                        |        |                                                           |
-    |                        |        | **Default:** False                                        |
-    +----------------+--------+-------------------------------------------------------------------+
     '''
     # If we are not calling this from driver.py, set these times
     if 'start' not in DATETIMES.keys():
@@ -562,9 +488,6 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
         raise ValueError('mp_max_cpus must be greater than or equal to 1.')
     elif int(mp_max_cpus) == 1:
         log.info('mp_max_cpus set to 1, not running multiprocessing')
-        no_multiproc = True
-    elif not MAXCPUS:
-        log.info('env MAXCPUS not defined, not running multiprocessing')
         no_multiproc = True
     elif int(mp_max_cpus) > int(MAXCPUS):
         log.info('Maximum of {0} cpus, reducing from: {1}'.format(MAXCPUS, mp_max_cpus))
@@ -609,23 +532,11 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     # for curr_sector in sector_file.itersectors():
     # Please excuse the polling loop.. Haven't gotten around to
     #   fixing this.
-
-    if sects:
-        runfirst = []
-        runsecond = []
-        for sect in sects:
-            if sect.name in ['CONUSGulfOfMexico','CONUSCentralPlains','CONUSSouthCentral','Caribbean_large','CONUSSouthEast']:
-                runfirst += [sect]
-            else:
-                runsecond += [sect]
-        sects = runsecond + runfirst
-
     while mp_jobs or sects:
         rs_ret = run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc,
                              mp_max_cpus, printmemusg, sects, mp_jobs, mp_waiting, geoips_only,
                              sectors_run, mp_num_procs, mp_max_num_jobs, mp_num_waits, mp_num_times_cleared,
-                             waittimes, didmem, separate_datasets, write_sectored_datafile,
-                            write_registered_datafile)
+                             waittimes, didmem, separate_datasets, write_sectored_datafile)
         mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem = rs_ret
     if not sects and not mp_jobs:
         log.info('MPLOG All jobs completed')
@@ -692,8 +603,7 @@ def predict_sectors(platform_name, source_name, start_dt, end_dt):
 def _get_argument_parser():
     '''Create an argument parser with all of the correct arguments.'''
     parser = ArgParse()
-    parser.add_arguments(['paths', 'separate_datasets', 'write_sectored_datafile', 'write_registered_datafile', 
-                            'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
+    parser.add_arguments(['paths', 'separate_datasets', 'write_sectored_datafile', 'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
                           'forcereprocess', 'all', 'allstatic', 'alldynamic', 'tc', 'volcano', 'sectorfiles',
                           'templatefiles', 'no_multiproc', 'mp_max_cpus', 'queue', 'printmemusg'])
     return parser
@@ -780,7 +690,6 @@ if __name__ == '__main__':
         log.info('\n\n')
         # Get list of all possible channels required based on sectorfile and productlist
         chans += sectfile.get_required_vars(ds.source_name, args['productlist'])
-        chans += sectfile.get_optional_vars(ds.source_name, args['productlist'])
     log.info('\tRequired channels: {0}'.format(sorted(chans)))
     log.info('\n')
     log.info('\tRequired sectors: {0}'.format(sorted(sectfile.sectornames())))
@@ -847,9 +756,6 @@ if __name__ == '__main__':
         #   df.datasets[<dsname>].variables.keys()
         #   df.datasets[<dsname>].variables[<varname>].min()
         #   df.datasets[<dsname>].variables[<varname>].max()
-        # print 'UNSECTORED scifile object in driver: df.datasets'
-        # print 'df.datasets[<dsname>].variables[<varname>]'
-        # from IPython import embed as shell
         # shell()
 
         log.info('SciFile information:')
@@ -879,8 +785,7 @@ if __name__ == '__main__':
                    forcereprocess=args['forcereprocess'], queue=args['queue'],
                    no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
                    printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
-                   write_sectored_datafile=args['write_sectored_datafile'],
-                   write_registered_datafile=args['write_registered_datafile'])
+                   write_sectored_datafile=args['write_sectored_datafile'])
 
         else:
             driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
@@ -888,6 +793,5 @@ if __name__ == '__main__':
                forcereprocess=args['forcereprocess'], queue=args['queue'],
                no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
                printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
-               write_sectored_datafile=args['write_sectored_datafile'],
-                   write_registered_datafile=args['write_registered_datafile'])
+               write_sectored_datafile=args['write_sectored_datafile'])
 

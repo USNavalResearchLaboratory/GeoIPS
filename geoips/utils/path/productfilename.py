@@ -101,10 +101,10 @@ atcffieldsep = '_'
 # NOTE: extra field EXPECTED and NECESSARY for merging, etc. Not sure how to get around it without 
 #       getting database working.
 #ATCFnameformat = '<date{%Y%m%d%H%M}>_<atcfid>_<sensorname>_<productname>_<intensity>_<coverage>'
-ATCFnameformat = '<date{%Y%m%d%H%M}>_<state>_<sensorname>_<satname>_<productname>_<intensity>_<coverage>_<extra>'
+ATCFnameformat = '<date{%Y%m%d%H%M}>_<state>_<sensorname>_<productname>_<intensity>_<coverage>_<extra>'
 #ATCFpathnameformat='<basedir>','<tcyear>','<basin>','<atcfid>','<ext>','<productname>'
 ATCFpathnameformat=os.path.join('<basedir>','<continent>','<subarea>',
-                                '<state>','<ext>','<productname>','<satname>')
+                                '<state>','<ext>','<productname>')
 
 # JTWC requested filename format
 Metoctiffnameformat = '<date{%Y%m%d}>.<time{%H%M%S}>.<sensorname>.<productname>.<sectorname>.<coverage>'
@@ -763,10 +763,7 @@ class ProductFileName(object):
             # MLS 20150622
             #print 'SHELL productfilename merging'
             #shell()
-            if imgkey:
-                pf.coverage = 'covg'+str(round(geoimgobj.coverage(imgkey),1)).replace('.','p')
-            else:
-                pf.coverage = 'covg'+str(round(geoimgobj.coverage(),1)).replace('.','p')
+            pf.coverage = 'covg'+str(round(geoimgobj.coverage(),1)).replace('.','p')
             #  MLS DEFAULT TO GEOIMGOBJ START_DATETIME!!
             pf.datetime = geoimgobj.start_datetime
             #pdb.set_trace()

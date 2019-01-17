@@ -10,7 +10,7 @@
 <product method='basic' name='Visible' testonly='no'>
     <basic_args>
         <source name='abi'>
-        <var zenith='yes'>B02Ref</var>
+        <var zenith='no'>B02Ref</var>
         <gvar>SunZenith</gvar> 
         </source>
         <img>

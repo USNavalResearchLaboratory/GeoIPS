@@ -11,7 +11,8 @@
     <basic_args>
         <source name='abi'>
             <!-- Cloud Particle Size band, Near-IR-->
-            <var mark_terminator='yes' zenith='yes'>B06Ref</var>
+            <var mark_terminator='yes' zenith='no'>B06Ref</var>
+            <var mark_terminator='yes' zenith='no'>B06Rad</var>
         </source>
         <img>
             <equation>B06Ref</equation>

@@ -31,6 +31,7 @@ from lxml import objectify
 #Probably because h5py has an in-built version of lxml that is not supported by
 #   the system libraries, but I'm not entirely sure.
 import h5py
+from IPython import embed as shell
 
 # GeoIPS Libraries
 #from geoips.utils.decorators import deprecated
@@ -448,8 +449,6 @@ class SciFile(object):
 
     def import_data(self, paths, chans=None, sector_definition=None, self_register=False):
 
-        from .utils import get_props_from_metadata
-
         if chans != []:
             log.info('IMPORTING DATA %s' % str(paths))
 
@@ -477,25 +476,9 @@ class SciFile(object):
                         nomaskval = metadata[readername]['gvars'][dsname][varlabel]['nomask']
                     except:
                         nomaskval = False
-
-                    varinfo = get_props_from_metadata(metadata[readername],
-                                    'gvars',
-                                    dsname,
-                                    varlabel)
-                    geolocation_variables += [Variable(varlabel,
-                            data=gvars[readername][dsname][varlabel],
-                            _varinfo=varinfo,
-                            _nomask=nomaskval)]
+                    geolocation_variables += [Variable(varlabel,data=gvars[readername][dsname][varlabel],_varinfo=metadata[readername]['top'],_nomask=nomaskval)]
                 if geolocation_variables:
-                    dsinfo = get_props_from_metadata(metadata[readername],
-                                'ds',
-                                dsname,
-                                None)
-    
-                    datasets += [DataSet(dsname,
-                            geolocation_variables=geolocation_variables,
-                            copy=False,
-                            _dsinfo=dsinfo)]
+                    datasets += [DataSet(dsname,geolocation_variables=geolocation_variables,copy=False)]
             metadata[readername]['top']['readername'] = readername
 
         for readername in datavars.keys():
@@ -506,33 +489,12 @@ class SciFile(object):
                         nomaskval = metadata[readername]['datavars'][dsname][varlabel]['nomask']
                     except:
                         nomaskval = False
-                    varinfo = get_props_from_metadata(metadata[readername],
-                                    'datavars',
-                                    dsname,
-                                    varlabel)
-                    variables += [Variable(varlabel,
-                            data=datavars[readername][dsname][varlabel],
-                            _varinfo=varinfo,
-                            _nomask=nomaskval)]
+                    variables += [Variable(varlabel,data=datavars[readername][dsname][varlabel],_varinfo=metadata[readername]['top'],_nomask=nomaskval)]
                 if variables:
-                    dsinfo = get_props_from_metadata(metadata[readername],
-                                'ds',
-                                dsname,
-                                None)
-    
-                    datasets += [DataSet(dsname,
-                            variables=variables,
-                            copy=False,
-                            _dsinfo=dsinfo)]
-
+                    datasets += [DataSet(dsname,variables=variables,copy=False)]
             metadata[readername]['top']['readername'] = readername
         self.metadata = metadata[readername]
 
-        # Now set the _finfo dictionary based on what is found in metadata
-        self._finfo = get_props_from_metadata(self.metadata, 'top', None, None)
-
-        # As datasets are added, _finfo fields with "None" values will be 
-        # populated with values from dsinfo or varinfo.
         self.add_datasets(datasets)
 
 
@@ -545,7 +507,7 @@ class SciFile(object):
             except ValueError,resp:
                 log.warning(str(resp)+' SKIPPING DATASET '+dataset.name+'!!')
                 continue
-
+    
         if datasets and self.platform_name and self.source_name and self.runfulldir == None:
             self._finfo['runfulldir'] = DataFileName.from_satsensor(self.platform_name,self.source_name,wildcards=True).sensorinfo.FName['runfulldir']
 
@@ -899,12 +861,8 @@ class SciFile(object):
     def platform_name(self):
         return self._finfo['platform_name']
     @property
-    def classification(self):
-        return self._finfo['classification']
-
-    @property
-    def classification_full(self):
-        return self._finfo['classification_full']
+    def security_classification(self):
+        return self._finfo['security_classification']
     @property
     def start_datetime(self):
         return self._finfo['start_datetime']

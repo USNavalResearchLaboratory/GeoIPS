@@ -28,6 +28,7 @@ import numpy as np
 from numpy.ma import MaskedArray
 from pyresample import kd_tree
 from pyresample.geometry import GridDefinition
+from IPython import embed as shell
 import scipy
 
 # GeoIPS Libraries
@@ -47,8 +48,7 @@ log = logging.getLogger(__name__)
 # finfo contains data that will be stored at the file level
 _empty_finfo = {'source_name': None,
                 'platform_name': None,
-                'classification': None,
-                'classification_full': None,
+                'security_classification': None,
                 'start_datetime': None,
                 'end_datetime': None,
                 'filename_datetime': None,
@@ -69,9 +69,7 @@ _empty_dsinfo.update({'shape': None,
 _empty_varinfo = _empty_dsinfo.copy()
 _empty_varinfo.update({'badval': None,
                        '_nomask': None,
-                       'transform_coeff': None,
-                        'wavelength': None,
-                       })
+                       'transform_coeff': None})
 
 
 class BaseContainer(object):
@@ -822,28 +820,16 @@ class DataSet(object):
         self._dsinfo_prop_deleter('platform_name')
 
     @property
-    def classification(self):
-        return self._dsinfo_prop_getter('classification')
+    def security_classification(self):
+        return self._dsinfo_prop_getter('security_classification')
 
-    @classification.setter
-    def classification(self, val):
-        self._dsinfo_prop_setter('classification', val)
+    @security_classification.setter
+    def security_classification(self, val):
+        self._dsinfo_prop_setter('security_classification', val)
 
-    @classification.deleter
-    def classification(self):
-        self._dsinfo_prop_deleter('classification')
-
-    @property
-    def classification_full(self):
-        return self._dsinfo_prop_getter('classification_full')
-
-    @classification_full.setter
-    def classification_full(self, val):
-        self._dsinfo_prop_setter('classification_full', val)
-
-    @classification_full.deleter
-    def classification_full(self):
-        self._dsinfo_prop_deleter('classification_full')
+    @security_classification.deleter
+    def security_classification(self):
+        self._dsinfo_prop_deleter('security_classification')
 
     @property
     def sensor_name(self):
@@ -1338,12 +1324,6 @@ class DataSet(object):
                     sensor_info = SatSensorInfo()
                     roi = sensor_info.interpolation_radius_of_influence
                     log.info('        Using DEFAULT SATELLITE_INFO radius of influence: '+str(roi))
-
-        # ROI up to here is in km, not m
-        #roi = roi * 1000
-        # Dammit Jeremy, this works for us.
-        roi = roi
-
         if hasattr(ad, 'pixel_size_x') and hasattr(ad, 'pixel_size_y'):
             if ad.pixel_size_x > roi or ad.pixel_size_y > roi:
                 log.info('        Using sector radius of influence: '+str(ad.pixel_size_x)+' or '+str(ad.pixel_size_y)+', not sensor/product: '+str(roi))
@@ -1351,10 +1331,6 @@ class DataSet(object):
         # print_mem_usage('cont2beforeresample',True)
         # MLS 20160203 huge memory usage during resample, but comes back down
         #       to pre-dstack levels immediately after (can be >2x during)
-        try:
-            log.info('Running Interpolation for {0}.  Using method {1}.'.format(ad.area_id,interp_method))
-        except:
-            log.info('Running Interpolation using method {}.'.format(interp_method))
         if interp_method == 'nearest':
             joined = kd_tree.resample_nearest(self.data_box_definition,
                                           # joined, ad, radius_of_influence=sensor_info.interpolation_radius_of_influence,
@@ -1421,10 +1397,6 @@ class DataSet(object):
 
             joined = joined_new
 
-        try:
-            log.info('Done running Interpolation for {0} using method {1}.'.format(ad.area_id,interp_method))
-        except:
-            log.info('Done running Interpolation using method {}.'.format(interp_method))        
         # Map Coordinates require a specific coordinate system
         # elif interp_method == 'mapcoord':
         #    lati = self.geolocation_variables['Latitude']
@@ -1528,26 +1500,6 @@ class DataSet(object):
             return True
         else:
             return False
-
-    @property
-    def day_inds(self, max_zenith=90):
-        '''Return percentage of pixels with SunZenith less than max_zenith'''
-        # Read SunZenith without reading the rest of the variables to save time here
-        # Replace SunZenith variable in self.geolocation_variables
-        if self.geolocation_variables['SunZenith'].empty:
-            self.geolocation_variables._force_append(self.geolocation_variables['SunZenith'].read())
-        # Determine where day and create DataSet level mask
-        return np.ma.where(self.geolocation_variables['SunZenith'] < max_zenith)
-
-    @property
-    def night_inds(self, min_zenith=90):
-        '''Mask all variables in the DataSet where SunZenith is greater than min_zenith.'''
-        # Read SunZenith without reading the rest of the variables to save time here
-        # Replace SunZenith variable in self.geolocation_variables
-        if self.geolocation_variables['SunZenith'].empty:
-            self.geolocation_variables._force_append(self.geolocation_variables['SunZenith'].read())
-        # Determine where night and create DataSet level mask
-        return np.ma.where(self.geolocation_variables['SunZenith'] > min_zenith)
 
     def mask_day(self, max_zenith=90):
         '''Mask all variables in the DataSet where SunZenith is greater than max_zenith.'''
@@ -1993,10 +1945,6 @@ class Variable(MaskedArray):
         return self._varinfo['transform_coeff']
 
     @property
-    def wavelength(self):
-        return self._varinfo['wavelength']
-
-    @property
     def name(self):
         return self._optinfo['name']
 
@@ -2018,12 +1966,8 @@ class Variable(MaskedArray):
         return self._dsinfo['platform_name']
 
     @property
-    def classification(self):
-        return self._dsinfo['classification']
-
-    @property
-    def classification_full(self):
-        return self._dsinfo['classification_full']
+    def security_classification(self):
+        return self._dsinfo['security_classification']
 
     # Probably Variable specific.  Should be in _optinfo if needed.
     # @property

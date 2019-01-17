@@ -11,10 +11,10 @@
 <product method="basic" name="IR_039">
     <basic_args>
         <source name='seviri'>
-            <var>B04BT</var> <!-- 3.9um  B07 ABI   IR_039  3.9um MSG Shortwave window band, IR (with reflected daytime component) -->
+            <var>IR_039</var>
         </source>
         <img>
-            <equation>B04BT</equation> <!-- 3.9um  B07 ABI   IR_039  3.9um MSG Shortwave window band, IR (with reflected daytime component) -->
+            <equation>IR_039</equation>
             <range>
                 <min_value>183</min_value>
                 <max_value>303</max_value>

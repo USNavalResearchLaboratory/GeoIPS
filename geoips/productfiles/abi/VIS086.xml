@@ -11,7 +11,8 @@
     <basic_args>
         <source name='abi'>
             <!-- Veggie band, Near-IR -->
-            <var mark_terminator='yes' zenith='yes'>B03Ref</var>
+            <var mark_terminator='yes' zenith='no'>B03Ref</var>
+            <var mark_terminator='yes' zenith='no'>B03Rad</var>
         </source>
         <img>
             <equation>B03Ref</equation>

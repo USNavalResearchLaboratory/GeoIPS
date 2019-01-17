@@ -37,22 +37,19 @@ try:
     nprocs = 6
     ne.set_num_threads(nprocs)
 except Exception:
-    print 'Failed numexpr.set_num_threads in {}. If numexpr is not installed and you need it, install it.'.format(__file__)
+    print 'Failed numexpr.set_num_threads. If numexpr is not installed and you need it, install it.'
 
 DONT_AUTOGEN_GEOLOCATION = False
 if os.getenv('DONT_AUTOGEN_GEOLOCATION'):
     DONT_AUTOGEN_GEOLOCATION = True
+
 GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files/geolocation/AHI')
-# 20180910 CAB:
-# Geolocation files are now no longer moved to localscratch and are now from
-# the SATOPS directory. Also the path is slightly different for dynamic sectors
+if os.getenv('GEOLOCDIR'):
+    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'AHI')
 
-#if os.getenv('GEOLOCDIR'):
-#    GEOLOCDIR = os.path.join(os.getenv('GEOLOCDIR'), 'AHI')
-
-DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'longterm_files/geolocation_dynamic/AHI')
-#if os.getenv('DYNAMIC_GEOLOCDIR'):
-#    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'AHI')
+DYNAMIC_GEOLOCDIR = os.path.join(gpaths['SATOPS'], 'intermediate_files/geolocation/AHI')
+if os.getenv('DYNAMIC_GEOLOCDIR'):
+    DYNAMIC_GEOLOCDIR = os.path.join(os.getenv('DYNAMIC_GEOLOCDIR'), 'AHI')
 
 READ_GEOLOCDIRS = []
 if os.getenv('READ_GEOLOCDIRS'):
@@ -1422,11 +1419,6 @@ class AHI_HSD_Reader(Reader):
             else:
                 raise ValueError('No geolocation data found.')
 
-
-        # basically just reformat the all_metadata dictionary to 
-        # reference channel names as opposed to file names..
-        band_metadata = self.get_band_metadata(all_metadata)
-
         # Remove lines and samples arrays.  Not needed.
         for res in gvars.keys():
             try:
@@ -1439,57 +1431,10 @@ class AHI_HSD_Reader(Reader):
                 datavars.pop(ds)
             else:
                 for varname in datavars[ds].keys():
-                    self.set_variable_metadata(scifile_metadata, band_metadata, ds, varname)
                     datavars[ds][varname] = np.ma.masked_less(datavars[ds][varname], -999.1)
         log.info('Done reading AHI data for {}'.format(adname))
         log.info('')
         return
-
-    @staticmethod
-    def set_variable_metadata(scifile_metadata, band_metadata, dsname, varname):
-        ''' MLS 20180914 
-            Setting scifile_metadata at the variable level for the associated 
-            channel metadata pulled from the actual netcdf file.
-            This will now be accessible from the scifile object.
-            Additionally, pull out specifically the band_wavelength and 
-            attach it to the _varinfo at the variable level - this is 
-            automatically pulled from the scifile_metadata dictionary
-            and set in the variable._varinfo dictionary in scifile/scifile.py
-            and scifile/containers.py (see empty_varinfo at the beginning
-            of containers.py for dictionary fields that are automatically 
-            pulled from the appropriate location in the  scifile_metadata 
-            dictionary and set on the _varinfo dictionary)
-        '''
-        if dsname not in scifile_metadata['datavars'].keys():
-            scifile_metadata['datavars'][dsname] = {}
-        bandname = varname.replace('Rad','').replace('Ref','').replace('BT','')
-        if varname not in scifile_metadata['datavars'][dsname].keys():
-            if bandname in band_metadata.keys():
-                scifile_metadata['datavars'][dsname][varname] = {}
-                # Store the full metadata dictionary in the scifile metadata
-                scifile_metadata['datavars'][dsname][varname]['all'] = band_metadata[bandname]
-                # Set the actual wavelength property on the variable itself
-                if 'calibration_information' in band_metadata[bandname].keys() and 'cent_wavelenth' in band_metadata[bandname]['calibration_information'].keys():
-                    scifile_metadata['datavars'][dsname][varname]['wavelength'] = band_metadata[bandname]['calibration_information']['cent_wavelenth']
-
-    @staticmethod
-    def get_band_metadata(all_metadata):
-        ''' This method basically just reformats the all_metadata 
-            dictionary that is set based on the metadata found
-            in the netcdf object itself to reference channel
-            names as opposed to filenames as the dictionary keys.
-        '''
-
-        bandmetadata = {}
-        for fname in all_metadata.keys():
-            bandnum = all_metadata[fname]['block_05']['band_number']
-            bandmetadata['B%02d'%bandnum] = {}
-            for blockname in all_metadata[fname].keys():
-                newkey = blockname
-                if 'block' in blockname and 'block_name' in all_metadata[fname][blockname].keys():
-                    newkey = all_metadata[fname][blockname]['block_name']
-                bandmetadata['B%02d'%bandnum][newkey] = all_metadata[fname][blockname]
-        return bandmetadata
 
     @staticmethod
     def get_data(md, gvars, rad=False, ref=False, bt=False, zoom=1.0):
