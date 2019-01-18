@@ -72,7 +72,7 @@ class XMLFiles(object):
                 log.debug('            adding '+name+' to list of sectorfile names')
                 self.xfnames.append(name)
                 self.xmlfiles.append(XMLFile(name))
-                self.timestamps[xfname] = other.timestamps[xfname]
+                self.timestamps[name] = other.timestamps[name]
         return self
 
     def open_elements(self,elementname_list):
@@ -111,7 +111,7 @@ class XMLFiles(object):
         '''Iterates over all sector elements in the current object.'''
         ind = 1
         for xf in self.xmlfiles:
-            elts = sf.iterelements()
+            elts = xf.iterelements()
             while True:
                 try:
                     yield elts.next()
