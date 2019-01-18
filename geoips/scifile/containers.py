@@ -557,7 +557,7 @@ class DataSet(object):
             self.variables._force_append(var.get_with_data())
 
         for gvar in self.geolocation_variables.values():
-            self.variables._force_append(var.get_with_data())
+            self.variables._force_append(gvar.get_with_data())
 
     def create_subset(self, variables=[], geolocation_variables=[]):
         '''
