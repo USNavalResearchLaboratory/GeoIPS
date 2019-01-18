@@ -309,6 +309,7 @@ class colorbar(XMLInstance):
         start_color = None
         end_color = None
         old_end_color = [0,0,0]
+        transition = None
         for transition in transitions:
             # Must start with 0.0 !
             transition_point = (transition.start_val - self.node.min_val) / float((self.node.max_val - self.node.min_val))

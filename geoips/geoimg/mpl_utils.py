@@ -386,6 +386,7 @@ def apply_equations(data, equations):
     '''
     eq_returns = OrderedDict()
     eq_names = equations.keys()
+    eq_name = None
     for eq_name in eq_names:
         #Remote extra return values
         eq_returns = remove_unneeded_returns(equations, eq_returns)

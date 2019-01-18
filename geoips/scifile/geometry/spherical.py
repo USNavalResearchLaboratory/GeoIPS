@@ -379,6 +379,7 @@ class SphPolygon(object):
     def aedges(self):
         """Iterator over the edges, in arcs of Coordinates.
         """
+        i = None
         for i in range(len(self.lon) - 1):
             yield Arc(SCoordinate(self.lon[i],
                                   self.lat[i]),
@@ -392,7 +393,7 @@ class SphPolygon(object):
     def edges(self):
         """Iterator over the edges, in geographical coordinates.
         """
-
+        i = None
         for i in range(len(self.lon) - 1):
             yield (self.lon[i], self.lat[i]), (self.lon[i + 1], self.lat[i + 1])
         yield (self.lon[i + 1], self.lat[i + 1]), (self.lon[0], self.lat[0])
@@ -470,6 +471,8 @@ class SphPolygon(object):
         # starting from the intersection, follow the edges of one of the
         # polygons.
 
+        edge1 = None
+        edge2 = None
         while True:
             arcs1 = rotate_arcs(edge1, arcs1)
             arcs2 = rotate_arcs(edge2, arcs2)
