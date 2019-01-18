@@ -1302,12 +1302,12 @@ class AHI_HSD_Reader(Reader):
         # for res in ['HIGH', 'MED', 'LOW']:
         if self_register:
             log.info('')
-            log.interactive('Getting geolocation information for resolution {} for {}.'.format(res, adname))
+            log.interactive('Getting geolocation information for adname {}.'.format(adname))
             gvars[adname] = get_geolocation(dt, res_md[self_register], sector_definition)
             if not gvars[adname]:
-                log.error('GEOLOCATION FAILED for {} resolution {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
-                    adname, res, DONT_AUTOGEN_GEOLOCATION))
-                gvars[res] = {}
+                log.error('GEOLOCATION FAILED for adname {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
+                    adname, DONT_AUTOGEN_GEOLOCATION))
+                gvars[adname] = {}
         else:
             for res in ['HIGH', 'MED', 'LOW']:
                 try:
