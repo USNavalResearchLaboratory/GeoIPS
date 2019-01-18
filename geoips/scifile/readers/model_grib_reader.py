@@ -189,7 +189,7 @@ class MODEL_GRIB_Reader(Reader):
                     datavars[dsname][geoipsvarname+str(level)] = np.ma.masked_equal(data,fillvalue)
                     shape = datavars[dsname][geoipsvarname+str(level)].shape
         if not new:
-            log.warning('Unable to read from file '+fname+' no matching select for isobarikcInhPa for var '+str(dfvarname))
+            log.warning('Unable to read from file '+fname+' no matching selects')
             return
         # Loop through each dataset name found in the gvar_info property above.
         for dsname in self.gvar_info.keys():
