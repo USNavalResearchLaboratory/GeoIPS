@@ -38,6 +38,7 @@ from geoips.utils.path.datafilename import DataFileName
 #from geoips.utils.memusg import print_mem_usage
 from . import file_format_tests
 from .containers import *
+from .containers import _empty_finfo, _empty_varinfo
 from .scifileexceptions import SciFileError,NoMatchingReadersError,MultiMatchingReadersError
 
 
