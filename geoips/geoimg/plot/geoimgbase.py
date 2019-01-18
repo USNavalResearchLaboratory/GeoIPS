@@ -197,7 +197,7 @@ class GeoImgBase(object):
         elif isinstance(cmap, list):
             if not append:
                 self._colorbars = []
-            for (ccmap, cticks, cticklabels, ctitles, cbounds, cnorm, cspacing) in zip(cmap, ticks, ticklabels, titles,
+            for (ccmap, cticks, cticklabels, ctitle, cbounds, cnorm, cspacing) in zip(cmap, ticks, ticklabels, title,
                     bounds, norm, spacing):
                 self._colorbars += [Colorbar.fromvals(ccmap, cticks, cticklabels, ctitle, cbounds, cnorm, cspacing)]
         else:
@@ -265,7 +265,7 @@ class GeoImgBase(object):
             if 'start_' in sttag:
                 tag = sttag.replace('start_','')
                 try:
-                    log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag])+' '+socket.gethostname())
+                    log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag]))
                 except:
                     log.info('WARNING! No end time for '+sttag)
         return registered
