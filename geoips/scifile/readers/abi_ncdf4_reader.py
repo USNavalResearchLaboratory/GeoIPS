@@ -918,13 +918,13 @@ class ABI_NCDF4_Reader(Reader):
         # Loop over resolutions and get metadata as needed
         if self_register:
             log.info('')
-            log.interactive('Getting geolocation information for resolution {} for {}.'.format(
-                self_register, adname))
+            log.interactive('Getting geolocation information for adname {}.'.format(
+                adname))
             gvars[adname] = get_geolocation(sdt, res_md[self_register], sector_definition)
             if not gvars[adname]:
-                log.error('GEOLOCATION FAILED for {} resolution {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
-                    adname, res, DONT_AUTOGEN_GEOLOCATION))
-                gvars[res] = {}
+                log.error('GEOLOCATION FAILED for adname {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
+                    adname, DONT_AUTOGEN_GEOLOCATION))
+                gvars[adname] = {}
         else:
             for res in ['HIGH', 'MED', 'LOW']:
                 try:
