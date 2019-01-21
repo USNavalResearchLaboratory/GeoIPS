@@ -107,17 +107,27 @@ class GeoImgBase(object):
             else:
                 self._cmap = None
 
-    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
+    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, platform_display=None, source_display=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
         extra_extra = ''
         # Platform name and source name should end up in the title, so do not
         # need to be repeated in the bgname extra_lines. If it is a different
         # platform/source with bgname, it should be included in bgname
+        
+        # NOTE this actually changes the attributes on the datafile!!
+        # It is not a copy!  This is probably not what we want, but
+        # for now, just be careful.
         if platform_name:
             #extra_extra = '%s %s'%(extra_extra, platform_name)
             self.datafile._finfo['platform_name'] = platform_name
         if source_name:
             #extra_extra = '%s %s'%(extra_extra, source_name)
             self.datafile._finfo['source_name'] = source_name
+        if platform_display:
+            #extra_extra = '%s %s'%(extra_extra, platform_name)
+            self.datafile._finfo['platform_name_display'] = platform_display
+        if source_display:
+            #extra_extra = '%s %s'%(extra_extra, source_name)
+            self.datafile._finfo['source_name_display'] = source_display
         if start_dt:
             self.datafile._finfo['start_datetime'] = start_dt
             self._start_datetime = start_dt

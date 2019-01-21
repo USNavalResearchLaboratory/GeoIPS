@@ -32,7 +32,7 @@ def winds_plot(gi, imgkey=None):
         lons = bgfile.geolocation_variables['Longitude']
         sunzen = bgfile.geolocation_variables['SunZenith']
         from .motion_config import motion_config
-        from .EnhancedImage import EnhancedImage
+        from geoips.geoalgs.lib.dataEnhancements import enhanceDataArrays
         if bgvar.name not in motion_config(bgfile.source_name).keys():
             log.warning('Variable %s not defined in motion_config for %s, can not find background, not plotting'%
 				(bgvar.name, bgfile.source_name))
@@ -44,15 +44,7 @@ def winds_plot(gi, imgkey=None):
             and 'cmap' in config['plot_params']['EnhImage'].keys():
             bgcmap = config['plot_params']['EnhImage']['cmap']
 
-        enhdata = EnhancedImage(
-            bgvar,
-            bgvar.shape,
-            lats,
-            lons,
-            sunzen=sunzen,
-            )
-        enhdata.enhanceImage(config)
-        bgvar = enhdata.Data
+        bgvar, blah, blah2 = enhanceDataArrays(bgvar, config, sunzen1=sunzen)
 
         chanstr = re.sub(r"^B","Channel ",bgvarname).replace('BT',' BT').replace('Ref',' Reflectance')
         if bgvar.wavelength:
@@ -90,7 +82,17 @@ def winds_plot(gi, imgkey=None):
     from geoips.geoalgs.lib.amv_plot import downsample_winds
     from geoips.geoalgs.lib.amv_plot import set_winds_plotting_params
 
-    set_winds_plotting_params(gi, speed, None, None, new_platform, new_source, prodname, bgname)
+    # Note - if we set this to platform_display and source_display, the 
+    # filenames will not reflect the actual satellite/sensor (winds/winds).
+    # But when it is set to platform/source, it actually changes the platform
+    # and source in the datafile, which breaks all subsequent sectors.
+    # So using set_winds_plotting_params to change source/platform
+    # FORCES a single sector. I'll have to look into whether there is
+    # an intelligent way to handle this. For now. One sector...
+    set_winds_plotting_params(gi, speed, None, None, 
+            #platform_display=new_platform, source_display=new_source, 
+            platform=new_platform, source=new_source, 
+            prodname=prodname, bgname=bgname)
 
     if 'BACKGROUND' in gi.image[imgkey]:
         log.info('Plotting background image %s'%(bgname))
