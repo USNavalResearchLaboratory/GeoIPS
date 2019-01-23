@@ -21,6 +21,18 @@ dsdictkey = 'ds'
 #dsdictkey = 'datasets'
 
 channel_dict = { 
+                'GOES15' : {
+                            'satellite': 'himawari8',
+                            'sensor': 'ahi',
+                            'WV'  : 'B08BT', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WV10'  : 'B08BT', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WV11'  : 'B08BT', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCA'  : 'B08BT', # 6.2um, Upper-level tropospheric Water Vapor band, IR
+                            'WVCT'  : 'B10BT', # 7.3um, Lower-level tropospheric Water Vapor band, IR
+                            'VIS'   : 'B04Ref', # 1.37um, Cirrus band, near-IR 
+                            'IR'    : 'B11BT', # 8.4um, Cloud-Top Phase band, IR
+                            'SWIR'  : 'B07BT', # 3.9um, Shortwave window band, IR (with reflected daytime component)
+                           },
                 'GOES16' : {
                             'satellite': 'goes16',
                             'sensor': 'abi',
@@ -227,6 +239,7 @@ class Winds_Text_Reader(Reader):
                 #    key = sat+typ+'800to9501d'
                 #elif pre >= 950: # Low
                 #    key = sat+typ+'950to10141d'
+                keyall = "{}_{}_allpressures".format(sat,typ)
                 if pre >= 0 and pre <= 400: # High
                     key = '%s_%s_%s'%(sat,typ,'0_to_399_mb')
                 elif pre >= 400 and pre <= 800: # Medium
@@ -243,6 +256,13 @@ class Winds_Text_Reader(Reader):
                     metadata['top']['alg_platform'] = channel_dict[sat]['satellite']
                     metadata['top']['alg_source'] = channel_dict[sat]['sensor']
                     metadata[dsdictkey][key] = {}
+                if keyall not in dat.keys():
+                    log.info('Starting dataset %s'%(keyall))
+                    dat[keyall] = self.get_empty_datfields()
+                    datavars[keyall] = {}
+                    metadata['top']['alg_platform'] = channel_dict[sat]['satellite']
+                    metadata['top']['alg_source'] = channel_dict[sat]['sensor']
+                    metadata[dsdictkey][keyall] = {}
                 dat[key]['days'] += [day]
                 dat[key]['hms']+= [hms]
                 dat[key]['lats'] += [lat]
@@ -253,9 +273,25 @@ class Winds_Text_Reader(Reader):
                 dat[key]['rffs'] += [rff]
                 dat[key]['qis']+= [qi]
                 dat[key]['intervs'] += [interv]
+
+                dat[keyall]['days'] += [day]
+                dat[keyall]['hms']+= [hms]
+                dat[keyall]['lats'] += [lat]
+                dat[keyall]['lons'] += [lon]
+                dat[keyall]['pres'] += [pre]
+                dat[keyall]['speed'] += [spd]
+                dat[keyall]['direction']+= [dr]
+                dat[keyall]['rffs'] += [rff]
+                dat[keyall]['qis']+= [qi]
+                dat[keyall]['intervs'] += [interv]
+
                 metadata[dsdictkey][key]['alg_platform'] = channel_dict[sat]['satellite']
                 metadata[dsdictkey][key]['alg_wavelength'] = typ
                 metadata[dsdictkey][key]['alg_channel'] = channel_dict[sat][typ]
+
+                metadata[dsdictkey][keyall]['alg_platform'] = channel_dict[sat]['satellite']
+                metadata[dsdictkey][keyall]['alg_wavelength'] = typ
+                metadata[dsdictkey][keyall]['alg_channel'] = channel_dict[sat][typ]
 
 
         minlat = 999
@@ -270,8 +306,8 @@ class Winds_Text_Reader(Reader):
                         minlat = datavars[typ]['lats'].min()
                     if datavars[typ]['lats'].max() > maxlat:
                         maxlat = datavars[typ]['lats'].max()
-                if key == 'lons':
-                    if sat == 'HMWR8' or sat == 'GOES16' or sat == 'MET8' or sat == 'MET11':
+                elif key == 'lons':
+                    if sat == 'HMWR8' or sat == 'GOES16' or sat == 'MET8' or sat == 'MET11' or sat == 'GOES15':
                         # CIMSS STORES LONS OPPOSITE!!!!!
                         datavars[typ][key] = -1.0 * np.array(map(float, arr))
                     else:
@@ -287,9 +323,20 @@ class Winds_Text_Reader(Reader):
                         minlon = datavars[typ][key].min()
                     if datavars[typ][key].max() > maxlon:
                         maxlon = datavars[typ][key].max()
-
-                elif key in ['pres','speed','direction','rffs','qis','intervs']:
-                    datavars[typ][key] = np.array(map(float, arr))
+                elif key == 'speed':
+                    # Stored as m/s by default, convert to ms for specific data types if needed.
+                    datavars[typ]['speed_ms'] = np.array(map(float, arr))
+                elif key == 'direction':
+                    # Stored as degrees by default, convert to deg for specific data types if needed.
+                    datavars[typ]['direction_deg'] = np.array(map(float, arr))
+                elif key == 'pres':
+                    # Stored as mb by defauts, convert to mb for specific data types if needed.
+                    datavars[typ]['pres_mb'] = np.array(map(float, arr))
+                elif key in ['rffs','qis','intervs']:
+                    try:
+                        datavars[typ][key] = np.array(map(float, arr))
+                    except ValueError as resp:
+                        log.warning("{} Poorly formatted, skipping line for {} {} ".format(resp, key, typ)) 
                 elif key in ['days','hms']:
                     datavars[typ][key] = np.array(map(int, arr)) 
 
