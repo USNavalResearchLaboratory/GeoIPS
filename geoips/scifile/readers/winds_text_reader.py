@@ -227,35 +227,23 @@ class Winds_Text_Reader(Reader):
                 else:
                     log.error('Unsupported format for %s'%(parts))
                 pre = int(pre)
-                #if pre >= 100 and pre <= 250: # High
-                #    key = sat+typ+'100to2501d'
-                #elif pre >= 251 and pre <= 399: # High
-                #    key = sat+typ+'251to3991d'
-                #elif pre >= 400 and pre <= 599: # Medium
-                #    key = sat+typ+'400to5991d'
-                #elif pre >= 600 and pre <= 799: # Medium
-                #    key = sat+typ+'600to7991d'
-                #elif pre >= 800 and pre <= 950: # Low
-                #    key = sat+typ+'800to9501d'
-                #elif pre >= 950: # Low
-                #    key = sat+typ+'950to10141d'
-                keyall = "{}_{}_allpressures".format(sat,typ)
-                if pre >= 0 and pre <= 400: # High
-                    key = '%s_%s_%s'%(sat,typ,'0_to_399_mb')
-                elif pre >= 400 and pre <= 800: # Medium
-                    key = '%s_%s_%s'%(sat,typ,'400_to_799_mb')
-                elif pre >= 800: # Low
-                    key = '%s_%s_%s'%(sat,typ,'800_to_1014_mb')
-                else:
-                    log.warning('Pressure outside allowable range: '+str(pre))
-                    continue
-                if key not in dat.keys():
-                    log.info('Starting dataset %s'%(key))
-                    dat[key] = self.get_empty_datfields()
-                    datavars[key] = {}
-                    metadata['top']['alg_platform'] = channel_dict[sat]['satellite']
-                    metadata['top']['alg_source'] = channel_dict[sat]['sensor']
-                    metadata[dsdictkey][key] = {}
+                keyall = "{}_{}_All_Pressure_Levels".format(sat,typ)
+                #if pre >= 0 and pre <= 400: # High
+                #    key = '%s_%s_%s'%(sat,typ,'0_to_399_mb')
+                #elif pre >= 400 and pre <= 800: # Medium
+                #    key = '%s_%s_%s'%(sat,typ,'400_to_799_mb')
+                #elif pre >= 800: # Low
+                #    key = '%s_%s_%s'%(sat,typ,'800_to_1014_mb')
+                #else:
+                #    log.warning('Pressure outside allowable range: '+str(pre))
+                #    continue
+                #if key not in dat.keys():
+                #    log.info('Starting dataset %s'%(key))
+                #    dat[key] = self.get_empty_datfields()
+                #    datavars[key] = {}
+                #    metadata['top']['alg_platform'] = channel_dict[sat]['satellite']
+                #    metadata['top']['alg_source'] = channel_dict[sat]['sensor']
+                #    metadata[dsdictkey][key] = {}
                 if keyall not in dat.keys():
                     log.info('Starting dataset %s'%(keyall))
                     dat[keyall] = self.get_empty_datfields()
@@ -263,16 +251,16 @@ class Winds_Text_Reader(Reader):
                     metadata['top']['alg_platform'] = channel_dict[sat]['satellite']
                     metadata['top']['alg_source'] = channel_dict[sat]['sensor']
                     metadata[dsdictkey][keyall] = {}
-                dat[key]['days'] += [day]
-                dat[key]['hms']+= [hms]
-                dat[key]['lats'] += [lat]
-                dat[key]['lons'] += [lon]
-                dat[key]['pres'] += [pre]
-                dat[key]['speed'] += [spd]
-                dat[key]['direction']+= [dr]
-                dat[key]['rffs'] += [rff]
-                dat[key]['qis']+= [qi]
-                dat[key]['intervs'] += [interv]
+                #dat[key]['days'] += [day]
+                #dat[key]['hms']+= [hms]
+                #dat[key]['lats'] += [lat]
+                #dat[key]['lons'] += [lon]
+                #dat[key]['pres'] += [pre]
+                #dat[key]['speed'] += [spd]
+                #dat[key]['direction']+= [dr]
+                #dat[key]['rffs'] += [rff]
+                #dat[key]['qis']+= [qi]
+                #dat[key]['intervs'] += [interv]
 
                 dat[keyall]['days'] += [day]
                 dat[keyall]['hms']+= [hms]
@@ -285,9 +273,9 @@ class Winds_Text_Reader(Reader):
                 dat[keyall]['qis']+= [qi]
                 dat[keyall]['intervs'] += [interv]
 
-                metadata[dsdictkey][key]['alg_platform'] = channel_dict[sat]['satellite']
-                metadata[dsdictkey][key]['alg_wavelength'] = typ
-                metadata[dsdictkey][key]['alg_channel'] = channel_dict[sat][typ]
+                #metadata[dsdictkey][key]['alg_platform'] = channel_dict[sat]['satellite']
+                #metadata[dsdictkey][key]['alg_wavelength'] = typ
+                #metadata[dsdictkey][key]['alg_channel'] = channel_dict[sat][typ]
 
                 metadata[dsdictkey][keyall]['alg_platform'] = channel_dict[sat]['satellite']
                 metadata[dsdictkey][keyall]['alg_wavelength'] = typ
