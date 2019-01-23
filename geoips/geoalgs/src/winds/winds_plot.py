@@ -186,21 +186,21 @@ def winds_plot(gi, imgkey=None):
 
     resolution = min(gi.sector.area_info.proj4_pixel_width, gi.sector.area_info.proj4_pixel_height)
     qi = ds.variables['qis']
-    good_inds = np.ma.where(qi>0.2)
+    speed_kts = ms_to_kts(ds.variables['speed_ms'])
+    #good_inds = np.ma.where(qi>0.2)
+    good_inds = np.ma.where(speed_kts)
     # Plot knots, store in text file as m/s
     direction_deg = ds.variables['direction_deg'][good_inds]
-    speed_kts = ms_to_kts(ds.variables['speed_ms'][good_inds])
+    speed_kts = speed_kts[good_inds]
     u_kts = -1.0*speed_kts * np.sin(np.radians(direction_deg))
     v_kts = -1.0*speed_kts * np.cos(np.radians(direction_deg))
     pres_mb = ds.variables['pres_mb'][good_inds]
     lats = ds.variables['lats'][good_inds]
     lons = ds.variables['lons'][good_inds]
-    [lons, lats, u_kts, v_kts, speed_kts, direction_deg, pres_mb] = downsample_winds(resolution, thinvalue=10,
-                           arrs=[lons, lats, u_kts, v_kts, speed_kts, direction_deg, pres_mb])
 
-    if 'allpress' in imgkey:
-        colorLevs = ['cyan','yellow','green'] 
-        pressureLevs = [400,600,800,950] 
+    if 'All_Pressure_Levels' in imgkey:
+        colorLevs = ['blue','cyan','yellow','green','orange'] 
+        pressureLevs = [0,400,600,800,950,1014] 
         [lats,lons,u_kts,v_kts] = get_pressure_levels(pres_mb, [lats,lons,u_kts,v_kts], pressureLevs)
 
 
@@ -214,7 +214,7 @@ def winds_plot(gi, imgkey=None):
     if speed_kts.shape[0] == 0:
         log.warning('No valid winds, returning without attempting to plot')
         return 
-    if 'allpress' in imgkey:
+    if 'All_Pressure_Levels' in imgkey:
         set_winds_plotting_params(gi, speed=None, pressure=pres_mb, altitude=None, 
             #platform_display=new_platform, source_display=new_source, 
             platform=new_platform, source=new_source, 
@@ -253,23 +253,36 @@ def winds_plot(gi, imgkey=None):
     '''
 
 
-    if 'allpressure' in imgkey:
+    if 'All_Pressure_Levels' in imgkey:
         log.info('Plotting all barbs with colors {} at pressure levels {}'.format(colorLevs, pressureLevs))
 
         for (ulev,vlev,latlev,lonlev,colorlev) in zip(u_kts,v_kts,lats,lons, colorLevs):
             if ulev.shape[0] == 0:
                 log.info('Not plotting color {}, no winds'.format(colorlev))
                 continue
-            log.info('Plotting color {}'.format(colorlev))
+            log.info('Plotting color {}, number barbs {}'.format(colorlev, ulev.shape[0]))
+            if ulev.shape[0] > 3000 and ulev.shape[0] < 10000:
+                thinval = int(ulev.shape[0] / 2000)
+                [lonlev, latlev, ulev, vlev] = downsample_winds(resolution, thinvalue=thinval,
+                           arrs=[lonlev, latlev, ulev, vlev])
+                log.info('    new number barbs {}, thinval {}'.format(ulev.shape[0], thinval))
+            elif ulev.shape[0] >= 10000:
+                thinval = 5 
+                [lonlev, latlev, ulev, vlev] = downsample_winds(resolution, thinvalue=thinval,
+                           arrs=[lonlev, latlev, ulev, vlev])
+                log.info('    new number barbs {}, thinval {}'.format(ulev.shape[0], thinval))
 
             gi.basemap.barbs(lonlev.data,latlev.data,
                         ulev,vlev,
                         color=colorlev,
                         ax=gi.axes,
                         #sizes=dict(height=0.8, spacing=0.3),
-                        sizes=dict(height=0.7, spacing=0.5),
+                        # height is length of flag on barb, as percentage of length
+                        # spacing is spacing of flags on barb, as percentage of length of flag
+                        sizes=dict(height=0.4, spacing=0.2),
                         linewidth=0.5,
-                        length=3,
+                        # length is length of actual barb
+                        length=8,
                         #length=5,
                         latlon=True)
     else:
