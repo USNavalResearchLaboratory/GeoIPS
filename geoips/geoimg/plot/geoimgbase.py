@@ -80,7 +80,7 @@ class GeoImgBase(object):
         self._product = product
         self._title = title
         self._ticks = ticks
-        self.datafile.mask_edge_of_scan(self.product.max_sat_zen_ang)
+        #self.datafile.mask_edge_of_scan(self.product.max_sat_zen_ang)
         
 
         
@@ -507,18 +507,34 @@ class GeoImgBase(object):
                                 #If other is bigger, must pad self.                               
                                 pad_width = other_width - self_width
                                 pad_array = np.ma.masked_all((pad_width,self.datafile.variables[var].shape[1]))
+                                # failed attempt to properly union these arrays (spatially)
+                                #otherArray = otherimg.variables[othervar]
+                                #thisArrayPadded = np.ma.vstack((self.datafile.variables[var],pad_array))
+                                #data = np.ma.where(otherArray == False,otherArray,thisArrayPadded)
                                 data = np.ma.hstack(
                                     (otherimg.variables[othervar],
-                                     np.ma.vstack((self.datafile.variables[var],pad_array))))
+                                     np.ma.vstack((self.datafile.variables[var],pad_array))))                                
                             else:
                                 #If self is bigger, must pad other.                               
                                 pad_width = self_width - other_width
                                 pad_array = np.ma.masked_all((pad_width,otherimg.variables[othervar].shape[1]))
+                                # failed attempt to properly union these arrays (spatially)
+                                #otherArrayPadded = np.ma.vstack((otherimg.variables[othervar],pad_array))
+                                #thisArray = self.datafile.variables[var]
+                                #data = np.ma.where(otherArrayPadded == False,otherArrayPadded,thisArray)
                                 data = np.ma.hstack(
                                     (np.ma.vstack((otherimg.variables[othervar],pad_array)),
                                      self.datafile.variables[var])
                                     )
+                         
+                        
+                        
                         else:
+                            # failed attempt to properly union these arrays (spatially)
+                            # rcj20190118 merge the arrays with a preference for this data (should it be reversed?)
+                            #otherMaskedArray = otherimg.variables[othervar]
+                            #thisMaskedArray = self.datafile.variables[var]
+                            #data = np.ma.where(otherMaskedArray == False,otherMaskedArray,thisMaskedArray)
                             data = np.ma.hstack(
                                 (otherimg.variables[othervar],
                                  self.datafile.variables[var])
@@ -531,16 +547,29 @@ class GeoImgBase(object):
                             log.info('    Trying to merge geolocation variable '+gvar)
                             if other_width != self_width:
                                 if other_width > self_width:
+                                    # failed attempt to properly union these arrays (spatially)
+                                    #otherArray = otherimg.datasets[dsname].geolocation_variables[gvar]
+                                    #thisArrayPadded = np.ma.vstack((self.datafile.datasets[dsname].geolocation_variables[gvar],pad_array))
+                                    #data = np.ma.where(otherArray == False,otherArray,thisArrayPadded)                                    
                                     data = np.ma.hstack(
                                                     (otherimg.datasets[dsname].geolocation_variables[gvar],
                                                     np.ma.vstack((self.datafile.datasets[dsname].geolocation_variables[gvar],pad_array)))
                                                     )
                                 else:
+                                    # failed attempt to properly union these arrays (spatially)
+                                    #otherArrayPadded = np.ma.vstack((otherimg.datasets[dsname].geolocation_variables[gvar],pad_array))
+                                    #thisArray = self.datafile.datasets[dsname].geolocation_variables[gvar]
+                                    #data = np.ma.where(otherArrayPadded == False,otherArrayPadded,thisArray)                                    
                                     data = np.ma.hstack(
                                                     (np.ma.vstack((otherimg.datasets[dsname].geolocation_variables[gvar],pad_array)),
                                                     self.datafile.datasets[dsname].geolocation_variables[gvar])
                                                     )
                             else:
+                                # failed attempt to properly union these arrays (spatially)
+                                #otherGvarArray = otherimg.datasets[dsname].geolocation_variables[gvar]
+                                #thisGvarArray = self.datafile.datasets[dsname].geolocation_variables[gvar]
+                                # rcj20190122 merge the arrays with a preference for this data (should it be reversed?)
+                                #data = np.ma.where(otherGvarArray == False,otherGvarArray,thisGvarArray)
                                 data = np.ma.hstack(
                                                 (otherimg.datasets[dsname].geolocation_variables[gvar],
                                                 self.datafile.datasets[dsname].geolocation_variables[gvar])
