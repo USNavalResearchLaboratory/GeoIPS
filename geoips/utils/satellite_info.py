@@ -317,6 +317,21 @@ class SourceStitchedSatInfo(SatInfo):
         self.geoips_satname = 'sourcestitched'
         self.geostationary = True
 
+class GOES17SatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        # MLS 20160504 This might break legacy code, but it makes things difficult for having a
+        # common sensorname.  Possibly need to make a "default" sensorname, and
+        # allow for alternatives ? For now, just force it to gvar
+        #self.sensornames = ['gvar', 'goes', 'gvissr']
+        self.sensornames = ['abi', 'glm', 'clavrx-abi', 'ccbg-abi']
+        #self.orbital_period = 98 * 60
+        # tle names for celestrak and tscan, default to satname
+        # if not, defined in _set_satinfo
+        # None if not available (no ISS from tscan, no TLEs for GEO)
+        self.celestrak_tle_name = 'GOES 17'
+        self.geoips_satname = 'goes17'
+        self.geostationary = True
+
 class GOES16SatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
         # MLS 20160504 This might break legacy code, but it makes things difficult for having a
@@ -2121,6 +2136,8 @@ SatInfo_classes = {
         'goesE': GOESESatInfo,
         'goes16': GOES16SatInfo,
         'G16': GOES16SatInfo,
+        'goes17': GOES17SatInfo,
+        'G17': GOES17SatInfo,
         'goesW': GOESWSatInfo,
         'gpm': GPMSatInfo,
         # Note I changed reader to use h8 explicitly rather than himawari-8

@@ -1021,7 +1021,7 @@ class ABIFileName(StandardDataFileName):
             sensor,level,datatype,chan = self.sensornamelevelprodtypescantype.split('-')
         except ValueError:
             sensor,level,datatype = self.sensornamelevelprodtypescantype.split('-')
-        if self.satname in ['G16'] and sensor in ['ABI','SUVI','EXIS','SEIS','MAG','GLM']:
+        if self.satname in ['G16','G17'] and sensor in ['ABI','SUVI','EXIS','SEIS','MAG','GLM']:
             return True
         else:
             return False
