@@ -11,9 +11,123 @@ import re
 # GeoIPS Libraries
 from geoips.utils.normalize import normalize
 from geoips.utils.gencolormap import get_cmap
+from .winds_utils import downsample_winds, ms_to_kts
 
 log = logging.getLogger(__name__)
 
+
+def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, platform=None, source=None,
+        platform_display=None, source_display=None, prodname=None, bgname=None, start_dt=None, end_dt=None,
+        listedColormapVals=None, ticksVals=None):
+
+    # NOTE this actually changes the attributes on the actual datafile, since it is not a copy.
+    # This can have unintended consequences (like subsequent sectors not running, because source/platform
+    # no longer matches what sectorfile is expecting). Use carefully
+    gi.set_geoimg_attrs(platform, source, prodname, platform_display, source_display, bgname, start_dt=start_dt, end_dt=end_dt)
+    cbtitle = None
+
+    if pressure is not None or altitude is not None:
+        from matplotlib.colors import ListedColormap, BoundaryNorm
+
+        #cmap.set_over('0.25') 
+        #cmap.set_under('0.75') 
+
+        #      5m = 1012.65 mb
+        #    500m =  954.61 mb
+        #   1000m =  898.75 mb
+        #   2000m =  794.95 mb
+        #   4000m =  616.40 mb
+        #   7000m =  410.61 mb
+        #  10000m =  264.36 mb
+        #  16000m =   96.32 mb
+        #  20000m =   43.28 mb
+        #  40000m =    0.00 mb
+        #  44330m =    0.00 mb
+        #  44331m =   ERROR
+        # Using standard atmosphere, for reference.
+        # These will actually be calculated using model heights
+
+        minval = 0
+        if pressure is not None:
+            if ticksVals is not None:
+                cmap = ListedColormap(listedColormapVals)
+                ticks = ticksVals
+                minval = ticks[0]
+                maxval = ticks[-1]
+            else:
+                maxval = 1013
+                if pressure.max() > maxval:
+                    maxval = int(pressure.max())
+                if pressure.min() < minval:
+                    minval = int(pressure.min())
+                ticks = [minval,400,800,maxval]
+                cmap = ListedColormap(['green','blue','tan'])
+            cbtitle = 'Atmospheric Pressure at Cloud Top, mb'
+        elif altitude is not None:
+            if ticksVals is not None:
+                cmap = ListedColormap(listedColormapVals)
+                ticks = ticksVals
+                minval = ticks[0]
+                maxval = ticks[-1]
+            else:
+                maxval = 44
+                if altitude.max() > maxval:
+                    maxval = int(altitude.max())
+                if altitude.min() < minval:
+                    minval = int(altitude.min())
+                cmap = ListedColormap(['tan','salmon','blue','cyan','green','limegreen','chartreuse','lime','magenta'])
+                ticks = [minval,1,2,4,7,10,16,20,40,maxval]
+            cbtitle = 'Cloud Top Altitude, km'
+
+        bounds = [minval-1] + ticks + [maxval+1]
+
+        norm = BoundaryNorm(ticks, cmap.N)
+        spacing = 'uniform'
+        ticklabels = None
+
+        gi.set_colorbars(cmap, ticks, ticklabels=ticklabels, title=cbtitle, bounds=None, norm=norm, spacing=spacing)
+
+    elif speed is not None:
+        from matplotlib.colors import ListedColormap, BoundaryNorm
+
+        cmap = ListedColormap(['tan','blue','cyan','green','yellow','red','magenta'])
+        #cmap.set_over('0.25') 
+        #cmap.set_under('0.75') 
+
+        maxval = speed.max()
+        if maxval > 100:
+            maxval = speed.max()
+        else:
+            maxval = 200
+
+        ticks = [0,5,25,35,50,64,100,maxval]
+        bounds = [-1,0,5, 25, 35, 50, 64, 100, maxval, maxval+1]
+        norm = BoundaryNorm(ticks, cmap.N)
+        spacing = 'uniform'
+        ticklabels = None
+        cbtitle = 'Wind speed, knots'
+
+        gi.set_colorbars(cmap, ticks, ticklabels=ticklabels, title=cbtitle, bounds=None, norm=norm, spacing=spacing)
+
+    else:
+        gi._colorbars = []
+
+    # Figure and axes
+    gi._figure, gi._axes = gi._create_fig_and_ax()
+
+
+def get_pressure_levels(pres, arrays, pressure_cutoffs=[0,400,800,1014]):
+    levArrays = []
+    for arrInd in range(len(arrays)):
+        currArr = arrays[arrInd]
+        levArrays += [[]]
+        for presCutoffInd in range(len(pressure_cutoffs)-1):
+            pres1 = pressure_cutoffs[presCutoffInd]
+            pres2 = pressure_cutoffs[presCutoffInd+1]
+            inds = np.argwhere((pres >= pres1) & (pres <= pres2))
+            levArrays[arrInd] += [currArr[inds]]  
+
+    return levArrays
 
 def winds_plot(gi, imgkey=None):
 
@@ -71,16 +185,24 @@ def winds_plot(gi, imgkey=None):
     log.info('Plotting dataset: %s'%(imgkey))
 
     resolution = min(gi.sector.area_info.proj4_pixel_width, gi.sector.area_info.proj4_pixel_height)
-    direction = ds.variables['direction']
-    speed = ds.variables['speed']
-    u = speed * np.cos(np.radians(direction))
-    v = speed * np.sin(np.radians(direction))
-    pres = ds.variables['pres']
-    lats = ds.variables['lats']
-    lons = ds.variables['lons']
+    qi = ds.variables['qis']
+    good_inds = np.ma.where(qi>0.2)
+    # Plot knots, store in text file as m/s
+    direction_deg = ds.variables['direction_deg'][good_inds]
+    speed_kts = ms_to_kts(ds.variables['speed_ms'][good_inds])
+    u_kts = -1.0*speed_kts * np.sin(np.radians(direction_deg))
+    v_kts = -1.0*speed_kts * np.cos(np.radians(direction_deg))
+    pres_mb = ds.variables['pres_mb'][good_inds]
+    lats = ds.variables['lats'][good_inds]
+    lons = ds.variables['lons'][good_inds]
+    [lons, lats, u_kts, v_kts, speed_kts, direction_deg, pres_mb] = downsample_winds(resolution, thinvalue=10,
+                           arrs=[lons, lats, u_kts, v_kts, speed_kts, direction_deg, pres_mb])
 
-    from geoips.geoalgs.lib.amv_plot import downsample_winds
-    from geoips.geoalgs.lib.amv_plot import set_winds_plotting_params
+    if 'allpress' in imgkey:
+        colorLevs = ['cyan','yellow','green'] 
+        pressureLevs = [400,600,800,950] 
+        [lats,lons,u_kts,v_kts] = get_pressure_levels(pres_mb, [lats,lons,u_kts,v_kts], pressureLevs)
+
 
     # Note - if we set this to platform_display and source_display, the 
     # filenames will not reflect the actual satellite/sensor (winds/winds).
@@ -89,7 +211,17 @@ def winds_plot(gi, imgkey=None):
     # So using set_winds_plotting_params to change source/platform
     # FORCES a single sector. I'll have to look into whether there is
     # an intelligent way to handle this. For now. One sector...
-    set_winds_plotting_params(gi, speed, None, None, 
+    if speed_kts.shape[0] == 0:
+        log.warning('No valid winds, returning without attempting to plot')
+        return 
+    if 'allpress' in imgkey:
+        set_winds_plotting_params(gi, speed=None, pressure=pres_mb, altitude=None, 
+            #platform_display=new_platform, source_display=new_source, 
+            platform=new_platform, source=new_source, 
+            prodname=prodname, bgname=bgname, listedColormapVals=colorLevs,
+            ticksVals = pressureLevs)
+    else:
+        set_winds_plotting_params(gi, speed_kts, None, None, 
             #platform_display=new_platform, source_display=new_source, 
             platform=new_platform, source=new_source, 
             prodname=prodname, bgname=bgname)
@@ -121,17 +253,39 @@ def winds_plot(gi, imgkey=None):
     '''
 
 
-    log.info('Plotting barbs with colorbars %s'%(gi.colorbars))
+    if 'allpressure' in imgkey:
+        log.info('Plotting all barbs with colors {} at pressure levels {}'.format(colorLevs, pressureLevs))
 
-    gi.basemap.barbs(lons.data,lats.data,
-                    u,v,speed,
-                    ax=gi.axes,
-                    cmap=gi.colorbars[0].cmap,
-                    sizes=dict(height=0.8, spacing=0.3),
-                    norm=gi.colorbars[0].norm,
-                    linewidth=2,
-                    length=5,
-                    latlon=True)
+        for (ulev,vlev,latlev,lonlev,colorlev) in zip(u_kts,v_kts,lats,lons, colorLevs):
+            if ulev.shape[0] == 0:
+                log.info('Not plotting color {}, no winds'.format(colorlev))
+                continue
+            log.info('Plotting color {}'.format(colorlev))
+
+            gi.basemap.barbs(lonlev.data,latlev.data,
+                        ulev,vlev,
+                        color=colorlev,
+                        ax=gi.axes,
+                        #sizes=dict(height=0.8, spacing=0.3),
+                        sizes=dict(height=0.7, spacing=0.5),
+                        linewidth=0.5,
+                        length=3,
+                        #length=5,
+                        latlon=True)
+    else:
+        log.info('Plotting single level barbs with colorbars %s'%(gi.colorbars))
+
+        gi.basemap.barbs(lons.data,lats.data,
+                        u_kts,v_kts,speed_kts,
+                        ax=gi.axes,
+                        cmap=gi.colorbars[0].cmap,
+                        #sizes=dict(height=0.8, spacing=0.3),
+                        sizes=dict(height=1, spacing=0.5),
+                        norm=gi.colorbars[0].norm,
+                        linewidth=0.5,
+                        length=5,
+                        #length=5,
+                        latlon=True)
 
 
     if gi.is_final:
