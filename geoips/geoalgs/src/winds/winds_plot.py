@@ -11,7 +11,7 @@ import re
 # GeoIPS Libraries
 from geoips.utils.normalize import normalize
 from geoips.utils.gencolormap import get_cmap
-from .winds_utils import downsample_winds, ms_to_kts
+from .winds_utils import downsample_winds, ms_to_kts, spd2uv
 
 log = logging.getLogger(__name__)
 
@@ -124,7 +124,7 @@ def get_pressure_levels(pres, arrays, pressure_cutoffs=[0,400,800,1014]):
         for presCutoffInd in range(len(pressure_cutoffs)-1):
             pres1 = pressure_cutoffs[presCutoffInd]
             pres2 = pressure_cutoffs[presCutoffInd+1]
-            inds = np.argwhere((pres >= pres1) & (pres <= pres2))
+            inds = np.ma.where(np.ma.logical_and(pres>=pres1, pres<=pres2))
             levArrays[arrInd] += [currArr[inds]]  
 
     return levArrays
@@ -192,8 +192,7 @@ def winds_plot(gi, imgkey=None):
     # Plot knots, store in text file as m/s
     direction_deg = ds.variables['direction_deg'][good_inds]
     speed_kts = speed_kts[good_inds]
-    u_kts = -1.0*speed_kts * np.sin(np.radians(direction_deg))
-    v_kts = -1.0*speed_kts * np.cos(np.radians(direction_deg))
+    u_kts, v_kts = spd2uv(speed_kts, direction_deg)
     pres_mb = ds.variables['pres_mb'][good_inds]
     lats = ds.variables['lats'][good_inds]
     lons = ds.variables['lons'][good_inds]
