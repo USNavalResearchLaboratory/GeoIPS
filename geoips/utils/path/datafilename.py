@@ -2604,7 +2604,7 @@ class SeviriHRITFileName(StandardDataFileName):
         # MSG4 is Meteosat-11, which is currently meteoEU
         if self.satname == 'MSG1__'  and self.sensorinfo.satname == 'meteoIO':
             return True
-        elif (self.satname == 'MSG3__' or self.satname == 'MSG4__') and self.sensorinfo.satname == 'meteoEU':
+        elif (self.satname == 'MSG2' or self.satname == 'MSG3__' or self.satname == 'MSG4__') and self.sensorinfo.satname == 'meteoEU':
             return True
         else:
             return False
