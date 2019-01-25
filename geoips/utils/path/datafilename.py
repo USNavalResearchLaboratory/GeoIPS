@@ -2624,7 +2624,7 @@ class SeviriHRITFileName(StandardDataFileName):
         # H-000-MSG1__-MSG1_IODC___-WV_073___-000005___-201612201830-C_
         # H-000-MSG4__-MSG4________-HRV______-000001___-201811191100-C_
         # OrigFName3['nameformat'] = '<resolution>-<always000>-<satname>-<alwaysmsg1iodc>-<channel>-<slice>-<date{%Y%m%d%H%M}>-<compression>'
-        if self.satname == 'MSG3__' or self.satname == 'MSG4__':
+        if self.satname == 'MSG2__' or self.satname == 'MSG3__' or self.satname == 'MSG4__':
             df.satname = 'meteoEU'
         if self.satname == 'MSG1__':
             df.satname = 'meteoIO'
