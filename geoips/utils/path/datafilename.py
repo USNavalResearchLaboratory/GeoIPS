@@ -1022,7 +1022,12 @@ class ABIFileName(StandardDataFileName):
         except ValueError:
             sensor,level,datatype = self.sensornamelevelprodtypescantype.split('-')
         if self.satname in ['G16','G17'] and sensor in ['ABI','SUVI','EXIS','SEIS','MAG','GLM']:
-            return True
+            if self.satname == 'G16' and self.sensorinfo.satname == 'G16':
+                return True
+            elif self.satname == 'G17' and self.sensorinfo.satname == 'G17':
+                return True
+            else:
+                return False
         else:
             return False
 
