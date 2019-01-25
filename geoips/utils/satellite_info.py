@@ -440,7 +440,13 @@ class ME9SatInfo(SatInfo):
         # if not, defined in _set_satinfo
         # None if not available (no ISS from tscan, no TLEs for GEO)
         self.celestrak_tle_name = 'METEOSAT-9 (MSG-2)'
-        self.tscan_tle_name = None
+        self.tscan_tle_name = 'msg-2'
+        self.geoips_satname = 'meteoEU'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
+        # ie, don't leave out the __
+        self.orig_file_satname = 'MSG2__'
         self.geostationary = True
 
 
@@ -2153,7 +2159,7 @@ SatInfo_classes = {
         'nrljc': NRLJCSatInfo,
         'proteus': PROTEUSSatInfo,
         'meteoIO': ME8SatInfo,
-        'meteoEU': ME11SatInfo,
+        'meteoEU': ME9SatInfo,
         'me10': ME10SatInfo,
         'me11': ME11SatInfo,
         'me9': ME9SatInfo,
