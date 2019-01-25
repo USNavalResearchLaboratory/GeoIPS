@@ -141,7 +141,7 @@ def winds_plot(gi, imgkey=None):
     if 'BACKGROUND' in gi.image[imgkey]:
         bgfile = gi.image[imgkey]['BACKGROUND']
         bgvarname = df.metadata['ds'][imgkey]['alg_channel']
-        bgvar = np.flipud(bgfile.variables[bgvarname])
+        bgvar = bgfile.variables[bgvarname]
         lats = bgfile.geolocation_variables['Latitude']
         lons = bgfile.geolocation_variables['Longitude']
         sunzen = bgfile.geolocation_variables['SunZenith']
@@ -227,7 +227,9 @@ def winds_plot(gi, imgkey=None):
 
     if 'BACKGROUND' in gi.image[imgkey]:
         log.info('Plotting background image %s'%(bgname))
-        gi.basemap.imshow(bgvar,ax=gi.axes,cmap=get_cmap(bgcmap))
+        # np.flipud all data in the imshow step - as that is the only 
+        # command that expects upside down arrays
+        gi.basemap.imshow(np.flipud(bgvar),ax=gi.axes,cmap=get_cmap(bgcmap))
 
 
     '''
