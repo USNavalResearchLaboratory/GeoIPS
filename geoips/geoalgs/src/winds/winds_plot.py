@@ -11,7 +11,7 @@ import re
 # GeoIPS Libraries
 from geoips.utils.normalize import normalize
 from geoips.utils.gencolormap import get_cmap
-from .winds_utils import downsample_winds, ms_to_kts, spd2uv
+from .winds_utils import thin_arrays, ms_to_kts, spd2uv, get_pressure_levels
 
 log = logging.getLogger(__name__)
 
@@ -116,18 +116,6 @@ def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, plat
     gi._figure, gi._axes = gi._create_fig_and_ax()
 
 
-def get_pressure_levels(pres, arrays, pressure_cutoffs=[0,400,800,1014]):
-    levArrays = []
-    for arrInd in range(len(arrays)):
-        currArr = arrays[arrInd]
-        levArrays += [[]]
-        for presCutoffInd in range(len(pressure_cutoffs)-1):
-            pres1 = pressure_cutoffs[presCutoffInd]
-            pres2 = pressure_cutoffs[presCutoffInd+1]
-            inds = np.ma.where(np.ma.logical_and(pres>=pres1, pres<=pres2))
-            levArrays[arrInd] += [currArr[inds]]  
-
-    return levArrays
 
 def winds_plot(gi, imgkey=None):
 
@@ -184,7 +172,6 @@ def winds_plot(gi, imgkey=None):
 
     log.info('Plotting dataset: %s'%(imgkey))
 
-    resolution = min(gi.sector.area_info.proj4_pixel_width, gi.sector.area_info.proj4_pixel_height)
     qi = ds.variables['qis']
     speed_kts = ms_to_kts(ds.variables['speed_ms'])
     #good_inds = np.ma.where(qi>0.2)
@@ -198,7 +185,7 @@ def winds_plot(gi, imgkey=None):
     lons = ds.variables['lons'][good_inds]
 
     if 'All_Pressure_Levels' in imgkey:
-        colorLevs = ['blue','cyan','yellow','green','orange'] 
+        colorLevs = ['red','cyan','yellow','green','tan'] 
         pressureLevs = [0,400,600,800,950,1014] 
         [lats,lons,u_kts,v_kts] = get_pressure_levels(pres_mb, [lats,lons,u_kts,v_kts], pressureLevs)
 
@@ -258,20 +245,17 @@ def winds_plot(gi, imgkey=None):
         log.info('Plotting all barbs with colors {} at pressure levels {}'.format(colorLevs, pressureLevs))
 
         for (ulev,vlev,latlev,lonlev,colorlev) in zip(u_kts,v_kts,lats,lons, colorLevs):
-            if ulev.shape[0] == 0:
+            num_vecs = np.ma.count(ulev)
+            if num_vecs == 0:
                 log.info('Not plotting color {}, no winds'.format(colorlev))
                 continue
-            log.info('Plotting color {}, number barbs {}'.format(colorlev, ulev.shape[0]))
-            if ulev.shape[0] > 3000 and ulev.shape[0] < 10000:
-                thinval = int(ulev.shape[0] / 2000)
-                [lonlev, latlev, ulev, vlev] = downsample_winds(resolution, thinvalue=thinval,
-                           arrs=[lonlev, latlev, ulev, vlev])
-                log.info('    new number barbs {}, thinval {}'.format(ulev.shape[0], thinval))
-            elif ulev.shape[0] >= 10000:
-                thinval = 5 
-                [lonlev, latlev, ulev, vlev] = downsample_winds(resolution, thinvalue=thinval,
-                           arrs=[lonlev, latlev, ulev, vlev])
-                log.info('    new number barbs {}, thinval {}'.format(ulev.shape[0], thinval))
+            log.info('Plotting color {:<10}, number barbs {}'.format(colorlev, ulev.shape[0]))
+            [lonlev, latlev, ulev, vlev] = thin_arrays(
+                                num_vecs,
+                                max_points = 4000,
+                                arrs=[lonlev, latlev, ulev, vlev])
+            num_vecs = np.ma.count(ulev)
+            log.info('                   new number barbs {}'.format(num_vecs))
 
             gi.basemap.barbs(lonlev.data,latlev.data,
                         ulev,vlev,
