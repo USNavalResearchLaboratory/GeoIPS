@@ -9,7 +9,7 @@ from IPython import embed as shell
 # If this reader is not installed on the system, don't fail altogether, just skip this import. This reader will
 # not work if the import fails, and the package will have to be installed to process data of this type.
 try: import pygrib as pg
-except: print 'Failed import netCDF4 in scifile/readers/amsr2_ncdf4_reader.py. If you need it, install it.'
+except: print 'Failed import pygrib in scifile/readers/model_grib_reader.py. If you need it, install it.'
 import numpy as np
 
 

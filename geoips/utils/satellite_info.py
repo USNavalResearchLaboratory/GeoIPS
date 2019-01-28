@@ -75,7 +75,7 @@ class SatInfo(object):
         self._select_sensor(sensor)
         # This is used in scifile/containers.py register. Has to match biggest possible
         # pixel size (at edge of scan)
-        self.interpolation_radius_of_influence = 4.0
+        self.interpolation_radius_of_influence = 100
         # If these values were not set in _set_satinfo, set them
         # to None here.  tle_name is the name used in
         # celestrak TLE files, tscan_name is name used in tscan
@@ -86,6 +86,9 @@ class SatInfo(object):
             self.old_celestrak_tle_names = []
         if not hasattr(self, 'tscan_tle_name'):
             self.tscan_tle_name = None
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
         if not hasattr(self, 'orig_file_satname'):
             self.orig_file_satname = None
 
@@ -302,13 +305,16 @@ class GOESESatInfo(SatInfo):
         self.celestrak_tle_name = 'GOES 13'
         self.tscan_tle_name = 'goes-13'
         self.geoips_satname = 'goesE'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
         self.orig_file_satname = 'g13'
         self.geostationary = True
 
-class StitchedSatInfo(SatInfo):
+class SourceStitchedSatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['stitched']
-        self.geoips_satname = 'stitched'
+        self.sensornames = ['sourcestitched']
+        self.geoips_satname = 'sourcestitched'
         self.geostationary = True
 
 class GOES16SatInfo(SatInfo):
@@ -337,6 +343,9 @@ class GOESWSatInfo(SatInfo):
         self.celestrak_tle_name = 'GOES 15'
         self.tscan_tle_name = 'goes-15'
         self.geoips_satname = 'goesW'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
         self.orig_file_satname = 'g15'
         self.geostationary = True
 
@@ -398,7 +407,13 @@ class ME8SatInfo(SatInfo):
         # if not, defined in _set_satinfo
         # None if not available (no ISS from tscan, no TLEs for GEO)
         self.celestrak_tle_name = 'METEOSAT-8 (MSG-1)'
-        self.tscan_tle_name = None
+        self.geoips_satname = 'meteoIO'
+        self.tscan_tle_name = 'msg-1'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
+        # ie, don't leave out the __
+        self.orig_file_satname = 'MSG1__'
         self.geostationary = True
 
 
@@ -434,6 +449,12 @@ class ME11SatInfo(SatInfo):
         # None if not available (no ISS from tscan, no TLEs for GEO)
         self.celestrak_tle_name = 'METEOSAT-11 (MSG-4)'
         self.tscan_tle_name = 'msg-4'
+        self.geoips_satname = 'meteoEU'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
+        # ie, don't leave out the __
+        self.orig_file_satname = 'MSG4__'
         self.geostationary = True
 
 
@@ -461,29 +482,6 @@ class METEO7SatInfo(SatInfo):
         self.tscan_tle_name = 'meteo-7'
         self.geostationary = True
 
-
-class METEOIOSatInfo(SatInfo):
-    def _set_satinfo(self, sensor=None):
-        self.sensornames = ['seviri']
-        #self.orbital_period = 92.5 * 60
-        # tle names for celestrak and tscan, default to satname
-        # if not, defined in _set_satinfo
-        # None if not available (no ISS from tscan, no TLEs for GEO)
-        self.celestrak_tle_name = 'METEOSAT-8 (MSG-1)'
-        self.tscan_tle_name = None
-        self.geostationary = True
-
-
-class METEOEUSatInfo(SatInfo):
-    def _set_satinfo(self, sensor=None):
-        self.sensornames = ['seviri']
-        #self.orbital_period = 92.5 * 60
-        # tle names for celestrak and tscan, default to satname
-        # if not, defined in _set_satinfo
-        # None if not available (no ISS from tscan, no TLEs for GEO)
-        self.celestrak_tle_name = 'METEOSAT-10 (MSG-3)'
-        self.tscan_tle_name = None
-        self.geostationary = True
 
 
 class METOPASatInfo(SatInfo):
@@ -1290,6 +1288,9 @@ class ABISensorInfo(SensorInfo):
         self.OrigFName['pathfieldsep'] = '-'
         self.OrigFName['pathfillvalue'] = 'x'
         self.OrigFName['noextension'] = False
+        # For downloader
+        self.OrigFName['prefix_search_string'] = 'OR_'
+        self.OrigFName['postfix_search_string'] = '.nc'
         # self.OrigFName['base_dir'] is where the original files show up - this is where
         # downloader looks for them.
         # DO NOT specify OrigFName1['pathnameformat']  if you want DataFileName to
@@ -1728,6 +1729,9 @@ class SEVIRISensorInfo(SensorInfo):
         OrigFName3['noextension'] = True
         OrigFName3['fieldsep'] = '-'
         OrigFName3['fillvalue'] = 'x'
+        OrigFName3['base_dir'] = os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                          'data', 'incoming')
+        OrigFName3['prefix_search_string'] = 'H-000-MSG'
         self.OrigFNames = [OrigFName3, OrigFName, OrigFName2]
         # Don't think legacy path is used anymore, can't run tdfs, and not downloading them.
         #self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/msg/hires']
@@ -1736,6 +1740,7 @@ class SEVIRISensorInfo(SensorInfo):
         # outer is 1100km
         #self.swath_width_km = 900
         self.mins_per_file = 15
+        self.interpolation_radius_of_influence = 4000
         self.FName['runfulldir'] = True
         self.swath_width_km = 12000
         # Don't think legacy path is used anymore, can't run tdfs, and not downloading them.
@@ -1744,6 +1749,7 @@ class SEVIRISensorInfo(SensorInfo):
         self.pathnameformat = opsep.join(
                 ['<satname>','<dataprovider>-<ext>',
                  '<date{%Y%m%d}>','<time{%H%M%S}>'])
+
         #self.data_types = {}
 
 
@@ -1803,7 +1809,7 @@ class SSMISSensorInfo(SensorInfo):
         self.interpolation_radius_of_influence = 15000
         #self.data_types = {}
 
-class StitchedSensorInfo(SensorInfo):
+class SourceStitchedSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         self.swath_width_km = 12000
         self.interpolation_radius_of_influence = 10000
@@ -2024,7 +2030,7 @@ class WINDSATSensorInfo(SensorInfo):
 
 SensorInfo_classes = {
         # Needed to allow for stitched directory
-        'stitched':  StitchedSensorInfo,
+        'sourcestitched':  SourceStitchedSensorInfo,
         'abi':  ABISensorInfo,
         'ahi':  AHISensorInfo,
         'amsr2':  AMSR2SensorInfo,
@@ -2073,7 +2079,7 @@ SensorInfo_classes = {
 
 SatInfo_classes = {
         # Needed to allow for stitched directory
-        'stitched':  StitchedSatInfo,
+        'sourcestitched':  SourceStitchedSatInfo,
         'npp': NPPSatInfo,
         'jpss': N20SatInfo,
         'aqua': AQUASatInfo,
@@ -2106,8 +2112,8 @@ SatInfo_classes = {
         'mt1': MT1SatInfo,
         'nrljc': NRLJCSatInfo,
         'proteus': PROTEUSSatInfo,
-        'meteoIO': METEOIOSatInfo,
-        'meteoEU': METEOEUSatInfo,
+        'meteoIO': ME8SatInfo,
+        'meteoEU': ME11SatInfo,
         'me10': ME10SatInfo,
         'me11': ME11SatInfo,
         'me9': ME9SatInfo,

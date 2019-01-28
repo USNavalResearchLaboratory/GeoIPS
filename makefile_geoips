@@ -1,0 +1,72 @@
+
+all:
+	@if [ ${GEOIPS} ] && [ -d ${GEOIPS} ]; then \
+		echo "STANDALONE_GEOIPS:     ${STANDALONE_GEOIPS}";\
+		echo "GEOIPS:                ${GEOIPS}";\
+		echo "EXTERNAL_GEOIPS:       ${EXTERNAL_GEOIPS}";\
+		while [ -z "$$CONTINUE" ]; do \
+			read -r -p "Y or y to CONTINUE with GeoIPS build, affecting above paths. If paths are incorrect, source appropriate config_bash setup file. [y/N]: " CONTINUE; \
+		done ; \
+		if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
+			echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
+		fi;\
+		unset CONTINUE; \
+		python remove_links.py all; \
+		\
+		\
+		if [ -f ../makefile_scripts ]; then \
+			while [ -z "$$CONTINUE" ]; do \
+				read -r -p "Y or y to CONTINUE: Next run makefile_scripts. Just ran python remove_links.py all. [y/N]: " CONTINUE; \
+			done ; \
+			if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
+				echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
+			fi; \
+			unset CONTINUE; \
+			make -C ../ -f makefile_scripts; \
+		fi; \
+		\
+		\
+		while [ -z "$$CONTINUE" ]; do \
+			read -r -p "Y or y to CONTINUE with GeoIPS build, Just ran python remove_links.py all; Next run python create_links.py. [y/N]: " CONTINUE; \
+		done ; \
+		if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
+			echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
+		fi; \
+		unset CONTINUE; \
+		python create_links.py; \
+		\
+		\
+		while [ -z "$$CONTINUE" ]; do \
+			read -r -p "Y or y to CONTINUE with GeoIPS build, Just ran python create_links.py; Next run python setup.py bdist_wheel. [y/N]: " CONTINUE; \
+		done ; \
+		if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
+			echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
+		fi; \
+		unset CONTINUE; \
+		python setup.py bdist_wheel; \
+		\
+		\
+		while [ -z "$$CONTINUE" ]; do \
+			read -r -p "Y or y to CONTINUE with GeoIPS build, Just ran python setup.py bdist_wheel; Next run make clean -C geoips. [y/N]: " CONTINUE; \
+		done ; \
+		if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
+			echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
+		fi; \
+		unset CONTINUE; \
+		make clean -C geoips; \
+		\
+		\
+		while [ -z "$$CONTINUE" ]; do \
+			read -r -p "Y or y to CONTINUE with GeoIPS build, Just ran make clean -C geoips; Next run make -C geoips. [y/N]: " CONTINUE; \
+		done ; \
+		if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
+			echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
+		fi; \
+		unset CONTINUE; \
+		make -C geoips; \
+	elif [ ${GEOIPS} ]; then \
+		echo "GEOIPS ${GEOIPS} directory does not exist, not attempting to link and build geoips"; \
+	else \
+		echo "GEOIPS environment variable not set, not attempting to link and build geoips"; \
+	fi
+		

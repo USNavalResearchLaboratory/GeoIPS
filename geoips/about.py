@@ -10,6 +10,8 @@
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # included license for more details.
 
+import os
+
 __all__ = [
         "__title__", "__summary__", "__uri__", "__version__",
         "__author__", "__email__", "__license__", "__copyright__",
@@ -21,30 +23,38 @@ __title__ = "geoips"
 __summary__ = "Geolocated Information Processing System (GeoIPS(TM))"
 __uri__ = "http://www.nrlmry.navy.mil/geoips"
 
-__version__ = "0.5.0"
+with open('VERSION') as version_file:
+    __version__ = version_file.read().strip()
 
 __author__ = "Naval Research Laboratory Marine Meteorology Division"
 __email__ = "geoips@nrlmry.navy.mil"
 
 __license__ = "NRLMMD"
 __copyright__ = "2017 %s" % __author__
-__requires__ = [ 'h5py', # Anaconda
-                 # 'pyhdf',
-                 'cftime', # Doesn't appear to automatically install for netCDF4
-                 'netCDF4', # Anaconda - netcdf4 -- needs basemap first
-                 'pyproj',
-                 'argparse', # Doesn't appear to automatically install for msgpack
-                 'msgpack', # Doesn't appear to automatically install for pyresample
+__requires__ = [ # 'pyhdf',
+                 'matplotlib<3.0,>=2.0', # Anaconda
+                 'lxml', # Anaconda
+                 'h5py', # Anaconda
+                 'ipython', # Anaconda
                  'pyresample', # conda install -c conda-forge pyresample -- couldn't compile pykdtreeimpo
-                 'memory_profiler',
-                 'numpy', # Anaconda
                  'scipy', # Anaconda
                  'Pillow', # Anaconda - pillow
-                 'matplotlib', # Anaconda
-                 'lxml', # Anaconda
                  'ephem', # Anaconda. Didn't auto install ???
-                 'pygrib', # conda install -c conda-forge pygrib
-                 'geos', # needed for basemap. Didn't auto-install?
-                 'numexpr', # failed for pip
-                 'basemap', # conda install -c anaconda basemap
+                 'satpy',
+                 'opencv-python',
+                 'shapely',
+                 'numexpr', 
+                 #'basemap', # install from source
+                 #'cftime', # Doesn't appear to automatically install for netCDF4
+                 #'netCDF4', # Anaconda - netcdf4 -- needs basemap first
+                 #'pyproj',
+                 #'argparse', # Doesn't appear to automatically install for msgpack
+                 #'msgpack', # Doesn't appear to automatically install for pyresample
+                 #'memory_profiler',
+                 #'numpy', # Anaconda
+                 #'Pillow', # Anaconda - pillow
+                 #'pygrib', # conda install -c conda-forge pygrib
+                 #'geos', # needed for basemap. Didn't auto-install?
+                 #'numexpr', # failed for pip
+                 #'basemap', # conda install -c anaconda basemap
                ]

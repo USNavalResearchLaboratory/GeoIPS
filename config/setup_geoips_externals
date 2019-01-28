@@ -1,0 +1,13 @@
+# This setup is required if using the pre-built externals
+# If dependencies installed elsewhere, these not included
+if [ -d $GEOIPS_EXT_INSTALLDIR ]; then
+    export LD_LIBRARY_PATH=$GEOIPS_EXT_INSTALLDIR/lib:$LD_LIBRARY_PATH
+    export LIBRARY_DIRS=$GEOIPS_EXT_INSTALLDIR/lib
+    export INCLUDE_DIRS=$GEOIPS_EXT_INSTALLDIR/include
+    export PATH=$GEOIPS_EXT_INSTALLDIR/bin:$PATH
+    export GEOS_DIR=$GEOIPS_EXT_INSTALLDIR/geosdir
+    export LIBRARY_PATH=$GEOIPS_EXT_INSTALLDIR/include:$GEOIPS_EXT_INSTALLDIR/lib
+    export CPATH=$GEOIPS_EXT_INSTALLDIR/lib:$GEOIPS_EXT_INSTALLDIR/include
+    
+    export XRIT_DECOMPRESS_PATH=$GEOIPS_EXT_INSTALLDIR/../xRITDecompress/xRITDecompress/xRITDecompress
+fi

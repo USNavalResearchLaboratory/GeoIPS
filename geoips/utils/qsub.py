@@ -17,10 +17,11 @@
 import time
 import commands
 import os
+import sys
 import logging
 import argparse
 from socket import gethostname
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 import textwrap
 import shlex
 
@@ -383,11 +384,39 @@ def qsub(command,
         args = shlex.split(command+' '+' '.join(cmdargs))
         log.info('    No queue provided.  Will not qsub.  Will run on current box.')
         log.info('\n\nCOMMAND:\n'+str(args)+'\nDONE\n\n')
-        subproc = Popen(args, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-        out, err = subproc.communicate()
-        log.interactive('COMMAND OUTPUT: %s' % out)
-        if err:
-            log.interactive('COMMAND ERROR: %s' % err)
+
+
+        # This seems to output lines in real time
+        # Note shell=True will lose the current environment, because it 
+        #       will start a new shell
+        subproc = Popen(args, shell=False, stdout=PIPE, stderr=STDOUT)
+        while subproc.poll() is None:
+            line = subproc.stdout.readline()
+            print ("SUBPROCESS: "+line.strip())
+        rc = subproc.poll()
+        log.interactive('COMMAND COMPLETED: %s' % rc)
+
+
+        # This doesn't seem to work...
+        #subproc = Popen(args, shell=False, stdout=PIPE, stderr=STDOUT)
+        #while True:
+        #    output = subproc.stdout.read(1)
+        #    if output == '' and subproc.poll() is not None:
+        #        break
+        #    if output != '':
+        #        sys.stdout.write(output)
+        #        sys.stdout.flush()
+        #rc = subproc.poll()
+        #log.interactive('COMMAND COMPLETED: %s' % rc)
+
+
+        # Buffers ALL output, and prints it when completely done
+        #subproc = Popen(args, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+        #out, err = subproc.communicate()
+        #log.interactive('COMMAND OUTPUT: %s' % out)
+        #if err:
+        #    log.interactive('COMMAND ERROR: %s' % err)
+
     else:
         qsub = 'qsub'
         log.debug('    Using real qsub: '+qsub)

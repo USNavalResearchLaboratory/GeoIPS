@@ -11,7 +11,7 @@
     <basic_args>
         <source name='abi'>
             <!-- Red band, Visible -->
-            <var zenith='no'>B02Ref</var>
+            <var zenith='yes'>B02Ref</var>
         </source>
         <img>
             <equation>B02Ref</equation>

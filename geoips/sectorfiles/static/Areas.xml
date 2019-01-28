@@ -6,7 +6,7 @@
         is contained there.
 -->
 <sector_file xmlns:py="http://codespeak.net/lxml/objectify/pytype">
-  <sector name="Global" download="yes" active="yes" operational="no" dynamic_datetime="" dynamic="no" composite='yes'>
+  <sector name="Global" download="yes" active="yes" operational="no" dynamic_datetime="" dynamic="no" swathstitching='yes'>
     <destinations />
     <name>
       <continent>Global</continent>
@@ -92,7 +92,7 @@
     </source>
   </sector>
 <!-- CONUS SECTORS -->
-  <sector name="Cali" active="yes" composite="no">
+  <sector name="Cali" active="yes" swathstitching="no">
     <destinations />
     <name>
       <continent>NorthAmerica</continent>
@@ -117,6 +117,27 @@
       <char_size>12</char_size>
       <map_resolution>intermediate</map_resolution>
     </plot_info>
+    <source name="abi">
+        <product name="IR_039"/>
+        <product name="IR_062"/>
+        <product name="IR_069"/>
+        <product name="IR_073"/>
+        <product name="IR_084"/>
+        <product name="IR_096"/>
+        <product name="IR_103"/>
+        <product name="IR_112"/>
+        <product name="IR_123"/>
+        <product name="IR_133"/>
+        <product name="VIS047"/>
+        <product name="VIS064"/>
+        <product name="VIS086"/>
+        <product name="VIS137"/>
+        <product name="VIS160"/>
+        <product name="VIS220"/>
+        <product name="VIS390"/>
+        <product name="Infrared-Gray"/>
+        <product name="Visible"/>
+    </source>
     <source name="amsr2">
       <product name="89H"/>
       <product name="89V"/>
@@ -153,7 +174,7 @@
       <product name="Visible"/>
     </source>
   </sector>
-  <sector name="JapanComposite" active="yes" composite="no">
+  <sector name="JapanComposite" active="yes" swathstitching="no">
     <destinations />
     <name>
       <continent>Asia</continent>
@@ -215,4 +236,5 @@
       <product name="Visible"/>
     </source>
   </sector>
+
 </sector_file>

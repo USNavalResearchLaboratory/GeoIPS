@@ -1,0 +1,48 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE product_file SYSTEM "../productfiles.dtd">
+
+<!--
+    Notes:
+        See ../productfiles.dtd in this directory for full notes.  All DTD information
+        is contained there.
+-->
+<product_file>
+<product method='externalalg' name='Geo-Stitched' finalonly='yes'>
+    <externalalg_args>
+        <source name='abi' granule_composites='no'>
+            <var optional='yes'>B01Ref</var> <!-- 0.47um, Blue band, visible -->
+            <var optional='yes'>B02Ref</var> <!-- 0.64um, Red band, visible -->
+            <var optional='yes'>B03Ref</var> <!-- 0.86um, Veggie band, near-IR-->
+            <var optional='yes'>B04Ref</var> <!-- 1.37um, Cirrus band, near-IR -->
+            <var optional='yes'>B05Ref</var> <!-- 1.6um, Snow/Ice band, near-IR -->
+            <var optional='yes'>B06Ref</var> <!-- 2.2um, Cloud particle size band, near-IR -->
+            <var optional='yes'>B07Rad</var> <!-- 3.9um, Shortwave window band, IR (with reflected daytime component) -->
+            <var optional='yes'>B08Rad</var> <!-- 6.2um, Upper-level tropospheric Water Vapor band, IR -->
+            <var optional='yes'>B09Rad</var> <!-- 6.9um, Mid-level tropospheric Water Vapor band, IR -->
+            <var optional='yes'>B10Rad</var> <!-- 7.3um, Lower-level tropospheric Water Vapor band, IR -->
+            <var optional='yes'>B11Rad</var> <!-- 8.4um, Cloud-Top Phase band, IR -->
+            <var optional='yes'>B12Rad</var> <!-- 9.6um, Ozone band, IR -->
+            <var optional='yes'>B13Rad</var> <!-- 10.3um, Clean IR Longwave Window band, IR -->
+            <var optional='yes'>B14Rad</var> <!-- 11.2um, IR Longwave Window band, IR -->
+            <var optional='yes'>B15Rad</var> <!-- 12.3um, Dirty IR Longwave Window band, IR -->
+            <var optional='yes'>B16Rad</var> <!-- 13.3um, CO2 Longwave infrared, IR -->
+            <var optional='yes'>B07BT</var> <!-- 3.9um, Shortwave window band, IR (with reflected daytime component) -->
+            <var optional='yes'>B08BT</var> <!-- 6.2um, Upper-level tropospheric Water Vapor band, IR -->
+            <var optional='yes'>B09BT</var> <!-- 6.9um, Mid-level tropospheric Water Vapor band, IR -->
+            <var optional='yes'>B10BT</var> <!-- 7.3um, Lower-level tropospheric Water Vapor band, IR -->
+            <var optional='yes'>B11BT</var> <!-- 8.4um, Cloud-Top Phase band, IR -->
+            <var optional='yes'>B12BT</var> <!-- 9.6um, Ozone band, IR -->
+            <var optional='yes'>B13BT</var> <!-- 10.3um, Clean IR Longwave Window band, IR -->
+            <var optional='yes'>B14BT</var> <!-- 11.2um, IR Longwave Window band, IR -->
+            <var optional='yes'>B15BT</var> <!-- 12.3um, Dirty IR Longwave Window band, IR -->
+            <var optional='yes'>B16BT</var> <!-- 13.3um, CO2 Longwave infrared, IR -->
+        </source>
+        <day_night>both</day_night>
+        <max_day_zen_ang>90</max_day_zen_ang>
+        <min_ngt_zen_ang>90</min_ngt_zen_ang>
+        <coastcolor>0 180 180 180</coastcolor>
+        <gridcolor>0 180 180 180</gridcolor>
+    </externalalg_args>
+</product>
+</product_file>
+
