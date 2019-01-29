@@ -1021,8 +1021,13 @@ class ABIFileName(StandardDataFileName):
             sensor,level,datatype,chan = self.sensornamelevelprodtypescantype.split('-')
         except ValueError:
             sensor,level,datatype = self.sensornamelevelprodtypescantype.split('-')
-        if self.satname in ['G16'] and sensor in ['ABI','SUVI','EXIS','SEIS','MAG','GLM']:
-            return True
+        if self.satname in ['G16','G17'] and sensor in ['ABI','SUVI','EXIS','SEIS','MAG','GLM']:
+            if self.satname == 'G16' and self.sensorinfo.satname == 'G16':
+                return True
+            elif self.satname == 'G17' and self.sensorinfo.satname == 'G17':
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -2599,7 +2604,7 @@ class SeviriHRITFileName(StandardDataFileName):
         # MSG4 is Meteosat-11, which is currently meteoEU
         if self.satname == 'MSG1__'  and self.sensorinfo.satname == 'meteoIO':
             return True
-        elif (self.satname == 'MSG3__' or self.satname == 'MSG4__') and self.sensorinfo.satname == 'meteoEU':
+        elif (self.satname == 'MSG2__' or self.satname == 'MSG3__' or self.satname == 'MSG4__') and self.sensorinfo.satname == 'meteoEU':
             return True
         else:
             return False
@@ -2619,7 +2624,7 @@ class SeviriHRITFileName(StandardDataFileName):
         # H-000-MSG1__-MSG1_IODC___-WV_073___-000005___-201612201830-C_
         # H-000-MSG4__-MSG4________-HRV______-000001___-201811191100-C_
         # OrigFName3['nameformat'] = '<resolution>-<always000>-<satname>-<alwaysmsg1iodc>-<channel>-<slice>-<date{%Y%m%d%H%M}>-<compression>'
-        if self.satname == 'MSG3__' or self.satname == 'MSG4__':
+        if self.satname == 'MSG2__' or self.satname == 'MSG3__' or self.satname == 'MSG4__':
             df.satname = 'meteoEU'
         if self.satname == 'MSG1__':
             df.satname = 'meteoIO'

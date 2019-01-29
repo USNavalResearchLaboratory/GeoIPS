@@ -534,7 +534,9 @@ class SEVIRI_HRIT_Reader(Reader):
 
             metadata['datavars'][adname][chan.name]['wavelength'] = float(annotation_metadata[chan.band]['band'][3:5]+'.'+annotation_metadata[chan.band]['band'][5:])
 
-        for var in datavars[adname].keys():
-            datavars[adname][var] = np.ma.masked_less_equal(np.flipud(datavars[adname][var]), -999)
         for var in gvars[adname].keys():
             gvars[adname][var] = np.ma.masked_less_equal(np.flipud(gvars[adname][var]), -999)
+        for var in datavars[adname].keys():
+            datavars[adname][var] = np.ma.masked_less_equal(np.flipud(datavars[adname][var]), -999)
+            if 'SatZenith' in gvars[adname].keys():
+                datavars[adname][var] = np.ma.masked_where(gvars[adname]['SatZenith'] > 75, datavars[adname][var])

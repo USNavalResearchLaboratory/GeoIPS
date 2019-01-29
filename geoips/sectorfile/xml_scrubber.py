@@ -72,7 +72,7 @@ class XMLFiles(object):
                 log.debug('            adding '+name+' to list of sectorfile names')
                 self.xfnames.append(name)
                 self.xmlfiles.append(XMLFile(name))
-                self.timestamps[xfname] = other.timestamps[xfname]
+                self.timestamps[name] = other.timestamps[name]
         return self
 
     def open_elements(self,elementname_list):
@@ -111,7 +111,7 @@ class XMLFiles(object):
         '''Iterates over all sector elements in the current object.'''
         ind = 1
         for xf in self.xmlfiles:
-            elts = sf.iterelements()
+            elts = xf.iterelements()
             while True:
                 try:
                     yield elts.next()
@@ -309,6 +309,7 @@ class colorbar(XMLInstance):
         start_color = None
         end_color = None
         old_end_color = [0,0,0]
+        transition = None
         for transition in transitions:
             # Must start with 0.0 !
             transition_point = (transition.start_val - self.node.min_val) / float((self.node.max_val - self.node.min_val))

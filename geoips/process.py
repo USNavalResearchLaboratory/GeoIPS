@@ -473,32 +473,32 @@ def process(data_file, sector, productlist=None, outdir=None, nofinal=False, for
                 log.info('WARNING! No end time for '+sttag)
 
 
-def _get_argument_parser():
-    #Open the datafile
-    df = SciFile()
-    df.import_data([args['file']])
-
-    #This sectorfiles argument should be reduced to a single string rather than a list...
-    sectfile = sectorfile.open(args['sectorfiles'],scifile=df)
-    sector = sectfile.open_sector(args['sector'],scifile=df)
-
-    #Get the product
-    pf = productfile.open_product(df.source_name, args['product'], scifile=df)
-
-    geoips_only=False
-    # Set this in check_if_testonly. May want to pass argument at some point,
-    # so leave pass through of geoips_only.
-    #if not os.getenv('GEOIPS_OPERATIONAL_USER'):
-    #    geoips_only=True
-
-    #Call process
-    process(df,
-            sector,
-            productlist = args['productlist'],
-            outdir = args['product_outpath'],
-            nofinal = args['nofinal'],
-            forcereprocess = args['forcereprocess'],
-            sectorfile=sectfile,
-            geoips_only=geoips_only
-           )
-
+#def _get_argument_parser():
+#    #Open the datafile
+#    df = SciFile()
+#    df.import_data([args['file']])
+#
+#    #This sectorfiles argument should be reduced to a single string rather than a list...
+#    sectfile = sectorfile.open(args['sectorfiles'],scifile=df)
+#    sector = sectfile.open_sector(args['sector'],scifile=df)
+#
+#    #Get the product
+#    pf = productfile.open_product(df.source_name, args['product'], scifile=df)
+#
+#    geoips_only=False
+#    # Set this in check_if_testonly. May want to pass argument at some point,
+#    # so leave pass through of geoips_only.
+#    #if not os.getenv('GEOIPS_OPERATIONAL_USER'):
+#    #    geoips_only=True
+#
+#    #Call process
+#    process(df,
+#            sector,
+#            productlist = args['productlist'],
+#            outdir = args['product_outpath'],
+#            nofinal = args['nofinal'],
+#            forcereprocess = args['forcereprocess'],
+#            sectorfile=sectfile,
+#            geoips_only=geoips_only
+#           )
+#

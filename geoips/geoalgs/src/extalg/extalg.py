@@ -80,8 +80,8 @@ def extalg(datafile, sector, product, workdir):
     '''
     outdata = {}
     outdata['rainrate'] = {}
-    outdata['rainrate']['liquid'] = liquid_data_array
-    outdata['rainrate']['frozen'] = frozen_data_array
+    #outdata['rainrate']['liquid'] = liquid_data_array
+    #outdata['rainrate']['frozen'] = frozen_data_array
     ##for ds in registered_data.datasets.values():
     ##    # Grab the appropriate variable name out of the sat_config dict
     ##    srcname = ds.source_name

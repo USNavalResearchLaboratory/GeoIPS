@@ -9,7 +9,7 @@ all:
 		done ; \
 		if [ $$CONTINUE != "y" ] && [ $$CONTINUE != "Y" ]; then \
 			echo "Exiting. Please source appropriate config to set build environment."; exit 1; \
-		fi;\
+		fi; \
 		unset CONTINUE; \
 		python remove_links.py all; \
 		\

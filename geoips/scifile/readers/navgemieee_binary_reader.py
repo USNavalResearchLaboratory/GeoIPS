@@ -244,6 +244,7 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
         metadata['top']['source_name'] = 'navgemieee'
         si = SatSensorInfo(metadata['top']['platform_name'],metadata['top']['source_name'])
         if not si:
+            from ..scifileexceptions import SciFileError
             raise SciFileError('Unrecognized platform and source name combination: '+metadata['top']['platform_name']+' '+metadata['top']['source_name'])
 
         dfn = DataFileName(os.path.basename(fname))

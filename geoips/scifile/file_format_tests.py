@@ -11,9 +11,9 @@
 # included license for more details.
 
 # Python Standard Libraries
+import os
 import bz2
 from subprocess import Popen, PIPE, call
-from IPython import embed as shell
 # Installed Libraries
 # Don't fail if these don't exist, only needed for certain readers.
 try:

@@ -10,5 +10,6 @@ def fields(datafile, sector, product, workdir):
     #from IPython import embed as shell
     #shell()
 
-    return finaldata, None
+    #return finaldata, None
+    return [], None
             

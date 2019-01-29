@@ -1743,13 +1743,13 @@ class MSG_XPIF_Reader(Reader):
         # Loop over resolutions and get metadata as needed
         if self_register:
             log.info('')
-            log.interactive('Getting geolocation information for resolution {} for {}.'.format(
+            log.interactive('Getting geolocation information for {}.'.format(
                 self_register, adname))
             gvars[adname] = get_geolocation(dt, res_md[self_register], sector_definition)
             if not gvars[adname]:
-                log.error('GEOLOCATION FAILED for {} resolution {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
-                    adname, res, DONT_AUTOGEN_GEOLOCATION))
-                gvars[res] = {}
+                log.error('GEOLOCATION FAILED for {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
+                    adname, DONT_AUTOGEN_GEOLOCATION))
+                gvars[adname] = {}
         else:
             for res in ['LOW', 'HIGH']:
                 try:

@@ -57,6 +57,7 @@ from geoips.utils.path.filename import _FileNameBase
 from geoips.utils.memusg import print_mem_usage
 from geoips.pass_prediction.pass_prediction import pass_prediction
 from geoips.utils.plugin_paths import paths as gpaths
+from geoips.scifile.satnav.satnav import SatNavError as SatNavError
 
 
 SHAREDSCRATCH = os.getenv('SHAREDSCRATCH')
@@ -215,7 +216,16 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
             log.info('    SECTOR_ON_READ set on data_file, reading data for sector: '.format(curr_sector.name))
             sectored = SciFile()
             # Read the next sector_definition
-            sectored.import_data(runpaths, chans=chans, sector_definition=curr_sector)
+            try:
+                sectored.import_data(runpaths, chans=chans, sector_definition=curr_sector)
+            except SatNavError as resp:
+                log.exception("{} Sectoring on read failed!! Skipping current sector".format(str(resp)))
+                ret = mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem
+                return ret
+            except IndexError as resp:
+                log.exception("{} Sectoring on read failed!! Skipping current sector".format(str(resp)))
+                ret = mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem
+                return ret
         elif 'NON_SECTORABLE' in data_file.metadata['top'].keys() and data_file.metadata['top']['NON_SECTORABLE']:
             # Readers that are not able to be sectored  must set df.metadata['top']['NON_SECTORABLE'].
             # Driver will then skip attempting to sector

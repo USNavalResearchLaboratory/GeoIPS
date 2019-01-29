@@ -428,9 +428,9 @@ class ProductFileName(object):
                 #print 'globbing '+os.path.dirname(pfn.name)
                 allfiles += glob(pfn.name) 
                 
-        if curr_dt == start_datetime:
-            log.info('Trying '+pfn.name)
-            log.info('      from '+str(start_datetime)+' to '+str(end_datetime))
+            if curr_dt == start_datetime:
+                log.info('Trying '+pfn.name)
+                log.info('      from '+str(start_datetime)+' to '+str(end_datetime))
 
 
         return list(set(allfiles))

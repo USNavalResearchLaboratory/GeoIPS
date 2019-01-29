@@ -275,6 +275,7 @@ class AMSR2_NCDF4_Reader(Reader):
         metadata['top']['source_name'] = df.instrument_name.lower()
         si = SatSensorInfo(metadata['top']['platform_name'],metadata['top']['source_name'])
         if not si:
+            from ..scifileexceptions import SciFileError
             raise SciFileError('Unrecognized platform and source name combination: '+metadata['top']['platform_name']+' '+metadata['top']['source_name'])
 
         # Use filename field for filename_datetime if it is available.

@@ -317,6 +317,21 @@ class SourceStitchedSatInfo(SatInfo):
         self.geoips_satname = 'sourcestitched'
         self.geostationary = True
 
+class GOES17SatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        # MLS 20160504 This might break legacy code, but it makes things difficult for having a
+        # common sensorname.  Possibly need to make a "default" sensorname, and
+        # allow for alternatives ? For now, just force it to gvar
+        #self.sensornames = ['gvar', 'goes', 'gvissr']
+        self.sensornames = ['abi', 'glm', 'clavrx-abi', 'ccbg-abi']
+        #self.orbital_period = 98 * 60
+        # tle names for celestrak and tscan, default to satname
+        # if not, defined in _set_satinfo
+        # None if not available (no ISS from tscan, no TLEs for GEO)
+        self.celestrak_tle_name = 'GOES 17'
+        self.geoips_satname = 'goes17'
+        self.geostationary = True
+
 class GOES16SatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
         # MLS 20160504 This might break legacy code, but it makes things difficult for having a
@@ -425,7 +440,13 @@ class ME9SatInfo(SatInfo):
         # if not, defined in _set_satinfo
         # None if not available (no ISS from tscan, no TLEs for GEO)
         self.celestrak_tle_name = 'METEOSAT-9 (MSG-2)'
-        self.tscan_tle_name = None
+        self.tscan_tle_name = 'msg-2'
+        self.geoips_satname = 'meteoEU'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
+        # ie, don't leave out the __
+        self.orig_file_satname = 'MSG2__'
         self.geostationary = True
 
 
@@ -2121,6 +2142,8 @@ SatInfo_classes = {
         'goesE': GOESESatInfo,
         'goes16': GOES16SatInfo,
         'G16': GOES16SatInfo,
+        'goes17': GOES17SatInfo,
+        'G17': GOES17SatInfo,
         'goesW': GOESWSatInfo,
         'gpm': GPMSatInfo,
         # Note I changed reader to use h8 explicitly rather than himawari-8
@@ -2136,7 +2159,7 @@ SatInfo_classes = {
         'nrljc': NRLJCSatInfo,
         'proteus': PROTEUSSatInfo,
         'meteoIO': ME8SatInfo,
-        'meteoEU': ME11SatInfo,
+        'meteoEU': ME9SatInfo,
         'me10': ME10SatInfo,
         'me11': ME11SatInfo,
         'me9': ME9SatInfo,
