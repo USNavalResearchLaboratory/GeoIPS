@@ -1333,6 +1333,13 @@ class Sector(object):
                 # Default to scifile platform_name_display - always set, defaults to platform name if not 
                 # specified in reader
                 return self.scifile.platform_name_display
+	@property
+	def allowed_satellites(self):
+	    if self.eval_att('@allowed_platforms'):
+		# rcj20190129 added ability to specify which satellite's data source to process in sector files
+		# to actually do the check during processing need to add this property to this object
+		return self.eval_att('@allowed_platforms')
+	    	
             
 
     class TCInfoNode(XMLNode):
