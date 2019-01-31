@@ -1785,11 +1785,11 @@ class SEVIRISensorInfo(SensorInfo):
 class SMAPSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         # This must match appropriate DataFileName class name in utils/path/datafilename.py
-        # RS_S2B00563.20143021221
-        #self.OrigFName['cls'] = 'RSCATFileName'
-        #self.OrigFName['nameformat'] = 'datatype_YYYYJJJHHMN'
-        #self.OrigFName['fieldsep'] = '_'
-        #self.OrigFName['fillvalue'] = 'x'
+        # SMAP_winds_RSS_20190124
+        self.OrigFName['cls'] = 'SMAPFileName'
+        self.OrigFName['nameformat'] = '<satname>_<stuff1>_<stuff2>_<data{%Y%m%d}>'
+        self.OrigFName['fieldsep'] = '_'
+        self.OrigFName['fillvalue'] = 'x'
         # outer is 1100km
         self.swath_width_km = 1000         #the real number is?
         self.pathnameformat = ''
