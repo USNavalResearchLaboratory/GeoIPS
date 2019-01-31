@@ -50,17 +50,21 @@ def extalg_plot(gi, imgkey=None):
 
         colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap('frozen_cmap'))
         currimg = colormapper.to_rgba(normalize(gi.image['rainrate']['frozen']))
-        gi.basemap.imshow(gi.image['rainrate']['frozen'])
+        # imshow expects upside down arrays, but we should not store them upside down
+        # so flipud here
+        gi.basemap.imshow(np.flipud(gi.image['rainrate']['frozen']))
 
         colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap('liquid_cmap'))
         currimg = colormapper.to_rgba(normalize(gi.image['rainrate']['liquid']))
-        gi.basemap.imshow(gi.image['rainrate']['liquid'])
+        # imshow expects upside down arrays, but we should not store them upside down
+        # so flipud here
+        gi.basemap.imshow(np.flipud(gi.image['rainrate']['liquid']))
 
         ##if 'float' in str(gi.image[imgkey].dtype):
         ##    pass
         ##else:
         ##    gi.image[imgkey].dtype = 'float64'
-        ##gi.basemap.imshow(currimg, ax=gi.axes, interpolation='nearest')
+        ##gi.basemap.imshow(np.flipud(currimg), ax=gi.axes, interpolation='nearest')
 
 
     if gi.is_final:

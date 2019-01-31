@@ -3,8 +3,18 @@
 # get them all. But this is really just for convenience, 
 # so not going to worry about it..
 if [ ! -e ~/.gitconfig ]; then
-    \git config --global user.name "$USERFULLNAME"
-    \git config --global user.email "$USEREMAIL"
+	# If USERFULLNAME is not set or is empty, don't set user.name
+    # User will be prompted to set when first using git
+    if [[  ! -z ${USERFULLNAME+x}  &&  ! -z $USERFULLNAME  ]]; then
+        \git config --global user.name "$USERFULLNAME"
+    fi
+	# If USEREMAIL is not set or is empty, don't set user.email
+    # User will be prompted to set when first using git
+    if [[  ! -z ${USEREMAIL+x}  &&  ! -z $USEREMAIL  ]]; then
+        \git config --global user.email "$USEREMAIL"
+    fi
+
+    \git config --global core.editor "vim"
 
     \git config --global credential.helper 'cache --timeout 7200'
     

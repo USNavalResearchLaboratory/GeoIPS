@@ -27,7 +27,8 @@ def fields_plot(gi, imgkey=None):
     #                norm=gi.colorbars[0].norm,
     #                cmap=gi.colorbars[0].cmap)
     #    currimg = colormapper.to_rgba(fg)
-    #    gi.basemap.imshow(currimg,
+    #    # imshow expects upside down arrays
+    #    gi.basemap.imshow(np.flipud(currimg),
     #                ax=gi.axes, 
     #                norm=gi.colorbars[0].norm,
     #                interpolation='nearest')
@@ -43,7 +44,8 @@ def fields_plot(gi, imgkey=None):
     #        bgcmap = cfg[bg.dataprovider]['plot_params'][bgparams]['cmap']
     #    colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap(bgcmap))
     #    currimg = colormapper.to_rgba(normalize(bg))
-    #    gi.basemap.imshow(currimg,ax=gi.axes, interpolation='nearest')
+    #    # imshow expects upside down arrays
+    #    gi.basemap.imshow(np.flipud(currimg),ax=gi.axes, interpolation='nearest')
 
     #if speedthin is not None:
 
