@@ -2097,6 +2097,55 @@ class SSMISRawFileName(StandardDataFileName):
 
         return df
 
+class SMAPFileName(StandardDataFileName):
+
+    def istype(self):
+        ''' 
+        istype method is called after successfully matching a filename
+        format.  If istype returns True (default in StandardDataFileName), 
+        use the current class.
+        If istype returns false, continue checking additional filename
+        formats.  Override istype method in subclasses (ie NAVGEMFileName)
+        if there are more than one data types with the same filename
+        format (look at a field within the filename to determine which
+        data type it actually is
+        '''
+        #print 'in istype'
+
+        if 'wind' in self.stuff1 and 'RSS' in self.stuff2:
+            return True
+        else:
+            return False
+
+    def set_fields(self,df,wildcards=False,scifile_obj=None):
+
+        #print 'in GoesFileName set_fields'
+
+        # See utils/satellite_info.py for these fields
+        #print self.SYYYYJJJ[1:8]
+        df.datetime = self.datetime
+        dt_strs = df.set_datetime_str() 
+        for dt_field in dt_strs.keys():
+            setattr(df,dt_field,dt_strs[dt_field])
+        #print dt
+        #dt = datetime.strptime(self.YYYYMMDD+self.HHMN,'%Y%m%d%H%M')
+        #df.date = dt.strftime('%Y%m%d')
+        #df.time = self.HHMN
+        df.sensorname = 'smap-spd'
+        df.satname = self.satname.lower()
+        df.scifile_source = df.sensorname
+        #if self.dataprovider.lower() == 'cfnoc':
+        #    df.dataprovider = 'cfnoc'
+        #else:
+        #    df.dataprovider = 'fnmoc' if df.dataprovider is df.get_fillvalue() else df.get_fillvalue()
+        df.producttype = self.get_fillvalue()
+        df.resolution = self.get_fillvalue()
+        df.channel = self.get_fillvalue()
+        df.extra = self.get_fillvalue()
+        df.area = self.get_fillvalue()
+
+        return df
+
 class NAVGEMGribFileName(StandardDataFileName):
 
     def istype(self):
