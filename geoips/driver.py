@@ -10,7 +10,6 @@
 # This program is distributed WITHOUT ANY WARRANTY; without even the implied
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # included license for more details.
-
 '''
     ``driver`` is called to produce imagery from a single data file.
     The routine can either be called at command line in order to produce
@@ -36,7 +35,7 @@ import socket
 from datetime import timedelta, datetime
 import multiprocessing
 
-# Installed Libraries
+# Third Party Installed Libraries
 import matplotlib  # matplotlib MUST be imported and use('agg') set prior to somthing, to prevent xserver usage.
 
 # GeoIPS Libraries
@@ -52,7 +51,7 @@ from geoips.pass_prediction.pass_prediction import pass_prediction
 from geoips.utils.plugin_paths import paths as gpaths
 from geoips.scifile.satnav.satnav import SatNavError as SatNavError
 
-matplotlib.use('agg')  # matplotlib MUST be imported and use('agg') set prior to somthing, to prevent xserver usage.
+matplotlib.use('agg')  # matplotlib MUST be imported and use('agg') set prior to ?something?, to prevent xserver usage.
 
 # Optional Libraries
 
@@ -121,7 +120,6 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         # nformation from the sector before running the sector
         sourceName = data_file._finfo['source_name'].lower()
         if (str(data_file._finfo['platform_name']).lower() in curr_sector.sources.sources_dict[sourceName]['allowed_platforms'].lower()) or curr_sector.sources.sources_dict[sourceName]['allowed_platforms'].lower() == 'all':
-               
             runTheSector = True
         else:
             runTheSector = False
