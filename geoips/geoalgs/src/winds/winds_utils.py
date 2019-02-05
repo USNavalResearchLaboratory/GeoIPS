@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+import math
 log = logging.getLogger(__name__)
 
 def kts_to_ms(speed_kts):
@@ -69,7 +70,8 @@ def uv2spd(u, v):
     return speed, direction_deg
 
 
-def get_pressure_levels(pres, arrays, pressure_cutoffs=[0,400,600,800,950,1014], returnInds = False, overlap = None):
+# def get_pressure_levels(pres, arrays, pressure_cutoffs=[0,400,600,800,950,1014], returnInds = False, overlap = None):
+def get_pressure_levels(pres, arrays, pressure_cutoffs=[0, 400, 800, 1014], returnInds=False, overlap=None):
     log.info('Returning values within levels {} from array with min {} and max {}'.format(
                         pressure_cutoffs,
                         pres.min(),
@@ -139,21 +141,28 @@ def thin_arrays(num_points, max_points=None, arrs=[], maskInds = False):
     # If we are masking the supplied indices in place within the passed arrs, 
     # thin as requested and mask the thinned values.
     if maskInds is not False:
+        log.info('Masking values to thin: orig {0} points, by thin value {1} to new {2} points'.format(
+                 num_points, thinval, max_points))
         maskInds = (maskInds[0][0:num_points:thinval],maskInds[1][0:num_points:thinval])
         for arr in arrs:
+            log.info('        Number unmasked before thinning {1}: {0}'.format(np.ma.count(arr), arr.name))
             arr.mask = True
             arr.mask[maskInds] = False
+            log.info('        Number unmasked after thinning {1}: {0}'.format(np.ma.count(arr), arr.name))
         return arrs
 
     # If we are returning a smaller array, thin and return smaller arrays
     try:
         for arr in arrs:
-            retarrs += [arr[::thinval,::thinval]]
+            newthinval = int(math.swqrt(thinval))
+            log.info('Thinning 2D array {3}: orig {0} points, by thin value {1} to new {2} points'.format(
+                     num_points, newthinval, max_points, arr.name))
+            retarrs += [arr[::newthinval, ::newthinval]]
 			
     except IndexError:
         for arr in arrs:
+            log.info('Thinning 2D array {3}: orig {0} points, by thin value {1} to new {2} points'.format(
+                     num_points, thinval, max_points, arr.name))
             retarrs += [arr[::thinval]]
-
-
 
     return retarrs
