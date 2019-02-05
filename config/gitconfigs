@@ -32,6 +32,8 @@ if [ ! -e ~/.gitconfig ]; then
     \git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
     \git config --global alias.ls "log --pretty=format:'%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]' --decorate"
     \git config --global alias.lgc "log --color"
+    # I think this only works with newer versions of git >1.8
+    #\git config --global alias.lgd "log -u --color --grep=FORMAT --invert-grep"
     \git config --global alias.lgd "log -u --color"
     \git config --global alias.lgm "log --merges --color"
     \git config --global alias.lgn "log --name-status --color"
