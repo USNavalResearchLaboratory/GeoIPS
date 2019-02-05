@@ -185,8 +185,10 @@ def winds_plot(gi, imgkey=None):
     lons = ds.variables['lons'][good_inds]
 
     if 'All_Pressure_Levels' in imgkey:
-        colorLevs = ['red','cyan','yellow','green','tan'] 
-        pressureLevs = [0,400,600,800,950,1014] 
+        # colorLevs = ['red','cyan','yellow','green','tan'] 
+        # pressureLevs = [0,400,600,800,950,1014] 
+        colorLevs = ['green', 'blue', 'tan']
+        pressureLevs = [0, 400, 800, 1014] 
         [lats,lons,u_kts,v_kts] = get_pressure_levels(pres_mb, [lats,lons,u_kts,v_kts], pressureLevs)
 
 
