@@ -5,7 +5,7 @@ if [ -d $GEOIPS_VIRTUALENV_DIR ]; then
     export GEOS_DIR=$GEOIPS_VIRTUALENV_DIR/../geosdir
     export LD_LIBRARY_PATH=$GEOIPS_VIRTUALENV_DIR/../geosdir/lib:$LD_LIBRARY_PATH
     
-    export XRIT_DECOMPRESS_PATH=$GEOIPS_VIRTUALENV_DIR/../xRITDecompress/xRITDecompress/xRITDecompress
+    export XRIT_DECOMPRESS_PATH=$GEOIPS_VIRTUALENV_DIR/xRITDecompress/xRITDecompress/xRITDecompress
 fi
 
 # This needs to be run if the virtualenv directory moves
