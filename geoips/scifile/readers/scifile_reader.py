@@ -182,6 +182,7 @@ class SciFile_Reader(Reader):
         # and everyhting else is (width,height).  Brute force it into shape for now.
         # At some point we're going to have to do some major reworking of this, but 
         # for now I'm just making it work...
-        # metadata['top']['shape'] = (metadata['top']['shape'][0],metadata['top']['shape'][1])
+        # MLS 20190207 Yup, still a problem. But only sometimes?  I guess this won't hurt anything...
+        metadata['top']['shape'] = (metadata['top']['shape'][0], metadata['top']['shape'][1])
     
         return 
