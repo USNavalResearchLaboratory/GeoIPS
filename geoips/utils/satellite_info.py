@@ -2159,7 +2159,8 @@ SatInfo_classes = {
         'nrljc': NRLJCSatInfo,
         'proteus': PROTEUSSatInfo,
         'meteoIO': ME8SatInfo,
-        'meteoEU': ME9SatInfo,
+        # THIS MUST BE CHANGED IF SATELLITE CHANGES. Everything else can be generalized
+        'meteoEU': ME11SatInfo,
         'me10': ME10SatInfo,
         'me11': ME11SatInfo,
         'me9': ME9SatInfo,
