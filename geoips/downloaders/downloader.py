@@ -216,7 +216,8 @@ def downloader(data_type,
     job_limits_Ronly = {gd_qsubname:max_connections}
     job_limits_RandQ = {gw_qsubname:max_num_geoips_jobs}
 
-    queue_ready = wait_for_queue(sleeptime=30,
+    if noprocess is not True:
+        queue_ready = wait_for_queue(sleeptime=30,
                                  queue=queue,
                                  job_limits_Ronly=job_limits_Ronly,
                                  job_limits_RandQ=job_limits_RandQ,
@@ -224,8 +225,8 @@ def downloader(data_type,
                                  max_total_jobs=max_total_jobs,
                                 )
 
-    if queue_ready == False:
-        raise DownloaderGiveup('Queue is not ready, giving up')
+        if queue_ready == False:
+            raise DownloaderGiveup('Queue is not ready, giving up')
     try:
         # Found in Sites/[host_type]_[data_type].py. 
         # getfilelist uses getsinglefilelist, which can be found 
@@ -314,7 +315,7 @@ def downloader(data_type,
             if retval != False:
                 log.interactive('        *** SKIPPING '+str(file)+' already downloaded')
                 continue
-            if (numfiles % 20 ) == 0:
+            if (numfiles % 20 ) == 0 and noprocess is not True:
                 queue_ready = wait_for_queue(sleeptime=30,
                                  queue=queue,
                                  job_limits_Ronly=job_limits_Ronly,
