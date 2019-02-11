@@ -154,7 +154,7 @@ def thin_arrays(num_points, max_points=None, arrs=[], maskInds = False):
     # If we are returning a smaller array, thin and return smaller arrays
     try:
         for arr in arrs:
-            newthinval = int(math.swqrt(thinval))
+            newthinval = int(math.sqrt(thinval))
             log.info('Thinning 2D array {3}: orig {0} points, by thin value {1} to new {2} points'.format(
                      num_points, newthinval, max_points, arr.name))
             retarrs += [arr[::newthinval, ::newthinval]]
