@@ -72,12 +72,15 @@ def uv2spd(u, v):
 
 # def get_pressure_levels(pres, arrays, pressure_cutoffs=[0,400,600,800,950,1014], returnInds = False, overlap = None):
 def get_pressure_levels(pres, arrays, pressure_cutoffs=[0, 400, 800, 1014], returnInds=False, overlap=None):
-    log.info('Returning values within levels {} from array with min {} and max {}'.format(
-                        pressure_cutoffs,
-                        pres.min(),
-                        pres.max()
-                        )
-            )
+    try:
+        log.info('Returning values within levels %s from array with min %0.2f and max %0.2f',
+                 pressure_cutoffs,
+                 pres.min(),
+                 pres.max(),)
+
+    except ValueError:
+        log.info('No values within levels %s from %s', pressure_cutoffs, pres)
+
     levArrays = []
     for arrInd in range(len(arrays)):
         currArr = arrays[arrInd]
