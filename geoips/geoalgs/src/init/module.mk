@@ -36,7 +36,7 @@ $(DOC)/source/geoalgs_modules.txt: $(MODULEFILES)
 	cp $(SRC)/init/geoalgs_modules_template.txt $@
 
 .PHONY: clean_init
-clean_init: $(MODULECLEAN)
+clean_init: $(filter-out clean_init, $(MODULECLEAN))
 	@echo ""
 	@echo "----------------------------------"
 	@echo "Cleaning Init"
