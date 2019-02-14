@@ -138,8 +138,6 @@ def thin_arrays(num_points, max_points=None, arrs=[], maskInds = False):
         thinval = int(num_points / max_points)
     retarrs = []
 
-    if thinval == 1:
-        return arrs
 
     # If we are masking the supplied indices in place within the passed arrs, 
     # thin as requested and mask the thinned values.
@@ -152,6 +150,10 @@ def thin_arrays(num_points, max_points=None, arrs=[], maskInds = False):
             arr.mask = True
             arr.mask[maskInds] = False
             log.info('        Number unmasked after thinning {1}: {0}'.format(np.ma.count(arr), arr.name))
+        return arrs
+
+    # Only want to return original array if maskInds was not passed
+    if thinval == 1:
         return arrs
 
     # If we are returning a smaller array, thin and return smaller arrays
