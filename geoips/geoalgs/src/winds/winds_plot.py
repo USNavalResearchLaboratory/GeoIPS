@@ -61,7 +61,7 @@ def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, plat
                 if pressure.min() < minval:
                     minval = int(pressure.min())
                 ticks = [minval,400,800,maxval]
-                cmap = ListedColormap(['green','blue','tan'])
+                cmap = ListedColormap(['red', 'cyan', 'tan'])
             cbtitle = 'Atmospheric Pressure at Cloud Top, mb'
         elif altitude is not None:
             if ticksVals is not None:
@@ -185,8 +185,10 @@ def winds_plot(gi, imgkey=None):
     lons = ds.variables['lons'][good_inds]
 
     if 'All_Pressure_Levels' in imgkey:
-        colorLevs = ['red','cyan','yellow','green','tan'] 
-        pressureLevs = [0,400,600,800,950,1014] 
+        # colorLevs = ['red','cyan','yellow','green','tan'] 
+        # pressureLevs = [0,400,600,800,950,1014] 
+        colorLevs = ['red', 'cyan', 'tan']
+        pressureLevs = [0, 400, 800, 1014] 
         [lats,lons,u_kts,v_kts] = get_pressure_levels(pres_mb, [lats,lons,u_kts,v_kts], pressureLevs)
 
 
@@ -244,16 +246,32 @@ def winds_plot(gi, imgkey=None):
     if 'All_Pressure_Levels' in imgkey:
         log.info('Plotting all barbs with colors {} at pressure levels {}'.format(colorLevs, pressureLevs))
 
+        # These are (potentially) stored in global lists of vectors - it just plots the ones with coverage in "barbs"
+        # Not sure how to tell quickly/easily a priori how many vectors will actually be plotted over a given 
+        # sector.  This is going to look way too dense on a global/large sector
+
+        # May be able to thin based on resolution of sector (basically, number of pixels per barb ?)
+
+        max_total_vecs = 12000
+        total_num_vecs = 0
+        for ulev in u_kts:
+            total_num_vecs += np.ma.count(ulev)
+
         for (ulev,vlev,latlev,lonlev,colorlev) in zip(u_kts,v_kts,lats,lons, colorLevs):
             num_vecs = np.ma.count(ulev)
             if num_vecs == 0:
                 log.info('Not plotting color {}, no winds'.format(colorlev))
                 continue
-            log.info('Plotting color {:<10}, number barbs {}'.format(colorlev, ulev.shape[0]))
+
+            max_vecs = int(max_total_vecs * (1.0 * num_vecs / total_num_vecs))
+            log.info('Plotting color {0:<10}, number barbs {1}, max barbs of {2}'.format(
+                     colorlev, num_vecs, max_vecs))
+
             [lonlev, latlev, ulev, vlev] = thin_arrays(
                                 num_vecs,
-                                max_points = 4000,
+                                max_points=max_vecs,
                                 arrs=[lonlev, latlev, ulev, vlev])
+
             num_vecs = np.ma.count(ulev)
             log.info('                   new number barbs {}'.format(num_vecs))
 
@@ -267,8 +285,7 @@ def winds_plot(gi, imgkey=None):
                         sizes=dict(height=0.4, spacing=0.2),
                         linewidth=0.5,
                         # length is length of actual barb
-                        length=8,
-                        #length=5,
+                        length=5,
                         latlon=True)
     else:
         log.info('Plotting single level barbs with colorbars %s'%(gi.colorbars))
