@@ -1782,6 +1782,20 @@ class SEVIRISensorInfo(SensorInfo):
 
         #self.data_types = {}
 
+class MULTISensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        # This must match appropriate DataFileName class name in utils/path/datafilename.py
+        # RS_S2B00563.20143021221
+        #self.OrigFName['cls'] = 'RSCATFileName'
+        #self.OrigFName['nameformat'] = 'datatype_YYYYJJJHHMN'
+        #self.OrigFName['fieldsep'] = '_'
+        #self.OrigFName['fillvalue'] = 'x'
+        # outer is 1100km
+        #self.swath_width_km = 1000         #the real number is?
+        self.pathnameformat = ''
+        self.interpolation_radius_of_influence = 25000
+        #self.data_types = {}
+
 class SMAPSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         # This must match appropriate DataFileName class name in utils/path/datafilename.py
@@ -2118,6 +2132,7 @@ SensorInfo_classes = {
         'tpw_cira': TPWSensorInfo,
         'tpw_mimic': TPWMIMICSensorInfo,
         'viirs': VIIRSSensorInfo,
+        'merged': MULTISensorInfo,
         }
 
 
