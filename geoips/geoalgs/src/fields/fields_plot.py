@@ -4,6 +4,7 @@
 import logging
 
 # GeoIPS Libraries
+from .winds_plot import set_winds_plotting_params
 
 log = logging.getLogger(__name__)
 
@@ -12,11 +13,19 @@ def fields_plot(gi, imgkey=None):
 
     if not imgkey:
         return
-
-    #log.info('Setting up fig and ax for dataset: %s with bgname: %s'%(prodname, bgname))
-    #set_winds_plotting_params(gi, speeddata, None, None, platform=ds.platform_name, source=ds.source_name,
-    #            prodname=prodname, bgname=bgname,
-    #            start_dt=ds.start_datetime, end_dt=ds.end_datetime)
+    speeddata_kts = None
+    pressuredata_mb = None
+    altitudedata_km = None
+    pressure_levs_mb = None
+    color_levs = None
+    
+    from IPython import embed as shell; shell()
+    log.info('Setting up fig and ax for dataset: %s with bgname: %s' % (prodname, bgname))
+    set_winds_plotting_params(gi, speeddata_kts, pressuredata_mb, altitudedata_km,
+                              platform=ds.platform_name, source=ds.source_name,
+                              prodname=prodname, bgname=bgname,
+                              start_dt=ds.start_datetime, end_dt=ds.end_datetime,
+                              ticks_vals=pressure_levs_mb, listed_colormap_vals=color_levs)
 
     #log.info('Plotting imgkey: %s dataset: %s'%(imgkey,ds.name))
 
