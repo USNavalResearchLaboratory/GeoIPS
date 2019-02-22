@@ -17,8 +17,9 @@ log = logging.getLogger(__name__)
 
 
 def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, platform=None, source=None,
-        platform_display=None, source_display=None, prodname=None, bgname=None, start_dt=None, end_dt=None,
-        listedColormapVals=None, ticksVals=None):
+                              platform_display=None, source_display=None, prodname=None, bgname=None,
+                              start_dt=None, end_dt=None, listed_colormap_vals=None, ticks_vals=None):
+        
 
     # NOTE this actually changes the attributes on the actual datafile, since it is not a copy.
     # This can have unintended consequences (like subsequent sectors not running, because source/platform
@@ -49,9 +50,9 @@ def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, plat
 
         minval = 0
         if pressure is not None:
-            if ticksVals is not None:
-                cmap = ListedColormap(listedColormapVals)
-                ticks = ticksVals
+            if ticks_vals is not None:
+                cmap = ListedColormap(listed_colormap_vals)
+                ticks = ticks_vals
                 minval = ticks[0]
                 maxval = ticks[-1]
             else:
@@ -64,9 +65,9 @@ def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, plat
                 cmap = ListedColormap(['red', 'cyan', 'tan'])
             cbtitle = 'Atmospheric Pressure at Cloud Top, mb'
         elif altitude is not None:
-            if ticksVals is not None:
-                cmap = ListedColormap(listedColormapVals)
-                ticks = ticksVals
+            if ticks_vals is not None:
+                cmap = ListedColormap(listed_colormap_vals)
+                ticks = ticks_vals
                 minval = ticks[0]
                 maxval = ticks[-1]
             else:
@@ -185,11 +186,11 @@ def winds_plot(gi, imgkey=None):
     lons = ds.variables['lons'][good_inds]
 
     if 'All_Pressure_Levels' in imgkey:
-        # colorLevs = ['red','cyan','yellow','green','tan'] 
-        # pressureLevs = [0,400,600,800,950,1014] 
-        colorLevs = ['red', 'cyan', 'tan']
-        pressureLevs = [0, 400, 800, 1014] 
-        [lats,lons,u_kts,v_kts] = get_pressure_levels(pres_mb, [lats,lons,u_kts,v_kts], pressureLevs)
+        # color_levs = ['red','cyan','yellow','green','tan'] 
+        # pressure_levs = [0,400,600,800,950,1014] 
+        color_levs = ['red', 'cyan', 'tan']
+        pressure_levs = [0, 400, 800, 1014] 
+        [lats,lons,u_kts,v_kts] = get_pressure_levels(pres_mb, [lats,lons,u_kts,v_kts], pressure_levs)
 
 
     # Note - if we set this to platform_display and source_display, the 
@@ -206,8 +207,8 @@ def winds_plot(gi, imgkey=None):
         set_winds_plotting_params(gi, speed=None, pressure=pres_mb, altitude=None, 
             #platform_display=new_platform, source_display=new_source, 
             platform=new_platform, source=new_source, 
-            prodname=prodname, bgname=bgname, listedColormapVals=colorLevs,
-            ticksVals = pressureLevs)
+            prodname=prodname, bgname=bgname, listed_colormap_vals=color_levs,
+            ticks_vals=pressure_levs)
     else:
         set_winds_plotting_params(gi, speed_kts, None, None, 
             #platform_display=new_platform, source_display=new_source, 
@@ -244,7 +245,7 @@ def winds_plot(gi, imgkey=None):
 
 
     if 'All_Pressure_Levels' in imgkey:
-        log.info('Plotting all barbs with colors {} at pressure levels {}'.format(colorLevs, pressureLevs))
+        log.info('Plotting all barbs with colors {} at pressure levels {}'.format(color_levs, pressure_levs))
 
         # These are (potentially) stored in global lists of vectors - it just plots the ones with coverage in "barbs"
         # Not sure how to tell quickly/easily a priori how many vectors will actually be plotted over a given 
@@ -257,7 +258,7 @@ def winds_plot(gi, imgkey=None):
         for ulev in u_kts:
             total_num_vecs += np.ma.count(ulev)
 
-        for (ulev,vlev,latlev,lonlev,colorlev) in zip(u_kts,v_kts,lats,lons, colorLevs):
+        for (ulev,vlev,latlev,lonlev,colorlev) in zip(u_kts,v_kts,lats,lons, color_levs):
             num_vecs = np.ma.count(ulev)
             if num_vecs == 0:
                 log.info('Not plotting color {}, no winds'.format(colorlev))
