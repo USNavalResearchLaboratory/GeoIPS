@@ -53,9 +53,10 @@ def grib_format_test(fname):
             return False
         df = pg.open(fname)
         if df.messages:
+            df.close()
             return True
-        return False
         df.close()
+        return False
     except:
         return False
 
