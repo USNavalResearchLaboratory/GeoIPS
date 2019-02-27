@@ -358,7 +358,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                         on all the datasets contained in the scifile object.
                     '''
                     LOG.info('Attempting to write out data file to  %s' % (gpaths['PRESECTORED_DATA_PATH']))
-                    write_datafile(gpaths['PRESECTORED_DATA_PATH'],sectored,curr_sector, filetype='h5')
+                    write_datafile(gpaths['PRESECTORED_DATA_PATH'],sectored,curr_sector, filetype='h5', overwrite=True)
             if write_registered_datafile:
                 write_file = False
                 ''' Currently we will NOT rewrite if all datafiles are already in
@@ -376,7 +376,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                     LOG.info('Attempting to register datafile')
                     sectored = sectored.register(curr_sector.area_definition)
                     LOG.info('Attempting to write out data file to %s' % (gpaths['PREREGISTERED_DATA_PATH']))
-                    write_datafile(gpaths['PREREGISTERED_DATA_PATH'], sectored, curr_sector, filetype='h5')
+                    write_datafile(gpaths['PREREGISTERED_DATA_PATH'], sectored, curr_sector, filetype='h5', overwrite=True)
     
             LOG.info('{0} Checking products'.format(plog))
     
