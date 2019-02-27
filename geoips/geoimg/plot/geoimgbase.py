@@ -991,8 +991,11 @@ class GeoImgBase(object):
             log.interactive(logstr+'Writing image file: '+geoips_product_filename.name)
             geoips_product_filename.set_processing()
 
-            self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
+            try:
+                self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
                             bbox_extra_artists=self.axes.texts, pad_inches=0.2, transparent=False)
+            except AttributeError:
+                log.exception('self.figure is None!  Can\'t Plot!')
             log.interactive('Done writing image file: '+geoips_product_filename.name)
             if geoips_product_filename.coverage > 90:
                 log.info('LATENCY: '+str(datetime.utcnow()-geoips_product_filename.datetime)+' '+gpaths['BOXNAME']+' '+geoips_product_filename.name)
@@ -1070,7 +1073,10 @@ class GeoImgBase(object):
         # but that is not going to work to begin with, so we'll have to readdress in the
         # future anyway.
         if self.is_final or not self.intermediate_data_output:
-            plt.close(self.figure)
+            try:
+                plt.close(self.figure)
+            except:
+                pass
 
     def coverage(self):
         '''Tests self.image to determine what percentage of the image is filled with good data.
