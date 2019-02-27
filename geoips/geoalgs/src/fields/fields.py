@@ -14,10 +14,14 @@ def fields(datafile, sector, product, workdir):
 
     finaldata = {}
     for varname in ds.variables.keys():
-        finaldata['{0}_{1}'.format(varname, sector.name)] = datafile
-        if 'uwind' in varname:
+        try:
             lev = int(varname[-4:])
-            finaldata['Winds_{0:d}_{1}'.format(lev, sector.name)] = datafile
+        except ValueError:
+            continue
+        prodname = varname[:-4]
+        finaldata['{0}_{1:04d}_{2}'.format(prodname, lev, sector.name)] = ds
+        if 'uwind' in varname:
+            finaldata['Winds_{0:04d}_{1}'.format(lev, sector.name)] = ds
 
     return finaldata, None
             
