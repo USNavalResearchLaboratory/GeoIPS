@@ -251,6 +251,7 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
         metadata['top']['filename_datetime'] = metadata['top']['start_datetime']
         metadata['top']['platform_name'] = 'model'
         metadata['top']['source_name'] = 'navgem'
+        metadata['top']['interpolation_radius_of_influence'] = 56000
         si = SatSensorInfo(metadata['top']['platform_name'],metadata['top']['source_name'])
         if not si:
             from ..scifileexceptions import SciFileError
