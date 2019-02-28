@@ -133,8 +133,6 @@ def retry(Exception, tries=3, delay=3, backoff=1, logger=None):
             while mtries > 1:
                 try:
                     return f(*args, **kwargs)
-                    try_one_last_time = False
-                    break
                 except Exception, e:
                     msg = "RETRYING in %d seconds...: MESG: %s" % (mdelay,str(e))
                     log.warning(msg)

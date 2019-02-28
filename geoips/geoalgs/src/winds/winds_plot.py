@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, platform=None, source=None,
                               platform_display=None, source_display=None, prodname=None, bgname=None,
                               start_dt=None, end_dt=None, listed_colormap_vals=None, ticks_vals=None):
-        
 
     # NOTE this actually changes the attributes on the actual datafile, since it is not a copy.
     # This can have unintended consequences (like subsequent sectors not running, because source/platform

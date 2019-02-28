@@ -75,7 +75,7 @@ def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_ti
             filenames += glob(os.path.join(dirname,baseoutfilename+suf))
     return filenames
 
-def write_datafile(basedir, datafile, sector, classif=None, filetype='h5', get_filename_only=False):
+def write_datafile(basedir, datafile, sector, classif=None, filetype='h5', get_filename_only=False, overwrite=False):
     if filetype != 'h5':
         raise TypeError('Currently only h5 filetypes supported for write')
 
@@ -120,7 +120,7 @@ def write_datafile(basedir, datafile, sector, classif=None, filetype='h5', get_f
         os.makedirs(dirname)
     outfilename = os.path.join(dirname,baseoutfilename+suf)
     ii = 0
-    if get_filename_only is False:
+    if get_filename_only is False and overwrite is False:
         while os.path.exists(outfilename):
             newbaseoutfilename = '%s-%03d%s'%(baseoutfilename,ii,suf)
             outfilename = os.path.join(dirname, newbaseoutfilename)
