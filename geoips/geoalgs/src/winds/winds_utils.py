@@ -160,9 +160,9 @@ def thin_arrays(num_points, max_points=None, arrs=[], maskInds = False):
     try:
         for arr in arrs:
             newthinval = int(math.sqrt(thinval))
-            log.info('Thinning 2D array {3}: orig {0} points, by thin value {1} to new {2} points'.format(
-                     num_points, newthinval, max_points, arr.name))
             retarrs += [arr[::newthinval, ::newthinval]]
+            log.info('Thinned 2D array {3}: orig {0} points, by thin value {1} to new {2} points'.format(
+                     num_points, newthinval, max_points, arr.name))
 			
     except IndexError:
         for arr in arrs:
