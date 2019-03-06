@@ -66,6 +66,7 @@ def downloader(data_type,
                noprocess=False,
                queue=None,
                max_total_jobs=500,
+               max_user_jobs=10,
                max_connections=None,
                max_wait_seconds=90,
                max_num_geoips_jobs=39,
@@ -144,6 +145,12 @@ def downloader(data_type,
     |                         |                         |                                                            |
     |                         |                         | **Default:** 1500                                          |
     +-------------------------+-------------------------+------------------------------------------------------------+
+    | max_user_jobs           | :docnote:`Undocumented` | Maximum total number of user jobs allowed before proceeding|
+    |                         |                         | with download.  This includes all queued and running jobs  |
+    |                         |                         | in current active queue                                    |
+    |                         |                         |                                                            |
+    |                         |                         | **Default:** 10                                            |
+    +-------------------------+-------------------------+------------------------------------------------------------+
     | max_connections         | :docnote:`Undocumented` | Maximum number of connections allowed to current host      |
     |                         |                         |                                                            |
     |                         |                         | **Default:** None                                          |
@@ -164,7 +171,10 @@ def downloader(data_type,
 
     '''
 
+    max_total_jobs = int(max_total_jobs)
+    max_user_jobs = int(max_user_jobs)
     log.interactive('Running git version of downloader: max_total_jobs: '+str(max_total_jobs)+
+                    ' max_user_jobs: '+str(max_user_jobs) +
                     ' max_connections on "'+host_type+'": '+str(max_connections)+
                     ' max_num_geoips_jobs of "'+data_type+'": '+str(max_num_geoips_jobs)+
                     ' max_wait_seconds: '+str(max_wait_seconds))
@@ -425,6 +435,7 @@ def _get_argument_parser():
             'loglevel',
             'queue',
             'max_total_jobs',
+            'max_user_jobs',
             'max_wait_seconds',
             ])
 
