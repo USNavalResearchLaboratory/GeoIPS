@@ -130,7 +130,11 @@ def write_datafile(basedir, datafile, sector, classif=None, filetype='h5', get_f
         return outfilename
     else:
         log.info('Writing out %s SciFile data file: %s'%(suf,outfilename))
-        datafile.write(outfilename, filetype=filetype)
+        if overwrite is True:
+            mode = 'w'
+        else:
+            mode = 'w-'
+        datafile.write(outfilename, filetype=filetype, mode=mode)
 
 
 def recurse_update_dictionary(old_base_dict, new_base_dict, key):
