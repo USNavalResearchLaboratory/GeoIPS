@@ -174,7 +174,9 @@ $(INC):
 .PHONY: clean
 clean:
 	-make $(MAKEVARS) -C $(INSTALLDIR)/src -f $(SRC)/Makefile clean
-	-make $(MAKEVARS) -C $(INSTALLDIR)/docs -f $(DOC)/Makefile clean
+	# -make $(MAKEVARS) -C $(INSTALLDIR)/docs -f $(DOC)/Makefile clean
+	# from jeremy 5MAR19
+	-make $(MAKEVARS) -C $(INSTALLDIR)/docs -f $(INSTALLDIR)/docs/Makefile clean
 	-rm -f $(SRC)/*.o $(SRC)/*.so
 	-rm -f $(BIN)/* $(INC)/*
 	-find $(SOURCEDIR) -type f -name "*.pyc" -exec rm {} \;

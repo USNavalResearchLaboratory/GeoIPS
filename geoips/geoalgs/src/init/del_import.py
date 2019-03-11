@@ -21,15 +21,17 @@ import argparse
 # Probably means we should reorganize a bit, though
 from add_import import get_import_name
 
-
-def del_import(fname, imp_str, fortran=False):
+# from jeremy 5MAR19
+def del_import(fname=None, imp_str=None, fortran=False):
+    if imp_str is None or imp_str == "":
+        print('WARNING: Empty import string in del_import')
     f = open(fname, 'r')
     lines = f.readlines()
     f.close()
     if "%s\n" % imp_str in lines:
-        ind = lines.index(imp_str+'\n')
+        ind = lines.index(imp_str + '\n')
         lines.pop(ind)
-        lines.pop(ind) #Removes extra line
+        lines.pop(ind)  # Removes extra line
         f = open(fname, 'w')
         f.writelines(lines)
         f.close()
@@ -41,17 +43,44 @@ def del_import(fname, imp_str, fortran=False):
         lines = f.readlines()
         f.close()
         if "%s\n" % imp_str in lines:
-            ind = lines.index(imp_str+'\n')
+            ind = lines.index(imp_str + '\n')
             lines.pop(ind)
-            lines.pop(ind) #Removes extra line
+            lines.pop(ind)  # Removes extra line
             f = open(fname, 'w')
             f.writelines(lines)
             f.close()
 
+
+#def del_import(fname, imp_str, fortran=False):
+    #f = open(fname, 'r')
+    #lines = f.readlines()
+    #f.close()
+    #if "%s\n" % imp_str in lines:
+        #ind = lines.index(imp_str+'\n')
+        #lines.pop(ind)
+        #lines.pop(ind) #Removes extra line
+        #f = open(fname, 'w')
+        #f.writelines(lines)
+        #f.close()
+
+    #if fortran is True:
+        #imp_name = get_import_name(imp_str)
+        #imp_str = '%s.__doc__ = format_fortran_docstring(%s.__doc__)' % (imp_name, imp_name)
+        #f = open(fname, 'r')
+        #lines = f.readlines()
+        #f.close()
+        #if "%s\n" % imp_str in lines:
+            #ind = lines.index(imp_str+'\n')
+            #lines.pop(ind)
+            #lines.pop(ind) #Removes extra line
+            #f = open(fname, 'w')
+            #f.writelines(lines)
+            #f.close()
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('fname')
-    parser.add_argument('imp_str')
+    parser.add_argument('imp_str', nargs='?')
     parser.add_argument('--fortran', action='store_true', default=False)
     args = parser.parse_args()
     del_import(args.fname, args.imp_str, fortran=args.fortran)

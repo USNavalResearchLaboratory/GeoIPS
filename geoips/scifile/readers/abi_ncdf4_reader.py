@@ -1237,6 +1237,14 @@ class ABI_NCDF4_Reader(Reader):
             # Get the radiance data
             # Have to do this when using numexpr
             rad_data = data['Rad'][~bad_data_mask]
+            # From Jeremy 5MAR19...
+            # Sometimes negative values occur due to oddities in calibration
+            # These break the conversion to BT
+            # Since these values are likely caused by very dark (cold) scenes
+            #   that are below the sensor's sensitivity and we are not interested in
+            #   having bad data scattered throughout the imager, we will set this
+            #   to a very small value
+            rad_data[rad_data <= 0] = 0.001            
 
             # If we don't need radiances, then reuse the memory
             if not rad:

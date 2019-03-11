@@ -58,6 +58,7 @@ clean_winds:
 	-rm $(LIB)/winds.py
 	-rm $(LIB)/winds_plot.py
 	-rm $(LIB)/winds_coverage.py
+	-rm $(LIB)/winds_utils.py
 	$(DELIMPORT) "from .$(notdir $(LIB)).winds import winds"
 	$(DELIMPORT) "from .$(notdir $(LIB)).winds_coverage import winds_coverage"
 	$(DELIMPORT) "from .$(notdir $(LIB)).winds_plot import winds_plot "
