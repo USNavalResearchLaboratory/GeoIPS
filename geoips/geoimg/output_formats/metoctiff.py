@@ -169,7 +169,7 @@ def metoctiff(self, sector, output_filename):
 
     data_tbsint = numpy.flipud(data_tbs.astype(numpy.uint8))
 
-    ctvalue = self.cmap
+    ctvalue = 1
     color_map = [ctvalue for i in range(768)] 
 
 
