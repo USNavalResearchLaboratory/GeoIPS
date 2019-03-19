@@ -647,7 +647,10 @@ class StandardAuxDataFileName(FileName):
 
         if xf.extdatatype in ['elevation','emissivity']:
             xf.longterm_or_intermediate = 'longterm_files'
-            xf.extdatacategory = 'geoalgs_data'
+            #rcj20190319 after establishing a new source for elevation data this path/filename maker needed updating
+            #geoalgs_data is no longer in the path
+            #xf.extdatacategory = 'geoalgs_data'
+            xf.extdatacategory = 'ancildat'
         elif xf.extdatatype in ['basemap']:
             xf.longterm_or_intermediate = 'longterm_files'
             xf.extdatacategory = 'pickles'
