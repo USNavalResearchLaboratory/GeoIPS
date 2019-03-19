@@ -287,14 +287,22 @@ def apply_data_range(data, min_val=None, max_val=None, min_outbounds='crop', max
         data = normalize(data, min_val, max_val, min_outbounds, max_outbounds)
     return data
 
-def invert_data_range(data, min_val, max_val):
+def invert_data_range(data, min_val=None, max_val=None):
+    if min_val is None:
+        min_val = data.min()
+    if max_val is None:
+        max_val = data.max()
     log.info('Inverting data between %r and %r' % (min_val, max_val))
 
-    # Preserve mask
-    origmask = data.mask
     if min_val > max_val:
         min_val, max_val = max_val, min_val
-    data = np.ma.masked_array((max_val - (data - min_val)).data, origmask)
+
+    if hasattr(data, 'mask'):
+        # Preserve mask
+        origmask = data.mask
+        data = np.ma.masked_array((max_val - (data - min_val)).data, origmask)
+    else:
+        data = (max_val - (data - min_val))
 
     return data, min_val, max_val
 
