@@ -73,10 +73,10 @@ def fields_plot(gi, imgkey=None):
                                   ticks_vals=None, listed_colormap_vals=None)
         cmapname = 'tropix_no_white'
         plotdata = dataset.variables[varname+lev]
-        colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap(cmapname))
-        currimg = colormapper.to_rgba(normalize(plotdata))
+        interp = 'sinc'
+        log.info('Using interpolation %s', interp)
         # imshow expects upside down arrays
-        gi.basemap.imshow(np.flipud(currimg), ax=gi.axes, interpolation='nearest')
+        gi.basemap.imshow(np.flipud(plotdata), ax=gi.axes, cmap=get_cmap(cmapname), interpolation=interp)
 
     if gi.is_final:
         gi.finalize()

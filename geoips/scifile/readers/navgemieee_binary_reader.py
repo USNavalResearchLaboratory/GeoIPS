@@ -23,6 +23,7 @@ from .reader import Reader
 from ..containers import _empty_varinfo
 from geoips.utils.path.datafilename import DataFileName
 from geoips.utils.satellite_info import SatSensorInfo
+from geoips.geoalgs.lib.winds_utils import ms_to_kts
 
 log = logging.getLogger(__name__)
 
@@ -322,6 +323,8 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
                 log.info('    Reading '+dsname+' channel "'+dfvarname+'" from file into SciFile channel: "'+newvarname+'"...')
                 fillvalue = data.fill_value
                 datavars[dsname][newvarname] = np.ma.masked_equal(data,fillvalue)
+                if 'wind' in newvarname or 'wnd' in newvarname:
+                    datavars[dsname][newvarname] = ms_to_kts(datavars[dsname][newvarname])
         # Loop through each dataset name found in the gvar_info property above.
         for dsname in self.gvar_info.keys():
             for geoipsvarname,dfvarname in self.gvar_info[dsname].items():

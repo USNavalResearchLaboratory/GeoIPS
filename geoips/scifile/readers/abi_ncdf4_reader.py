@@ -1043,8 +1043,9 @@ class ABI_NCDF4_Reader(Reader):
             try:
                 gvars[res].pop('Lines')
                 gvars[res].pop('Samples')
-                for varname, var in gvars.items():
-                    gvars[varname] = np.ma.array(var, mask=gvars['SatZenith'].mask)
+                for varname, var in gvars[res].items():
+                    gvars[res][varname] = np.ma.array(var, mask=gvars[res]['SatZenith'].mask)
+                    gvars[res][varname] = np.ma.masked_where(gvars[res]['SatZenith'] > 75, gvars[res][varname])
             except KeyError:
                 pass
         for ds in datavars.keys():

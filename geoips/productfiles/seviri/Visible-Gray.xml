@@ -10,7 +10,7 @@
 <product method="basic" name="Visible-Gray">
     <basic_args>
         <source name='seviri'>
-            <var>B02Ref</var> <!-- 0.86um B03 ABI   VIS008  0.8um MSG Veggie band, near-IR                                         -->
+            <var zenith='yes'>B02Ref</var> <!-- 0.86um B03 ABI   VIS008  0.8um MSG Veggie band, near-IR                                         -->
         </source>
         <img>
             <equation>B02Ref</equation>
@@ -24,6 +24,7 @@
         </img>
         <day_night>day</day_night>
         <cmap>Greys_r</cmap>
+        <max_day_zen_ang>80</max_day_zen_ang>
         <max_sat_zen_ang>84</max_sat_zen_ang>
         <coastcolor>255 180 0</coastcolor>
         <gridcolor>255 180 0</gridcolor>

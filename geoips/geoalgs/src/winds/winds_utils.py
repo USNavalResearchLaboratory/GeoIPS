@@ -103,8 +103,10 @@ def get_pressure_levels(pres, arrays, pressure_cutoffs=[0, 400, 800, 1014], retu
 
     return levArrays
 
-def thin_arrays(num_points, max_points=None, arrs=[], maskInds = False):
+def thin_arrays(num_points, max_points=None, arrs=[], maskInds=False, sector=None):
 
+    if sector is not None:
+        from IPython import embed as shell; shell()
 
 #    if not max_points:
 #        thinvalue = 5

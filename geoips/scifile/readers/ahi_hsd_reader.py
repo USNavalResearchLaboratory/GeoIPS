@@ -1441,6 +1441,9 @@ class AHI_HSD_Reader(Reader):
                 for varname in datavars[ds].keys():
                     self.set_variable_metadata(scifile_metadata, band_metadata, ds, varname)
                     datavars[ds][varname] = np.ma.masked_less(datavars[ds][varname], -999.1)
+                    if 'SatZenith' in gvars[ds].keys():
+                        datavars[ds][varname] = np.ma.masked_where(gvars[ds]['SatZenith'] > 75, datavars[ds][varname])
+                        
         log.info('Done reading AHI data for {}'.format(adname))
         log.info('')
         return

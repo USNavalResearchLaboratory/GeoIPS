@@ -10,7 +10,7 @@
 <product method='basic' name='Visible-Gray' testonly='no'>
     <basic_args>
         <source name='abi'>
-        <var>B03Ref</var>
+        <var zenith='yes'>B03Ref</var>
         </source>
         <img>
             <equation>B03Ref</equation>
@@ -24,6 +24,7 @@
         </img>
         <day_night>day</day_night>
         <cmap>Greys_r</cmap>
+        <max_day_zen_ang>80</max_day_zen_ang>
         <max_sat_zen_ang>84</max_sat_zen_ang>
         <coastcolor>255 180 0</coastcolor>
         <gridcolor>255 180 0</gridcolor>
