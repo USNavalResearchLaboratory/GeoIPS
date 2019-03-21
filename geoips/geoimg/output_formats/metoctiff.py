@@ -89,11 +89,11 @@ def metoctiff(self, sector, output_filename):
     rsURLat = int(numpy.rad2deg(corners[2].lat) * 100000)
     rsURLon = int(numpy.rad2deg(corners[2].lon) * 100000)
 
-    rsLLLat = int(numpy.rad2deg(corners[1].lat) * 100000)
-    rsLLLon = int(numpy.rad2deg(corners[1].lon) * 100000)
+    rsLLLat = int(numpy.rad2deg(corners[0].lat) * 100000)
+    rsLLLon = int(numpy.rad2deg(corners[0].lon) * 100000)
 
-    rsLRLat = int(numpy.rad2deg(corners[0].lat) * 100000)
-    rsLRLon = int(numpy.rad2deg(corners[0].lon) * 100000)
+    rsLRLat = int(numpy.rad2deg(corners[1].lat) * 100000)
+    rsLRLon = int(numpy.rad2deg(corners[1].lon) * 100000)
 
 #
 #  Get the center lat lon values of image for the metoctiff tags

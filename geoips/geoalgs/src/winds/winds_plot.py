@@ -11,8 +11,110 @@ import re
 # GeoIPS Libraries
 from geoips.utils.normalize import normalize
 from geoips.utils.gencolormap import get_cmap
+from .winds_utils import thin_arrays, ms_to_kts, spd2uv, get_pressure_levels
 
 log = logging.getLogger(__name__)
+
+
+def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, platform=None, source=None,
+                              platform_display=None, source_display=None, prodname=None, bgname=None,
+                              start_dt=None, end_dt=None, listed_colormap_vals=None, ticks_vals=None):
+
+    # NOTE this actually changes the attributes on the actual datafile, since it is not a copy.
+    # This can have unintended consequences (like subsequent sectors not running, because source/platform
+    # no longer matches what sectorfile is expecting). Use carefully
+    gi.set_geoimg_attrs(platform, source, prodname, platform_display, source_display, bgname, start_dt=start_dt, end_dt=end_dt)
+    cbtitle = None
+
+    if pressure is not None or altitude is not None:
+        from matplotlib.colors import ListedColormap, BoundaryNorm
+
+        #cmap.set_over('0.25') 
+        #cmap.set_under('0.75') 
+
+        #      5m = 1012.65 mb
+        #    500m =  954.61 mb
+        #   1000m =  898.75 mb
+        #   2000m =  794.95 mb
+        #   4000m =  616.40 mb
+        #   7000m =  410.61 mb
+        #  10000m =  264.36 mb
+        #  16000m =   96.32 mb
+        #  20000m =   43.28 mb
+        #  40000m =    0.00 mb
+        #  44330m =    0.00 mb
+        #  44331m =   ERROR
+        # Using standard atmosphere, for reference.
+        # These will actually be calculated using model heights
+
+        minval = 0
+        if pressure is not None:
+            if ticks_vals is not None:
+                cmap = ListedColormap(listed_colormap_vals)
+                ticks = ticks_vals
+                minval = ticks[0]
+                maxval = ticks[-1]
+            else:
+                maxval = 1013
+                if pressure.max() > maxval:
+                    maxval = int(pressure.max())
+                if pressure.min() < minval:
+                    minval = int(pressure.min())
+                ticks = [minval,400,800,maxval]
+                cmap = ListedColormap(['red', 'cyan', 'tan'])
+            cbtitle = 'Atmospheric Pressure at Cloud Top, mb'
+        elif altitude is not None:
+            if ticks_vals is not None:
+                cmap = ListedColormap(listed_colormap_vals)
+                ticks = ticks_vals
+                minval = ticks[0]
+                maxval = ticks[-1]
+            else:
+                maxval = 44
+                if altitude.max() > maxval:
+                    maxval = int(altitude.max())
+                if altitude.min() < minval:
+                    minval = int(altitude.min())
+                cmap = ListedColormap(['tan','salmon','blue','cyan','green','limegreen','chartreuse','lime','magenta'])
+                ticks = [minval,1,2,4,7,10,16,20,40,maxval]
+            cbtitle = 'Cloud Top Altitude, km'
+
+        bounds = [minval-1] + ticks + [maxval+1]
+
+        norm = BoundaryNorm(ticks, cmap.N)
+        spacing = 'uniform'
+        ticklabels = None
+
+        gi.set_colorbars(cmap, ticks, ticklabels=ticklabels, title=cbtitle, bounds=None, norm=norm, spacing=spacing)
+
+    elif speed is not None:
+        from matplotlib.colors import ListedColormap, BoundaryNorm
+
+        cmap = ListedColormap(['tan','blue','cyan','green','yellow','red','magenta'])
+        #cmap.set_over('0.25') 
+        #cmap.set_under('0.75') 
+
+        maxval = speed.max()
+        if maxval > 100:
+            maxval = speed.max()
+        else:
+            maxval = 200
+
+        ticks = [0,5,25,35,50,64,100,maxval]
+        bounds = [-1,0,5, 25, 35, 50, 64, 100, maxval, maxval+1]
+        norm = BoundaryNorm(ticks, cmap.N)
+        spacing = 'uniform'
+        ticklabels = None
+        cbtitle = 'Wind speed, knots'
+
+        gi.set_colorbars(cmap, ticks, ticklabels=ticklabels, title=cbtitle, bounds=None, norm=norm, spacing=spacing)
+
+    else:
+        gi._colorbars = []
+
+    # Figure and axes
+    gi._figure, gi._axes = gi._create_fig_and_ax()
+
 
 
 def winds_plot(gi, imgkey=None):
@@ -27,12 +129,12 @@ def winds_plot(gi, imgkey=None):
     if 'BACKGROUND' in gi.image[imgkey]:
         bgfile = gi.image[imgkey]['BACKGROUND']
         bgvarname = df.metadata['ds'][imgkey]['alg_channel']
-        bgvar = np.flipud(bgfile.variables[bgvarname])
+        bgvar = bgfile.variables[bgvarname]
         lats = bgfile.geolocation_variables['Latitude']
         lons = bgfile.geolocation_variables['Longitude']
         sunzen = bgfile.geolocation_variables['SunZenith']
         from .motion_config import motion_config
-        from .EnhancedImage import EnhancedImage
+        from geoips.geoalgs.lib.dataEnhancements import enhanceDataArrays
         if bgvar.name not in motion_config(bgfile.source_name).keys():
             log.warning('Variable %s not defined in motion_config for %s, can not find background, not plotting'%
 				(bgvar.name, bgfile.source_name))
@@ -44,15 +146,7 @@ def winds_plot(gi, imgkey=None):
             and 'cmap' in config['plot_params']['EnhImage'].keys():
             bgcmap = config['plot_params']['EnhImage']['cmap']
 
-        enhdata = EnhancedImage(
-            bgvar,
-            bgvar.shape,
-            lats,
-            lons,
-            sunzen=sunzen,
-            )
-        enhdata.enhanceImage(config)
-        bgvar = enhdata.Data
+        bgvar, blah, blah2 = enhanceDataArrays(bgvar, config, sunzen1=sunzen)
 
         chanstr = re.sub(r"^B","Channel ",bgvarname).replace('BT',' BT').replace('Ref',' Reflectance')
         if bgvar.wavelength:
@@ -78,23 +172,53 @@ def winds_plot(gi, imgkey=None):
 
     log.info('Plotting dataset: %s'%(imgkey))
 
-    resolution = min(gi.sector.area_info.proj4_pixel_width, gi.sector.area_info.proj4_pixel_height)
-    direction = ds.variables['direction']
-    speed = ds.variables['speed']
-    u = speed * np.cos(np.radians(direction))
-    v = speed * np.sin(np.radians(direction))
-    pres = ds.variables['pres']
-    lats = ds.variables['lats']
-    lons = ds.variables['lons']
+    qi = ds.variables['qis']
+    speed_kts = ms_to_kts(ds.variables['speed_ms'])
+    #good_inds = np.ma.where(qi>0.2)
+    good_inds = np.ma.where(speed_kts)
+    # Plot knots, store in text file as m/s
+    direction_deg = ds.variables['direction_deg'][good_inds]
+    speed_kts = speed_kts[good_inds]
+    u_kts, v_kts = spd2uv(speed_kts, direction_deg)
+    pres_mb = ds.variables['pres_mb'][good_inds]
+    lats = ds.variables['lats'][good_inds]
+    lons = ds.variables['lons'][good_inds]
 
-    from geoips.geoalgs.lib.amv_plot import downsample_winds
-    from geoips.geoalgs.lib.amv_plot import set_winds_plotting_params
+    if 'All_Pressure_Levels' in imgkey:
+        # color_levs = ['red','cyan','yellow','green','tan'] 
+        # pressure_levs = [0,400,600,800,950,1014] 
+        color_levs = ['red', 'cyan', 'tan']
+        pressure_levs = [0, 400, 800, 1014] 
+        [lats,lons,u_kts,v_kts] = get_pressure_levels(pres_mb, [lats,lons,u_kts,v_kts], pressure_levs)
 
-    set_winds_plotting_params(gi, speed, None, None, new_platform, new_source, prodname, bgname)
+
+    # Note - if we set this to platform_display and source_display, the 
+    # filenames will not reflect the actual satellite/sensor (winds/winds).
+    # But when it is set to platform/source, it actually changes the platform
+    # and source in the datafile, which breaks all subsequent sectors.
+    # So using set_winds_plotting_params to change source/platform
+    # FORCES a single sector. I'll have to look into whether there is
+    # an intelligent way to handle this. For now. One sector...
+    if speed_kts.shape[0] == 0:
+        log.warning('No valid winds, returning without attempting to plot')
+        return 
+    if 'All_Pressure_Levels' in imgkey:
+        set_winds_plotting_params(gi, speed=None, pressure=pres_mb, altitude=None, 
+            #platform_display=new_platform, source_display=new_source, 
+            platform=new_platform, source=new_source, 
+            prodname=prodname, bgname=bgname, listed_colormap_vals=color_levs,
+            ticks_vals=pressure_levs)
+    else:
+        set_winds_plotting_params(gi, speed_kts, None, None, 
+            #platform_display=new_platform, source_display=new_source, 
+            platform=new_platform, source=new_source, 
+            prodname=prodname, bgname=bgname)
 
     if 'BACKGROUND' in gi.image[imgkey]:
         log.info('Plotting background image %s'%(bgname))
-        gi.basemap.imshow(bgvar,ax=gi.axes,cmap=get_cmap(bgcmap))
+        # np.flipud all data in the imshow step - as that is the only 
+        # command that expects upside down arrays
+        gi.basemap.imshow(np.flipud(bgvar),ax=gi.axes,cmap=get_cmap(bgcmap))
 
 
     '''
@@ -119,17 +243,64 @@ def winds_plot(gi, imgkey=None):
     '''
 
 
-    log.info('Plotting barbs with colorbars %s'%(gi.colorbars))
+    if 'All_Pressure_Levels' in imgkey:
+        log.info('Plotting all barbs with colors {} at pressure levels {}'.format(color_levs, pressure_levs))
 
-    gi.basemap.barbs(lons.data,lats.data,
-                    u,v,speed,
-                    ax=gi.axes,
-                    cmap=gi.colorbars[0].cmap,
-                    sizes=dict(height=0.8, spacing=0.3),
-                    norm=gi.colorbars[0].norm,
-                    linewidth=2,
-                    length=5,
-                    latlon=True)
+        # These are (potentially) stored in global lists of vectors - it just plots the ones with coverage in "barbs"
+        # Not sure how to tell quickly/easily a priori how many vectors will actually be plotted over a given 
+        # sector.  This is going to look way too dense on a global/large sector
+
+        # May be able to thin based on resolution of sector (basically, number of pixels per barb ?)
+
+        max_total_vecs = 12000
+        total_num_vecs = 0
+        for ulev in u_kts:
+            total_num_vecs += np.ma.count(ulev)
+
+        for (ulev,vlev,latlev,lonlev,colorlev) in zip(u_kts,v_kts,lats,lons, color_levs):
+            num_vecs = np.ma.count(ulev)
+            if num_vecs == 0:
+                log.info('Not plotting color {}, no winds'.format(colorlev))
+                continue
+
+            max_vecs = int(max_total_vecs * (1.0 * num_vecs / total_num_vecs))
+            log.info('Plotting color {0:<10}, number barbs {1}, max barbs of {2}'.format(
+                     colorlev, num_vecs, max_vecs))
+
+            [lonlev, latlev, ulev, vlev] = thin_arrays(
+                                num_vecs,
+                                max_points=max_vecs,
+                                arrs=[lonlev, latlev, ulev, vlev])
+
+            num_vecs = np.ma.count(ulev)
+            log.info('                   new number barbs {}'.format(num_vecs))
+
+            gi.basemap.barbs(lonlev.data,latlev.data,
+                        ulev,vlev,
+                        color=colorlev,
+                        ax=gi.axes,
+                        #sizes=dict(height=0.8, spacing=0.3),
+                        # height is length of flag on barb, as percentage of length
+                        # spacing is spacing of flags on barb, as percentage of length of flag
+                        sizes=dict(height=0.4, spacing=0.2),
+                        linewidth=0.5,
+                        # length is length of actual barb
+                        length=5,
+                        latlon=True)
+    else:
+        log.info('Plotting single level barbs with colorbars %s'%(gi.colorbars))
+
+        gi.basemap.barbs(lons.data,lats.data,
+                        u_kts,v_kts,speed_kts,
+                        ax=gi.axes,
+                        cmap=gi.colorbars[0].cmap,
+                        #sizes=dict(height=0.8, spacing=0.3),
+                        sizes=dict(height=1, spacing=0.5),
+                        norm=gi.colorbars[0].norm,
+                        linewidth=0.5,
+                        length=5,
+                        #length=5,
+                        latlon=True)
 
 
     if gi.is_final:

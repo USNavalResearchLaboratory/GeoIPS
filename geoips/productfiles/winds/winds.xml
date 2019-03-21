@@ -10,8 +10,8 @@
 <product method='externalalg' name='winds' testonly='no' finalonly='yes'>
     <externalalg_args>
         <source name='winds' granule_composites='no'>
-            <var>speed</var>
-            <var>direction</var>
+            <var>speed_ms</var>
+            <var>direction_deg</var>
             <var>lats</var>
             <var>lons</var>
         </source>

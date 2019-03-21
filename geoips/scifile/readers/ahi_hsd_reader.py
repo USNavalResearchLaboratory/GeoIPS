@@ -1302,12 +1302,12 @@ class AHI_HSD_Reader(Reader):
         # for res in ['HIGH', 'MED', 'LOW']:
         if self_register:
             log.info('')
-            log.interactive('Getting geolocation information for resolution {} for {}.'.format(res, adname))
+            log.interactive('Getting geolocation information for adname {}.'.format(adname))
             gvars[adname] = get_geolocation(dt, res_md[self_register], sector_definition)
             if not gvars[adname]:
-                log.error('GEOLOCATION FAILED for {} resolution {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
-                    adname, res, DONT_AUTOGEN_GEOLOCATION))
-                gvars[res] = {}
+                log.error('GEOLOCATION FAILED for adname {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
+                    adname, DONT_AUTOGEN_GEOLOCATION))
+                gvars[adname] = {}
         else:
             for res in ['HIGH', 'MED', 'LOW']:
                 try:
@@ -1441,6 +1441,9 @@ class AHI_HSD_Reader(Reader):
                 for varname in datavars[ds].keys():
                     self.set_variable_metadata(scifile_metadata, band_metadata, ds, varname)
                     datavars[ds][varname] = np.ma.masked_less(datavars[ds][varname], -999.1)
+                    if 'SatZenith' in gvars[ds].keys():
+                        datavars[ds][varname] = np.ma.masked_where(gvars[ds]['SatZenith'] > 75, datavars[ds][varname])
+                        
         log.info('Done reading AHI data for {}'.format(adname))
         log.info('')
         return

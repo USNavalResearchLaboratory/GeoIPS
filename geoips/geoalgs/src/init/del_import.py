@@ -21,9 +21,9 @@ import argparse
 # Probably means we should reorganize a bit, though
 from add_import import get_import_name
 
-
-def del_import(fname, imp_str=None, fortran=False):
-    if imp_str is None:
+# from jeremy 5MAR19
+def del_import(fname=None, imp_str=None, fortran=False):
+    if imp_str is None or imp_str == "":
         print('WARNING: Empty import string in del_import')
     f = open(fname, 'r')
     lines = f.readlines()
@@ -50,11 +50,10 @@ def del_import(fname, imp_str=None, fortran=False):
             f.writelines(lines)
             f.close()
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('fname')
-    parser.add_argument('imp_str')
+    parser.add_argument('imp_str', nargs='?')
     parser.add_argument('--fortran', action='store_true', default=False)
     args = parser.parse_args()
     del_import(args.fname, args.imp_str, fortran=args.fortran)

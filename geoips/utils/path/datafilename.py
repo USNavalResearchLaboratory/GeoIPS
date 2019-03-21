@@ -647,7 +647,10 @@ class StandardAuxDataFileName(FileName):
 
         if xf.extdatatype in ['elevation','emissivity']:
             xf.longterm_or_intermediate = 'longterm_files'
-            xf.extdatacategory = 'geoalgs_data'
+            #rcj20190319 after establishing a new source for elevation data this path/filename maker needed updating
+            #geoalgs_data is no longer in the path
+            #xf.extdatacategory = 'geoalgs_data'
+            xf.extdatacategory = 'ancildat'
         elif xf.extdatatype in ['basemap']:
             xf.longterm_or_intermediate = 'longterm_files'
             xf.extdatacategory = 'pickles'
@@ -1021,8 +1024,13 @@ class ABIFileName(StandardDataFileName):
             sensor,level,datatype,chan = self.sensornamelevelprodtypescantype.split('-')
         except ValueError:
             sensor,level,datatype = self.sensornamelevelprodtypescantype.split('-')
-        if self.satname in ['G16'] and sensor in ['ABI','SUVI','EXIS','SEIS','MAG','GLM']:
-            return True
+        if self.satname in ['G16','G17'] and sensor in ['ABI','SUVI','EXIS','SEIS','MAG','GLM']:
+            if self.satname == 'G16' and self.sensorinfo.satname == 'G16':
+                return True
+            elif self.satname == 'G17' and self.sensorinfo.satname == 'G17':
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -2009,6 +2017,22 @@ class MeghaTropiquesFileName(StandardDataFileName):
 ###################################################
 class MODISFileName(StandardDataFileName):
 
+    def istype(self):
+        '''
+        istype method is called after successfully matching a filename
+        format.  If istype returns True (default in StandardDataFileName),
+        use the current class.
+        If istype returns false, continue checking additional filename
+        formats.  Override istype method in subclasses (ie MEgha..FileName)
+        if there are more than one data types with the same filename
+        format (look at a field within the filename to determine which
+        data type it actually is
+        '''
+        if hasattr(self, 'datatype') and 'MOD' in self.datatype:
+            return True
+        else:
+            return False
+
     def set_fields(self,df,wildcards=False,scifile_obj=None):
 
         #print 'set_fields in MODISFileName'
@@ -2094,6 +2118,102 @@ class SSMISRawFileName(StandardDataFileName):
         df.extra = self.get_fillvalue()
         df.area = self.get_fillvalue()
         df.ext = 'grb'
+
+        return df
+
+class SMAPFileName(StandardDataFileName):
+
+    def istype(self):
+        ''' 
+        istype method is called after successfully matching a filename
+        format.  If istype returns True (default in StandardDataFileName), 
+        use the current class.
+        If istype returns false, continue checking additional filename
+        formats.  Override istype method in subclasses (ie NAVGEMFileName)
+        if there are more than one data types with the same filename
+        format (look at a field within the filename to determine which
+        data type it actually is
+        '''
+        #print 'in istype'
+
+        if 'wind' in self.stuff1 and 'RSS' in self.stuff2:
+            return True
+        else:
+            return False
+
+    def set_fields(self,df,wildcards=False,scifile_obj=None):
+
+        #print 'in GoesFileName set_fields'
+
+        # See utils/satellite_info.py for these fields
+        #print self.SYYYYJJJ[1:8]
+        df.datetime = self.datetime
+        dt_strs = df.set_datetime_str() 
+        for dt_field in dt_strs.keys():
+            setattr(df,dt_field,dt_strs[dt_field])
+        #print dt
+        #dt = datetime.strptime(self.YYYYMMDD+self.HHMN,'%Y%m%d%H%M')
+        #df.date = dt.strftime('%Y%m%d')
+        #df.time = self.HHMN
+        df.sensorname = 'smap-spd'
+        df.satname = self.satname.lower()
+        df.scifile_source = df.sensorname
+        #if self.dataprovider.lower() == 'cfnoc':
+        #    df.dataprovider = 'cfnoc'
+        #else:
+        #    df.dataprovider = 'fnmoc' if df.dataprovider is df.get_fillvalue() else df.get_fillvalue()
+        df.producttype = self.get_fillvalue()
+        df.resolution = self.get_fillvalue()
+        df.channel = self.get_fillvalue()
+        df.extra = self.get_fillvalue()
+        df.area = self.get_fillvalue()
+
+        return df
+
+class NAVGEMIEEEFileName(StandardDataFileName):
+
+    def istype(self):
+        ''' 
+        istype method is called after successfully matching a filename
+        format.  If istype returns True (default in StandardDataFileName), 
+        use the current class.
+        If istype returns false, continue checking additional filename
+        formats.  Override istype method in subclasses (ie NAVGEMIEEEFileName)
+        if there are more than one data types with the same filename
+        format (look at a field within the filename to determine which
+        data type it actually is
+        relhum_pre_0500.0_0000.0_glob720x361_2019022006_00020000_fcstfld
+        '''
+        #print 'in istype'
+
+        if 'fcstfld' == self.fcstfld:
+            return True
+        else:
+            return False
+
+    def set_fields(self, df, wildcards=False, scifile_obj=None):
+
+        # print 'in NAVGEMFileName set_fields'
+        # relhum_pre_0500.0_0000.0_glob720x361_2019022006_00040000_fcstfld
+
+        # See utils/satellite_info.py for these fields
+        #print self.SYYYYJJJ[1:8]
+        df.datetime = self.datetime
+        dt_strs = df.set_datetime_str() 
+        for dt_field in dt_strs.keys():
+            setattr(df, dt_field, dt_strs[dt_field])
+        df.dataprovider = 'ieee'
+        df.producttype = self.varname
+        tau = int(self.tau) / 10000
+        df.resolution = 'tau%02d' % (tau)
+        df.sensorname = 'navgem'
+        df.satname = 'model'
+        df.scifile_source = df.sensorname
+        df.channel = 'navgem'
+        lev = float(self.level)
+        df.extra = 'lev%0.1f' % (lev)
+        df.area = 'global'
+        df.ext = 'bin'
 
         return df
 
@@ -2599,7 +2719,7 @@ class SeviriHRITFileName(StandardDataFileName):
         # MSG4 is Meteosat-11, which is currently meteoEU
         if self.satname == 'MSG1__'  and self.sensorinfo.satname == 'meteoIO':
             return True
-        elif (self.satname == 'MSG3__' or self.satname == 'MSG4__') and self.sensorinfo.satname == 'meteoEU':
+        elif (self.satname == 'MSG2__' or self.satname == 'MSG3__' or self.satname == 'MSG4__') and self.sensorinfo.satname == 'meteoEU':
             return True
         else:
             return False
@@ -2619,7 +2739,7 @@ class SeviriHRITFileName(StandardDataFileName):
         # H-000-MSG1__-MSG1_IODC___-WV_073___-000005___-201612201830-C_
         # H-000-MSG4__-MSG4________-HRV______-000001___-201811191100-C_
         # OrigFName3['nameformat'] = '<resolution>-<always000>-<satname>-<alwaysmsg1iodc>-<channel>-<slice>-<date{%Y%m%d%H%M}>-<compression>'
-        if self.satname == 'MSG3__' or self.satname == 'MSG4__':
+        if self.satname == 'MSG2__' or self.satname == 'MSG3__' or self.satname == 'MSG4__':
             df.satname = 'meteoEU'
         if self.satname == 'MSG1__':
             df.satname = 'meteoIO'

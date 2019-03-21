@@ -7,22 +7,24 @@
         is contained there.
 -->
 <product_file>
-<product method='basic' name='Infrared-Gray' testonly='yes'>
+<product method='basic' name='Visible-Gray' testonly='no'>
     <basic_args>
         <source name='abi'>
-            <var zenith='no'>B14BT</var>
+        <var zenith='yes'>B03Ref</var>
         </source>
         <img>
-            <equation>B14BT</equation>
+            <equation>B03Ref</equation>
             <range>
-                <min_value>173</min_value>
-                <max_value>323</max_value>
+                <min_value>0.0</min_value>
+                <max_value>1.0</max_value> 
                 <outbounds>crop</outbounds>
                 <units></units>
             </range>
+            <gamma1>1.5</gamma1>
         </img>
-        <day_night>both</day_night>
-        <cmap>Greys</cmap>
+        <day_night>day</day_night>
+        <cmap>Greys_r</cmap>
+        <max_day_zen_ang>80</max_day_zen_ang>
         <max_sat_zen_ang>84</max_sat_zen_ang>
         <coastcolor>255 180 0</coastcolor>
         <gridcolor>255 180 0</gridcolor>

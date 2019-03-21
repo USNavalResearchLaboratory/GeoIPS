@@ -23,6 +23,7 @@ from .reader import Reader
 from ..containers import _empty_varinfo
 from geoips.utils.path.datafilename import DataFileName
 from geoips.utils.satellite_info import SatSensorInfo
+from geoips.geoalgs.lib.winds_utils import ms_to_kts
 
 log = logging.getLogger(__name__)
 
@@ -30,23 +31,27 @@ log = logging.getLogger(__name__)
 reader_class_name = 'NAVGEMIEEE_BINARY_Reader'
 class NAVGEMIEEE_BINARY_Reader(Reader):
 
-    dataset_info = { 'DATA': {'wwwind':'wwwind',
-                              'pottmp':'pottmp',
-                              'uuwind':'uuwind',
-                              'vvwind':'vvwind',
-                              'relhum':'relhum',
+    dataset_info = { 'DATA': {'wwind':'wwwind',
+                              'pottmp':'pottmp', # Potential Temperature
+                              'uwind':'uuwind',  # U component of Wind
+                              'vwind':'vvwind',  # V component of Wind
+                              'rh':'relhum',     # Relative Humidity
                               'wvapor':'wvapor',
                               'cldlwp':'cldlwp',
-                              'cldmix':'cldmix',
+                              'cmr':'cldmix',
                               'icemix':'icemix',
                               'grdtmp':'grdtmp',
                               'seatmp':'seatmp',
-                              'airtmp':'airtmp',
+                              'temp':'airtmp',  # Air temperature
                               'lndsea':'lndsea',
                               'grdwet':'grdwet',
                               'seaice':'seaice',
                               'albedo':'albedo',
                               'cte_sa':'cte_sa',
+                              'rh':'relhum',     # Relative Humidity
+                              'vpress':'vpress', # Vapor Pressure
+                              'dwptdp':'dwptdp', # Dew Point Depression
+                              'geoph':'geopht',  # Geopotential Height
                             },
                    }
     gvar_info = { 'DATA': {
@@ -130,8 +135,7 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
         #                clabel=plot_parm[fld]['units'],
         #                range=[plot_parm[fld]['min'],plot_parm[fld]['max']])
         
-        def seek_field(filename):
-            print 'Reading file...'
+        def seek_field(filename, metadata_only=False):
             #metadata
             datafilename = filename.split('/')[-1].split('_')
             wxparameter = datafilename[0]
@@ -145,7 +149,10 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
                 lvl2 = "%06.1f"%(float(lvl2))
             imest_and_gridlevels = datafilename[4]
             dtg = datafilename[5]
-            filetype = datafilename[6]
+            tau = int(datafilename[6]) / 10000
+            filetype = datafilename[7]
+            if metadata_only:
+                return None, wxparameter, level_type, lvl1, lvl2, dtg, tau, filetype
             record_length = model_grid['num_bytes']
             # top to bottom
             offset = (model_grid['lm'] - int(float(1))) * record_length
@@ -155,6 +162,7 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
             #offset = (1 - int(float(lvl2))) * record_length
 
 
+            log.info('Reading file %s...', filename)
             #  binary file read
             if os.path.isfile(filename):
                 f = open( filename, 'rb' )
@@ -170,7 +178,7 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
                 print filename
                 data = [[-999.99] * model_grid['im']] * model_grid['jm']
                 istat = -1
-            return data, wxparameter, level_type, lvl1, lvl2, dtg, filetype
+            return data, wxparameter, level_type, lvl1, lvl2, dtg, tau, filetype
         
         def read_navgem_header (filename):
             #"%s/datahd_sfc_000000_000000_1a2000x0001_%s_00000000_infofld"%(indir, dtg)
@@ -234,16 +242,20 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
                 data_grid.sigm = datahd[800:800+nz]
                 data_grid.ztop = data_grid.sigw[0]
 
-        data, wxparameter, level_type, lvl1, lvl2, dtg, filetype = seek_field(fname)
+        none, wxparameter, level_type, lvl1, lvl2, dtg, tau, filetype = seek_field(fname, metadata_only=True)
         metadata['top']['level'] = lvl1
-        metadata['top']['start_datetime'] = datetime.strptime(dtg, '%Y%m%d%H')
-        metadata['top']['end_datetime'] = datetime.strptime(dtg, '%Y%m%d%H')
+        metadata['top']['tau'] = tau
+        metadata['top']['synoptic_time'] = datetime.strptime(dtg, '%Y%m%d%H')
+        metadata['top']['start_datetime'] = datetime.strptime(dtg, '%Y%m%d%H') + timedelta(hours=tau)
+        metadata['top']['end_datetime'] = datetime.strptime(dtg, '%Y%m%d%H') + timedelta(hours=tau)
         metadata['top']['dataprovider'] = 'NRL'
         metadata['top']['filename_datetime'] = metadata['top']['start_datetime']
         metadata['top']['platform_name'] = 'model'
-        metadata['top']['source_name'] = 'navgemieee'
+        metadata['top']['source_name'] = 'navgem'
+        metadata['top']['interpolation_radius_of_influence'] = 56000
         si = SatSensorInfo(metadata['top']['platform_name'],metadata['top']['source_name'])
         if not si:
+            from ..scifileexceptions import SciFileError
             raise SciFileError('Unrecognized platform and source name combination: '+metadata['top']['platform_name']+' '+metadata['top']['source_name'])
 
         dfn = DataFileName(os.path.basename(fname))
@@ -256,6 +268,8 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
 
         if chans == []:
             return
+
+        data, wxparameter, level_type, lvl1, lvl2, dtg, tau, filetype = seek_field(fname)
         
 #        def rdata (filename)#parmnm, lvltyp, lev1, lev2, inest, dtg, tau, indir='def', outtyp='fcstfld', im=-1, jm=-1):
 #        
@@ -302,12 +316,20 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
         # Loop through each dataset name found in the dataset_info property above.
         for dsname in self.dataset_info.keys():
             for geoipsvarname,dfvarname in self.dataset_info[dsname].items():
-                log.info('    Reading '+dsname+' channel "'+dfvarname+'" from file into SciFile channel: "'+geoipsvarname+'"...')
+                if dfvarname != wxparameter:
+                    continue
+                level = int(float(lvl1.lstrip('0')))
+                newvarname = '{0}{1:04d}'.format(geoipsvarname, int(float(lvl1.lstrip('0'))))
+                log.info('    Reading '+dsname+' channel "'+dfvarname+'" from file into SciFile channel: "'+newvarname+'"...')
                 fillvalue = data.fill_value
-                datavars[dsname][geoipsvarname] = np.ma.masked_equal(data,fillvalue)
+                datavars[dsname][newvarname] = np.ma.masked_equal(data,fillvalue)
+                if 'wind' in newvarname or 'wnd' in newvarname:
+                    datavars[dsname][newvarname] = ms_to_kts(datavars[dsname][newvarname])
         # Loop through each dataset name found in the gvar_info property above.
         for dsname in self.gvar_info.keys():
             for geoipsvarname,dfvarname in self.gvar_info[dsname].items():
+                if geoipsvarname in gvars[dsname].keys():
+                    continue
                 if dfvarname == 'latitu':
                     geolog = navlat
                 if dfvarname == 'longit':

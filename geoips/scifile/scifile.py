@@ -38,6 +38,7 @@ from geoips.utils.path.datafilename import DataFileName
 #from geoips.utils.memusg import print_mem_usage
 from . import file_format_tests
 from .containers import *
+from .containers import _empty_finfo, _empty_varinfo
 from .scifileexceptions import SciFileError,NoMatchingReadersError,MultiMatchingReadersError
 
 
@@ -1084,4 +1085,10 @@ class SciFile(object):
         for dsname, ds in self.datasets.items():
             #Mask each dataset
             ds.mask_day(max_zenith=max_zenith)
+
+    def mask_edge_of_scan(self, max_sat_zenith=90):
+        '''Mask data where the sat zenith angle is above max_sat_zenith.'''
+        for dsname, ds in self.datasets.items():
+            #Mask each dataset
+            ds.mask_edge_of_scan(max_sat_zenith=max_sat_zenith)
 

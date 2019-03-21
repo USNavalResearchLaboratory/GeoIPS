@@ -107,17 +107,27 @@ class GeoImgBase(object):
             else:
                 self._cmap = None
 
-    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
+    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, platform_display=None, source_display=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
         extra_extra = ''
         # Platform name and source name should end up in the title, so do not
         # need to be repeated in the bgname extra_lines. If it is a different
         # platform/source with bgname, it should be included in bgname
+        
+        # NOTE this actually changes the attributes on the datafile!!
+        # It is not a copy!  This is probably not what we want, but
+        # for now, just be careful.
         if platform_name:
             #extra_extra = '%s %s'%(extra_extra, platform_name)
             self.datafile._finfo['platform_name'] = platform_name
         if source_name:
             #extra_extra = '%s %s'%(extra_extra, source_name)
             self.datafile._finfo['source_name'] = source_name
+        if platform_display:
+            #extra_extra = '%s %s'%(extra_extra, platform_name)
+            self.datafile._finfo['platform_name_display'] = platform_display
+        if source_display:
+            #extra_extra = '%s %s'%(extra_extra, source_name)
+            self.datafile._finfo['source_name_display'] = source_display
         if start_dt:
             self.datafile._finfo['start_datetime'] = start_dt
             self._start_datetime = start_dt
@@ -197,7 +207,7 @@ class GeoImgBase(object):
         elif isinstance(cmap, list):
             if not append:
                 self._colorbars = []
-            for (ccmap, cticks, cticklabels, ctitles, cbounds, cnorm, cspacing) in zip(cmap, ticks, ticklabels, titles,
+            for (ccmap, cticks, cticklabels, ctitle, cbounds, cnorm, cspacing) in zip(cmap, ticks, ticklabels, title,
                     bounds, norm, spacing):
                 self._colorbars += [Colorbar.fromvals(ccmap, cticks, cticklabels, ctitle, cbounds, cnorm, cspacing)]
         else:
@@ -265,7 +275,7 @@ class GeoImgBase(object):
             if 'start_' in sttag:
                 tag = sttag.replace('start_','')
                 try:
-                    log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag])+' '+socket.gethostname())
+                    log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag]))
                 except:
                     log.info('WARNING! No end time for '+sttag)
         return registered
@@ -467,14 +477,17 @@ class GeoImgBase(object):
             # This has to be self._image, not self.image! Can't set self.image.
             self._image = np.flipud(new)
         else:
+            other_req_vars = None
+            if otherimg.source_name != self.datafile.source_name:
+                try:
+                    other_req_vars = productfile.open_product(otherimg.source_name,self.product.name).get_required_source_vars(otherimg.source_name)
+                except AttributeError:
+                    return
             if hasattr(self,'_image'):
                 delattr(self,'_image')
             if hasattr(self,'_registered_data'):
                 delattr(self,'_registered_data')
             datasets = []
-            other_req_vars = None
-            if otherimg.source_name != self.datafile.source_name:
-                other_req_vars = productfile.open_product(otherimg.source_name,self.product.name).get_required_source_vars(otherimg.source_name)
             for dsname in self.datafile.datasets.keys():
                 log.info('Trying to merge dataset '+dsname)
                 for var in self.req_vars:
@@ -499,13 +512,16 @@ class GeoImgBase(object):
                         other_width = otherimg.variables[othervar].shape[0]
                         self_width = self.datafile.variables[var].shape[0]
                         if other_width != self_width:
+                            # I do not know why we would be merging different shaped arrays, but for now, 
+                            # continue hstacking if this ever happens. Not sure how you would blend if they are 
+                            # different shapes, as you don't know which pixels line up....
                             if other_width > self_width:
                                 #If other is bigger, must pad self.                               
                                 pad_width = other_width - self_width
                                 pad_array = np.ma.masked_all((pad_width,self.datafile.variables[var].shape[1]))
                                 data = np.ma.hstack(
                                     (otherimg.variables[othervar],
-                                     np.ma.vstack((self.datafile.variables[var],pad_array))))
+                                     np.ma.vstack((self.datafile.variables[var],pad_array))))                                
                             else:
                                 #If self is bigger, must pad other.                               
                                 pad_width = self_width - other_width
@@ -514,11 +530,21 @@ class GeoImgBase(object):
                                     (np.ma.vstack((otherimg.variables[othervar],pad_array)),
                                      self.datafile.variables[var])
                                     )
+                         
+                        
+                        
                         else:
-                            data = np.ma.hstack(
-                                (otherimg.variables[othervar],
-                                 self.datafile.variables[var])
-                                )
+                            otherMask = otherimg.variables[othervar].mask
+                            # Please ignore flake8 - if you use otherMask is False, it does NOT work 
+                            data = np.ma.where(otherMask == False,
+                                               otherimg.variables[othervar],
+                                               self.datafile.variables[var])
+                            # At some point, instead of either-or here, we will blend the values if they are both
+                            # defined
+                            # thisMask = self.datafile.variables[var].mask
+                            # overlap_points = np.ma.where(np.ma.logical_and(otherMask == False, thisMask == False))
+                            # data[overlap_points] = (otherimg.variables[othervar][overlap_points]\
+                            #                         + self.datafile.variables[var][overlap_points]) / 2
                         varinfo = self.datafile.datasets[dsname].variables[var]._varinfo
                         variables += [Variable(var,data=data,_varinfo=varinfo,_nomask=False)]
 
@@ -537,10 +563,11 @@ class GeoImgBase(object):
                                                     self.datafile.datasets[dsname].geolocation_variables[gvar])
                                                     )
                             else:
-                                data = np.ma.hstack(
-                                                (otherimg.datasets[dsname].geolocation_variables[gvar],
-                                                self.datafile.datasets[dsname].geolocation_variables[gvar])
-                                                )
+                                otherMask = otherimg.geolocation_variables[gvar].mask
+                                # Please ignore flake8 - if you use otherMask is False, it does NOT work 
+                                data = np.ma.where(otherMask == False,
+                                                   otherimg.geolocation_variables[gvar],
+                                                   self.datafile.geolocation_variables[gvar])
                             varinfo = self.datafile.datasets[dsname].geolocation_variables[gvar]._varinfo
                             geolocation_variables += [Variable(gvar,data=data,_varinfo=varinfo,_nomask=False)]
                                 
@@ -599,8 +626,10 @@ class GeoImgBase(object):
         
         if self.intermediate_data_output:
             # Remove image attribute to force reprocessing
-            delattr(self,'_image')
-            delattr(self,'_registered_data')
+            if hasattr(self,'_image'):
+                delattr(self,'_image')
+            if hasattr(self,'_registered_data'):
+                delattr(self,'_registered_data')
             
             self.plot()
         #print_mem_usage(self.logtag+'gimgafterfilemerges',True)
@@ -947,8 +976,11 @@ class GeoImgBase(object):
             log.interactive(logstr+'Writing image file: '+geoips_product_filename.name)
             geoips_product_filename.set_processing()
 
-            self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
+            try:
+                self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
                             bbox_extra_artists=self.axes.texts, pad_inches=0.2, transparent=False)
+            except AttributeError:
+                log.exception('self.figure is None!  Can\'t Plot!')
             log.interactive('Done writing image file: '+geoips_product_filename.name)
             if geoips_product_filename.coverage > 90:
                 log.info('LATENCY: '+str(datetime.utcnow()-geoips_product_filename.datetime)+' '+gpaths['BOXNAME']+' '+geoips_product_filename.name)
@@ -1026,7 +1058,10 @@ class GeoImgBase(object):
         # but that is not going to work to begin with, so we'll have to readdress in the
         # future anyway.
         if self.is_final or not self.intermediate_data_output:
-            plt.close(self.figure)
+            try:
+                plt.close(self.figure)
+            except:
+                pass
 
     def coverage(self):
         '''Tests self.image to determine what percentage of the image is filled with good data.

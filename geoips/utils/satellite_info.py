@@ -317,6 +317,21 @@ class SourceStitchedSatInfo(SatInfo):
         self.geoips_satname = 'sourcestitched'
         self.geostationary = True
 
+class GOES17SatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        # MLS 20160504 This might break legacy code, but it makes things difficult for having a
+        # common sensorname.  Possibly need to make a "default" sensorname, and
+        # allow for alternatives ? For now, just force it to gvar
+        #self.sensornames = ['gvar', 'goes', 'gvissr']
+        self.sensornames = ['abi', 'glm', 'clavrx-abi', 'ccbg-abi']
+        #self.orbital_period = 98 * 60
+        # tle names for celestrak and tscan, default to satname
+        # if not, defined in _set_satinfo
+        # None if not available (no ISS from tscan, no TLEs for GEO)
+        self.celestrak_tle_name = 'GOES 17'
+        self.geoips_satname = 'goes17'
+        self.geostationary = True
+
 class GOES16SatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
         # MLS 20160504 This might break legacy code, but it makes things difficult for having a
@@ -425,7 +440,13 @@ class ME9SatInfo(SatInfo):
         # if not, defined in _set_satinfo
         # None if not available (no ISS from tscan, no TLEs for GEO)
         self.celestrak_tle_name = 'METEOSAT-9 (MSG-2)'
-        self.tscan_tle_name = None
+        self.tscan_tle_name = 'msg-2'
+        self.geoips_satname = 'meteoEU'
+        # NOTE orig_file_satname is actually used in utils.path.datafilename to 
+        # determine if current filename matches desired satellite.
+        # THIS MUST MATCH satname FOUND IN FILENAME EXACTLY
+        # ie, don't leave out the __
+        self.orig_file_satname = 'MSG2__'
         self.geostationary = True
 
 
@@ -557,7 +578,7 @@ class MT2SatInfo(SatInfo):
 
 class MULTISatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
-        self.sensornames = ['tpw_cira', 'tpw_mimic']
+        self.sensornames = ['tpw_cira', 'tpw_mimic','merged']
         #self.orbital_period = 98 * 60
         # tle names for celestrak and tscan, default to satname
         # if not, defined in _set_satinfo
@@ -690,6 +711,15 @@ class SCATSAT1SatInfo(SatInfo):
         self.geostationary = False
         self.mins_per_file = 50
 
+class SMAPSatInfo(SatInfo):
+    def _set_satinfo(self, sensor=None):
+        self.sensornames = ['smap-spd']
+        # self.orbital_period = 
+        # tle names for celestrak and tscan, default to satname
+        # if not, defined in _set_satinfo
+        self.celestrak_tle_name = 'SMAP'
+        self.tscan_tle_name = None
+        self.geostationary = False
 
 class TERRASatInfo(SatInfo):
     def _set_satinfo(self, sensor=None):
@@ -1536,6 +1566,8 @@ class WINDSSensorInfo(SensorInfo):
 class MODELSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         self.interpolation_radius_of_influence = 56000
+        self.OrigFName['base_dir'] = os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                                  'data', 'incoming')
         # This must match appropriate DataFileName class name in utils/path/datafilename.py
         # US058GCOM-GR1mdl.0018_0056_03300F0OF2017020206_0001_000000-000000grnd_sea_temp
         # US058GCOM-GR1dyn.COAMPS-NEPAC_NEPAC-n2-a1_01800F0NL2017010112_0001_000000-000000grnd_sea_temp
@@ -1543,6 +1575,8 @@ class MODELSensorInfo(SensorInfo):
         OrigFName2 = self.OrigFName.copy()
         OrigFName3 = self.OrigFName.copy()
         OrigFName4 = self.OrigFName.copy()
+        OrigFName5 = self.OrigFName.copy()
+        OrigFName6 = self.OrigFName.copy()
         OrigFName['cls'] = 'NAVGEMGribFileName'
         OrigFName['nameformat'] = '<stuff1>_<stuff2>_<date{%!%!%!%!%!%!%!%!%!%Y%m%d%H}>_<stuff3>_<product1>_<product2>'
         OrigFName['fieldsep'] = '_'
@@ -1563,20 +1597,22 @@ class MODELSensorInfo(SensorInfo):
         OrigFName4['fieldsep'] = '_'
         OrigFName4['fillvalue'] = 'x'
         OrigFName4['noextension'] = True
-        self.OrigFNames = [OrigFName, OrigFName2, OrigFName3, OrigFName4]
+        OrigFName5['cls'] = 'NAVGEMIEEEFileName'
+        # relhum_pre_0550.0_0000.0_glob720x361_2019022006_00000000_fcstfld
+        OrigFName5['nameformat'] = '<varname>_<leveltype>_<level>_<zeros>_<shape>_<date{%Y%m%d%H}>_<tau>_<fcstfld>'
+        OrigFName5['fieldsep'] = '_'
+        OrigFName5['fillvalue'] = 'x'
+        OrigFName5['noextension'] = True
+        self.OrigFNames = [OrigFName, OrigFName2, OrigFName3, OrigFName4, OrigFName5]
         self.FName['runfulldir'] = True
         if os.getenv('SATDATROOT'):
             #print 'setting base_dir in setSensorInfoAtts'
             self.FName['base_dirs'] = [os.getenv('SATDATROOT')]
         # resolution is the tau, extra is the level
         self.pathnameformat = os.path.join('<satname>', '<sensorname>',
-                                           '<area>','<date{%Y%m%d%H}>',
+                                           '<area>', '<date{%Y%m%d%H}>',
                                            '<resolution>-<extra>')
-        #self.num_lines = 2030
-        #self.num_samples = 1354
-        #self.mins_per_file = 60
-        #self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/amsub/global']
-        #self.pathnameformat = ''
+                                           #'<resolution>')
 
 class ICAPSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
@@ -1752,6 +1788,33 @@ class SEVIRISensorInfo(SensorInfo):
 
         #self.data_types = {}
 
+class MULTISensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        # This must match appropriate DataFileName class name in utils/path/datafilename.py
+        # RS_S2B00563.20143021221
+        #self.OrigFName['cls'] = 'RSCATFileName'
+        #self.OrigFName['nameformat'] = 'datatype_YYYYJJJHHMN'
+        #self.OrigFName['fieldsep'] = '_'
+        #self.OrigFName['fillvalue'] = 'x'
+        # outer is 1100km
+        #self.swath_width_km = 1000         #the real number is?
+        self.pathnameformat = ''
+        self.interpolation_radius_of_influence = 25000
+        #self.data_types = {}
+
+class SMAPSensorInfo(SensorInfo):
+    def _set_sensor_atts(self):
+        # This must match appropriate DataFileName class name in utils/path/datafilename.py
+        # SMAP_winds_RSS_20190124
+        self.OrigFName['cls'] = 'SMAPFileName'
+        self.OrigFName['nameformat'] = '<satname>_<stuff1>_<stuff2>_<data{%Y%m%d}>'
+        self.OrigFName['fieldsep'] = '_'
+        self.OrigFName['fillvalue'] = 'x'
+        # outer is 1100km
+        self.swath_width_km = 1000         #the real number is?
+        self.pathnameformat = ''
+        self.interpolation_radius_of_influence = 25000
+        #self.data_types = {}
 
 class SMOSSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
@@ -2060,6 +2123,7 @@ SensorInfo_classes = {
         'smos':  SMOSSensorInfo,
         'windsat':  WINDSATSensorInfo,
         'saphir': SAPHIRSensorInfo,
+        'smap-spd':  SMAPSensorInfo,
         'ssmi':  SSMISensorInfo,
         'ssmis':  SSMISSensorInfo,
         'ols':  OLSSensorInfo,
@@ -2074,6 +2138,7 @@ SensorInfo_classes = {
         'tpw_cira': TPWSensorInfo,
         'tpw_mimic': TPWMIMICSensorInfo,
         'viirs': VIIRSSensorInfo,
+        'merged': MULTISensorInfo,
         }
 
 
@@ -2098,6 +2163,8 @@ SatInfo_classes = {
         'goesE': GOESESatInfo,
         'goes16': GOES16SatInfo,
         'G16': GOES16SatInfo,
+        'goes17': GOES17SatInfo,
+        'G17': GOES17SatInfo,
         'goesW': GOESWSatInfo,
         'gpm': GPMSatInfo,
         # Note I changed reader to use h8 explicitly rather than himawari-8
@@ -2113,6 +2180,7 @@ SatInfo_classes = {
         'nrljc': NRLJCSatInfo,
         'proteus': PROTEUSSatInfo,
         'meteoIO': ME8SatInfo,
+        # THIS MUST BE CHANGED IF SATELLITE CHANGES. Everything else can be generalized
         'meteoEU': ME11SatInfo,
         'me10': ME10SatInfo,
         'me11': ME11SatInfo,
@@ -2134,6 +2202,7 @@ SatInfo_classes = {
         'm2a': M2ASatInfo,
         'multi': MULTISatInfo,
         'navgem': NAVGEMSatInfo,
+        'smap': SMAPSatInfo,
         'windvectors': WindVectorsSatInfo,
         'terra': TERRASatInfo,
         'trmm': TRMMSatInfo,

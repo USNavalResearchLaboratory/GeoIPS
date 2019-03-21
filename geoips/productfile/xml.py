@@ -69,10 +69,10 @@ class XMLProductFile(object):
             for prod in self.iterproducts():
                 self._sources = {}
                 for source_name, source in prod.sources.items():
-                    if not sources.has_key(source_name):
+                    if not self._sources.has_key(source_name):
                         self._sources[source_name] = source
                     else:
-                        self._sources[source_name] = sources[source_name].merge(source)
+                        self._sources[source_name] = self._sources[source_name].merge(source)
         return self._sources
 
     # This is ONLY used for multisource methods.  It is it's own separate thing, handled 
@@ -85,10 +85,10 @@ class XMLProductFile(object):
             for prod in self.iterproducts():
                 self._productlayers = {}
                 for productlayer_name, productlayer in prod.productlayers.items():
-                    if not productlayers.has_key(productlayer_name):
+                    if not self._productlayers.has_key(productlayer_name):
                         self._productlayers[productlayer_name] = productlayer
                     else:
-                        self._productlayers[productlayer_name] = productlayers[productlayer_name].merge(productlayer)
+                        self._productlayers[productlayer_name] = self._productlayers[productlayer_name].merge(productlayer)
         return self._productlayers
 
 
@@ -403,6 +403,16 @@ class Product(object):
         return self._day_ngt
 
     @property
+    def max_sat_zen_ang(self):
+        if not hasattr(self, '_max_sat_zen_ang'):
+            self._max_sat_zen_ang= self.product_args.find('max_sat_zen_ang')
+            try:
+                self._max_sat_zen_ang= self._max_sat_zen_ang.pyval
+            except AttributeError:
+                self._max_sat_zen_ang = 90
+        return self._max_sat_zen_ang
+
+    @property
     def day_ang(self):
         if not hasattr(self, '_day_ang'):
             self._day_ang = self.product_args.find('max_day_zen_ang')
@@ -694,7 +704,7 @@ class Image(object):
             self._best_possible_pixel_height = None
             best_possible_pixel_height = self.node.find('best_possible_pixel_height')
             if best_possible_pixel_height:
-                self._best_possible_pixel_height = best_possible_pixel_height_
+                self._best_possible_pixel_height = best_possible_pixel_height
         return self._best_possible_pixel_height
 
     @property

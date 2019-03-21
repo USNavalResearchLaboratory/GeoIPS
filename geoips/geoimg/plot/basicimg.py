@@ -82,7 +82,7 @@ class BasicImg(GeoImgBase):
                 if 'start_' in sttag:
                     tag = sttag.replace('start_','')
                     try:
-                        log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag])+' '+socket.gethostname())
+                        log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag]))
                     except:
                         log.info('WARNING! No end time for '+sttag)
         return self._image

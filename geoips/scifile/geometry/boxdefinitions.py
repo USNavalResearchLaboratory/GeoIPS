@@ -1244,6 +1244,7 @@ class PlanarPolygonDefinition(CoordinateDefinition):
         corners = self.corners
 
         if isinstance(point, tuple):
+            from pyresample.spherical_geometry import Coordinate
             retval = planar_point_inside(Coordinate(*point), corners)
         else:
             retval = planar_point_inside(point, corners)

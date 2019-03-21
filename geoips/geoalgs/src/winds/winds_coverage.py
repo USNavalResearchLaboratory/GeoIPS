@@ -17,6 +17,6 @@ def winds_coverage(gi, imgkey=None):
     different data array in the dictionary...
     '''
     if imgkey:
-        return gi[imgkey]['datafile'].datasets[imgkey].variables['direction'].size
+        return gi[imgkey]['datafile'].datasets[imgkey].variables['speed_ms'].size
     return 100
          

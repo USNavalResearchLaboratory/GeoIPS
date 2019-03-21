@@ -969,36 +969,41 @@ def write_single_dynamic_xml_file(sector, force_update=False):
 
     write_sector = True
     #print dynamic_sectorfile.name
+    ######## MLS 20190227 Turning off automatic recreation of dynamic sectorfiles - need to come up with another method
+    ########              for storing the "master list" of dynamic sectors, do not store as our xml format as that may
+    ########              change
     if os.path.exists(dynamic_sectorfile.name):
-        #shell()
-        # If you really want to replace the base path in the template with your own location - really just for testing
-        # purposes.
-        if os.getenv('GEOIPS_TEMPLATE_REPLACE') and os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH') \
-            and os.stat(dynamic_sectorfile.name).st_uid == os.getuid() \
-            and os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH') not in sector.source_info.sourcetemplate:
-            dynamic_templatefname = \
-                sector.source_info.sourcetemplate.replace(os.getenv('GEOIPS_TEMPLATE_REPLACE'),os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH'))
-        elif not os.path.exists(sector.source_info.sourcetemplate):
-            bname = os.path.basename(sector.source_info.sourcetemplate)
-            for tpath in plugins.paths['TEMPLATEPATHS']:
-                if os.path.exists(tpath):
-                    dynamic_templatefname = tpath+'/'+bname
-            log.info('    sourcetemplate did not exist. REPLACING'+sector.source_info.sourcetemplate+' WITH '+dynamic_templatefname)
-        else:
-            dynamic_templatefname = sector.source_info.sourcetemplate
-        dynamic_sf_timestamp = datetime.fromtimestamp(os.stat(dynamic_sectorfile.name).st_mtime)
-        dynamic_template_timestamp = datetime.fromtimestamp(os.stat(dynamic_templatefname).st_mtime)
-        log.info(str(dynamic_sf_timestamp)+' template: '+str(dynamic_template_timestamp)+' '+str(dynamic_templatefname))
-        if dynamic_sf_timestamp < dynamic_template_timestamp:
-            log.interactive('DYNAMIC SECTORFILE IS OUT OF DATE COMPARED WITH DYNAMIC TEMPLATE! Reproduce '+dynamic_sectorfile.name+' '+dynamic_templatefname)
-            log.interactive('source line: '+sector.source_info.sourceline)
-            log.interactive('dynamic_sf_timestamp: '+str(dynamic_sf_timestamp)+' dynamic_template_timestamp: '+str(dynamic_template_timestamp))
-            sectors = parse_dynamic_entry(sector.source_info.sourceline,
-                        dynamic_templatefname,
-                        os.path.expandvars(sector.source_info.sourceflattextfile),
-                        sector.dynamic_datetime)
-        else:
-            write_sector = False
+        write_sector = False
+    ########if os.path.exists(dynamic_sectorfile.name):
+    ########    #shell()
+    ########    # If you really want to replace the base path in the template with your own location - really just for testing
+    ########    # purposes.
+    ########    if os.getenv('GEOIPS_TEMPLATE_REPLACE') and os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH') \
+    ########        and os.stat(dynamic_sectorfile.name).st_uid == os.getuid() \
+    ########        and os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH') not in sector.source_info.sourcetemplate:
+    ########        dynamic_templatefname = \
+    ########            sector.source_info.sourcetemplate.replace(os.getenv('GEOIPS_TEMPLATE_REPLACE'),os.getenv('GEOIPS_TEMPLATE_REPLACE_WITH'))
+    ########    elif not os.path.exists(sector.source_info.sourcetemplate):
+    ########        bname = os.path.basename(sector.source_info.sourcetemplate)
+    ########        for tpath in plugins.paths['TEMPLATEPATHS']:
+    ########            if os.path.exists(tpath):
+    ########                dynamic_templatefname = tpath+'/'+bname
+    ########        log.info('    sourcetemplate did not exist. REPLACING'+sector.source_info.sourcetemplate+' WITH '+dynamic_templatefname)
+    ########    else:
+    ########        dynamic_templatefname = sector.source_info.sourcetemplate
+    ########    dynamic_sf_timestamp = datetime.fromtimestamp(os.stat(dynamic_sectorfile.name).st_mtime)
+    ########    dynamic_template_timestamp = datetime.fromtimestamp(os.stat(dynamic_templatefname).st_mtime)
+    ########    log.info(str(dynamic_sf_timestamp)+' template: '+str(dynamic_template_timestamp)+' '+str(dynamic_templatefname))
+    ########    if dynamic_sf_timestamp < dynamic_template_timestamp:
+    ########        log.interactive('DYNAMIC SECTORFILE IS OUT OF DATE COMPARED WITH DYNAMIC TEMPLATE! Reproduce '+dynamic_sectorfile.name+' '+dynamic_templatefname)
+    ########        log.interactive('source line: '+sector.source_info.sourceline)
+    ########        log.interactive('dynamic_sf_timestamp: '+str(dynamic_sf_timestamp)+' dynamic_template_timestamp: '+str(dynamic_template_timestamp))
+    ########        sectors = parse_dynamic_entry(sector.source_info.sourceline,
+    ########                    dynamic_templatefname,
+    ########                    os.path.expandvars(sector.source_info.sourceflattextfile),
+    ########                    sector.dynamic_datetime)
+    ########    else:
+    ########        write_sector = False
     #print write_sector
     if force_update or write_sector:
         #log.debug('write_sector')
