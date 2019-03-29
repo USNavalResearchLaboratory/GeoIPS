@@ -2028,7 +2028,7 @@ class MODISFileName(StandardDataFileName):
         format (look at a field within the filename to determine which
         data type it actually is
         '''
-        if hasattr(self, 'datatype') and 'MOD' in self.datatype:
+        if hasattr(self, 'datatype') and ('MOD' in self.datatype or 'MYD' in self.datatype):
             return True
         else:
             return False
