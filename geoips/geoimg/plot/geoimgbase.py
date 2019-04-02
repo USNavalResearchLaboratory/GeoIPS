@@ -573,9 +573,11 @@ class GeoImgBase(object):
                                 
                 vdataset = DataSet(dsname,variables=variables,copy=False)
                 gdataset = DataSet(dsname,geolocation_variables=geolocation_variables,copy=False)
-                self.datafile.delete_dataset(dsname)
+                old_metadata = self.datafile.metadata.copy()
+                self._datafile = SciFile()
                 self.datafile.add_dataset(vdataset,copy=False)
                 self.datafile.add_dataset(gdataset,copy=False)
+                self.datafile.metadata = old_metadata
 
 
             #log.info('In def merge')
