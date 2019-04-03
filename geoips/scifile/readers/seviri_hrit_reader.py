@@ -544,9 +544,27 @@ class SEVIRI_HRIT_Reader(Reader):
 
             metadata['datavars'][adname][chan.name]['wavelength'] = float(annotation_metadata[chan.band]['band'][3:5]+'.'+annotation_metadata[chan.band]['band'][5:])
 
+        gvars[adname]['Latitude'] = np.ma.masked_less_equal(gvars[adname]['Latitude'], -999)
+        toplat = gvars[adname]['Latitude'][np.ma.where(gvars[adname]['Latitude'])][0]
+        bottomlat = gvars[adname]['Latitude'][np.ma.where(gvars[adname]['Latitude'])][-1]
+
         for var in gvars[adname].keys():
-            gvars[adname][var] = np.ma.masked_less_equal(np.flipud(gvars[adname][var]), -999)
+
+            if toplat < bottomlat:
+                gvars[adname][var] = np.ma.masked_less_equal(np.flipud(gvars[adname][var]), -999)
+            else:    
+                gvars[adname][var] = np.ma.masked_less_equal(gvars[adname][var], -999)
+
+            if 'SatZenith' in gvars[adname].keys():
+                gvars[adname][var] = np.ma.masked_where(gvars[adname]['SatZenith'] > 75, gvars[adname][var])
+
         for var in datavars[adname].keys():
-            datavars[adname][var] = np.ma.masked_less_equal(np.flipud(datavars[adname][var]), -999)
+
+            if toplat < bottomlat:
+                datavars[adname][var] = np.ma.masked_less_equal(np.flipud(datavars[adname][var]), -999)
+            else:    
+                datavars[adname][var] = np.ma.masked_less_equal(datavars[adname][var], -999)
+
             if 'SatZenith' in gvars[adname].keys():
                 datavars[adname][var] = np.ma.masked_where(gvars[adname]['SatZenith'] > 75, datavars[adname][var])
+        
