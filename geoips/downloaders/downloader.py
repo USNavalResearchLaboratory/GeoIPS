@@ -333,6 +333,7 @@ def downloader(data_type,
                                  job_limits_RandQ=job_limits_RandQ,
                                  give_up_time=max_wait_seconds,
                                  max_total_jobs=max_total_jobs,
+                                 max_user_jobs=max_user_jobs,
                                 )
 
                 if queue_ready == False:
