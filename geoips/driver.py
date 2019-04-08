@@ -119,11 +119,11 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
         # rcj20190130 make sure that the platform name in the scifile object is in the allowed platforms i
         # nformation from the sector before running the sector
         sourceName = data_file._finfo['source_name'].lower()
-        if (str(data_file._finfo['platform_name']).lower() in curr_sector.sources.sources_dict[sourceName]['allowed_platforms'].lower()) or curr_sector.sources.sources_dict[sourceName]['allowed_platforms'].lower() == 'all':
+        if sourceName in curr_sector.sources.sources_dict and ((str(data_file._finfo['platform_name']).lower() in curr_sector.sources.sources_dict[sourceName]['allowed_platforms'].lower()) or curr_sector.sources.sources_dict[sourceName]['allowed_platforms'].lower() == 'all'):
             runTheSector = True
         else:
             runTheSector = False
-            LOG.info('{0} is not an allowed platform for {2} sector.  Allowed platforms: [ {1} ].  {2} sector was not processed.'.format(str(data_file._finfo['platform_name']).lower(),curr_sector.sources.sources_dict[sourceName]['allowed_platforms'].lower(),curr_sector.name))
+            LOG.info('{1} sector was not processed.  Check that {0} is in the allowed platforms as defined in the sector file, and make sure the source_name [ {2} ] is in the sources_dict [ {3} ].'.format(str(data_file._finfo['platform_name']).lower(),curr_sector.name,sourceName,curr_sector.sources.sources_dict))
         
         if runTheSector:
             try:
