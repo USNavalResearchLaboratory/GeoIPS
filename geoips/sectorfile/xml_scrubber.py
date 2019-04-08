@@ -397,7 +397,10 @@ class scrubber(XMLInstance):
         self.ignore_dirs = self.node.xpath('ignore_dir')
         self.run_hours = self.node.xpath('run_hour')
         self.run_days_of_week = self.node.xpath('run_day_of_week')
-
+        try:
+            self.delete_symlink_only = self.node.xpath('delete_symlink_only')
+        except:
+            self.delete_symlink_only = 'False'
 
     @property
     def recursive(self):
@@ -533,7 +536,10 @@ class scrubber(XMLInstance):
         ########################################################################
         for currpath in self.paths:
             currpath = os.path.expandvars(str(currpath))
-            deletefilescall = '/usr/bin/find '+currpath+' '+ignore_str+' -user '+self.currentuser+' -type f '+file_age_string+' -print0 | xargs -0 rm -vf ' 
+            if self.delete_symlink_only == 'True':
+                deletefilescall = '/usr/bin/find '+currpath+' '+ignore_str+' -user '+self.currentuser+' -type l '+file_age_string+' -print0 | xargs -0 rm -vf '
+            else:
+                deletefilescall = '/usr/bin/find '+currpath+' '+ignore_str+' -user '+self.currentuser+' -type f '+file_age_string+' -print0 | xargs -0 rm -vf ' 
             log.info('\n\nRunning find command on \''+self.name+'\'...'+
                      '\n'+asterisks+'FILES'+asterisks+'\n'+deletefilescall+'\n'+asterisks+'FILES'+asterisks) 
             log.info('Current day of week: '+self.start_dt.strftime('%A'))
