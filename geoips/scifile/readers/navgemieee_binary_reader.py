@@ -75,7 +75,7 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
         if not bin_format_test(fname):
             return False
 
-        if 'glob' in fname:
+        if 'glob720x361' in fname or 'global_720x361' in fname:
             return True
         #return False
         
