@@ -50,7 +50,7 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
                               'cte_sa':'cte_sa',
                               'rh':'relhum',     # Relative Humidity
                               'vpress':'vpress', # Vapor Pressure
-                              'dwptdp':'dwptdp', # Dew Point Depression
+                              'dp':'dwptdp', # Dew Point Depression
                               'geoph':'geopht',  # Geopotential Height
                             },
                    }
