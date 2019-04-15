@@ -50,7 +50,7 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
                               'cte_sa':'cte_sa',
                               'rh':'relhum',     # Relative Humidity
                               'vpress':'vpress', # Vapor Pressure
-                              'dwptdp':'dwptdp', # Dew Point Depression
+                              'dp':'dwptdp', # Dew Point Depression
                               'geoph':'geopht',  # Geopotential Height
                             },
                    }
@@ -75,7 +75,7 @@ class NAVGEMIEEE_BINARY_Reader(Reader):
         if not bin_format_test(fname):
             return False
 
-        if 'glob' in fname:
+        if 'glob720x361' in fname or 'global_720x361' in fname:
             return True
         #return False
         

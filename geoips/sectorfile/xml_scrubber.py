@@ -400,7 +400,7 @@ class scrubber(XMLInstance):
         try:
             self.delete_symlink_only = self.node.xpath('delete_symlink_only')
         except:
-            self.delete_symlink_only = 'False'
+            self.delete_symlink_only = ['False']
 
     @property
     def recursive(self):
@@ -536,7 +536,7 @@ class scrubber(XMLInstance):
         ########################################################################
         for currpath in self.paths:
             currpath = os.path.expandvars(str(currpath))
-            if self.delete_symlink_only == 'True':
+            if self.delete_symlink_only == "['True']":
                 deletefilescall = '/usr/bin/find '+currpath+' '+ignore_str+' -user '+self.currentuser+' -type l '+file_age_string+' -print0 | xargs -0 rm -vf '
             else:
                 deletefilescall = '/usr/bin/find '+currpath+' '+ignore_str+' -user '+self.currentuser+' -type f '+file_age_string+' -print0 | xargs -0 rm -vf ' 
