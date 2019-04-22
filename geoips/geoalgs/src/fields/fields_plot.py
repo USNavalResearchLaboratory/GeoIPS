@@ -2,63 +2,81 @@
 
 # Installed Libraries
 import logging
+from matplotlib import cm, colors
+import numpy as np
 
 # GeoIPS Libraries
+from geoips.utils.normalize import normalize
+from .winds_plot import set_winds_plotting_params
+from geoips.utils.gencolormap import get_cmap
+from .winds_utils import thin_arrays, uv2spd
 
 log = logging.getLogger(__name__)
+
+prodnames = {'dwptdp': 'Dew_Point_Depression',
+             'vpress': 'Vapor_Pressure',
+             'pottmp': 'Potential_Temperature',
+             'av':     'Absolute_Vorticity',
+             'cmr':    'Cloud_Mixing_Ratio',
+             'geoph':  'Geopotential_Height',
+             'rh':     'Relative_Humidity',
+             'temp':   'Temperature',
+             'uwind':  'U_Component_of_Wind',
+             'vwind':  'V_Component_of_Wind',
+             'vv':     'Vertical_Velocity',
+             'Winds':     'Winds',
+             }
 
 
 def fields_plot(gi, imgkey=None):
 
     if not imgkey:
         return
-
-    #log.info('Setting up fig and ax for dataset: %s with bgname: %s'%(prodname, bgname))
-    #set_winds_plotting_params(gi, speeddata, None, None, platform=ds.platform_name, source=ds.source_name,
-    #            prodname=prodname, bgname=bgname,
-    #            start_dt=ds.start_datetime, end_dt=ds.end_datetime)
-
-    #log.info('Plotting imgkey: %s dataset: %s'%(imgkey,ds.name))
-
-    #cmap = None
-    #if fg is not None:
-    #    log.info('Plotting layer %s, %0.2f coverage'%(fg.name, 1.0*np.ma.count(fg) / fg.size ))
-    #    colormapper = cm.ScalarMappable(
-    #                norm=gi.colorbars[0].norm,
-    #                cmap=gi.colorbars[0].cmap)
-    #    currimg = colormapper.to_rgba(fg)
-    #    # imshow expects upside down arrays
-    #    gi.basemap.imshow(np.flipud(currimg),
-    #                ax=gi.axes, 
-    #                norm=gi.colorbars[0].norm,
-    #                interpolation='nearest')
-    #
-    #if bg is not None:
-    #    log.info('Plotting layer %s, %0.2f coverage'%(bg.name, 1.0*np.ma.count(bg) / bg.size))
-    #    bgcmap = 'Greys'
-    #    cfg = motion_config(bg.source_name)
-    #    if bg.dataprovider in cfg.keys() \
-    #        and 'plot_params' in cfg[bg.dataprovider].keys() \
-    #        and bgparams in cfg[bg.dataprovider]['plot_params'].keys() \
-    #        and 'cmap' in cfg[bg.dataprovider]['plot_params'][bgparams].keys():
-    #        bgcmap = cfg[bg.dataprovider]['plot_params'][bgparams]['cmap']
-    #    colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap(bgcmap))
-    #    currimg = colormapper.to_rgba(normalize(bg))
-    #    # imshow expects upside down arrays
-    #    gi.basemap.imshow(np.flipud(currimg),ax=gi.axes, interpolation='nearest')
-
-    #if speedthin is not None:
-
-    #    log.info('Plotting %0.2f barbs, %0.2f coverage'%(speedthin.size, 1.0*np.ma.count(speedthin) / speedthin.size))
-
-    #    gi.basemap.barbs(lonsthin.data,latsthin.data,uthin,vthin,speedthin,ax=gi.axes,
-    #                    cmap=gi.colorbars[0].cmap,
-    #                    sizes=dict(height=0.8, spacing=0.3),
-    #                    norm=gi.colorbars[0].norm,
-    #                    linewidth=2,
-    #                    length=5,
-    #                    latlon=True,
-    #                    )
+    varname, lev, sectname = imgkey.split('_')
+    prod_display_name = varname
+    if varname in prodnames.keys():
+        prod_display_name = prodnames[varname]
+    prodname = '{0} at {1} mb'.format(prod_display_name, lev)
+    bgname = None
+    dataset = gi.image[imgkey]
+    
+    if varname == 'Winds':
+        log.info('Setting up fig and ax for dataset: %s with bgname: %s' % (prodname, bgname))
+        u_kts = dataset.variables['uwind'+lev]
+        v_kts = dataset.variables['vwind'+lev]
+        numvecs = np.ma.count(u_kts)
+        maxvecs = 4000
+        speed_kts, direc_deg = uv2spd(u_kts, v_kts)
+        lons = dataset.geolocation_variables['Longitude']
+        lats = dataset.geolocation_variables['Latitude']
+        [u_kts, v_kts, lats, lons, speed_kts] = thin_arrays(numvecs, max_points=maxvecs,
+                                                            arrs=[u_kts, v_kts, lats, lons, speed_kts])
+        set_winds_plotting_params(gi, speed_kts, pressure=None, altitude=None,
+                                  platform=dataset.platform_name, source=dataset.source_name,
+                                  prodname=prodname, bgname=bgname,
+                                  start_dt=dataset.start_datetime, end_dt=dataset.end_datetime,
+                                  ticks_vals=None, listed_colormap_vals=None)
+        gi.basemap.barbs(lons.data, lats.data,
+                         u_kts, v_kts, speed_kts,
+                         ax=gi.axes,
+                         cmap=gi.colorbars[0].cmap,
+                         sizes=dict(height=1, spacing=0.5),
+                         norm=gi.colorbars[0].norm,
+                         linewidth=0.5,
+                         length=5,
+                         latlon=True)
+    else:
+        set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None,
+                                  platform=dataset.platform_name, source=dataset.source_name,
+                                  prodname=prodname, bgname=bgname,
+                                  start_dt=dataset.start_datetime, end_dt=dataset.end_datetime,
+                                  ticks_vals=None, listed_colormap_vals=None)
+        cmapname = 'tropix_no_white'
+        plotdata = dataset.variables[varname+lev]
+        interp = 'sinc'
+        log.info('Using interpolation %s', interp)
+        # imshow expects upside down arrays
+        gi.basemap.imshow(np.flipud(plotdata), ax=gi.axes, cmap=get_cmap(cmapname), interpolation=interp)
 
     if gi.is_final:
         gi.finalize()

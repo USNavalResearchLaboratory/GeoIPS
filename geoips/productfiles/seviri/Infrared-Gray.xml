@@ -11,7 +11,7 @@
 <product method="basic" name="Infrared-Gray">
     <basic_args>
         <source name='seviri'>
-            <var>B09BT</var> <!--11.2um  B14 ABI   IR_108 10.8um MSG IR Longwave Window band, IR                                  -->
+            <var zenith='no'>B09BT</var> <!--11.2um  B14 ABI   IR_108 10.8um MSG IR Longwave Window band, IR                                  -->
         </source>
         <img>
             <equation>B09BT</equation>
@@ -24,7 +24,6 @@
         </img>
         <day_night>both</day_night>
         <cmap>Greys</cmap>
-        <max_sat_zen_ang>84</max_sat_zen_ang>
         <coastcolor>255 180 0</coastcolor>
         <gridcolor>255 180 0</gridcolor>
     </basic_args>

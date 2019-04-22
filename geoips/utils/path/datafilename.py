@@ -647,7 +647,10 @@ class StandardAuxDataFileName(FileName):
 
         if xf.extdatatype in ['elevation','emissivity']:
             xf.longterm_or_intermediate = 'longterm_files'
-            xf.extdatacategory = 'geoalgs_data'
+            #rcj20190319 after establishing a new source for elevation data this path/filename maker needed updating
+            #geoalgs_data is no longer in the path
+            #xf.extdatacategory = 'geoalgs_data'
+            xf.extdatacategory = 'ancildat'
         elif xf.extdatatype in ['basemap']:
             xf.longterm_or_intermediate = 'longterm_files'
             xf.extdatacategory = 'pickles'
@@ -2014,6 +2017,22 @@ class MeghaTropiquesFileName(StandardDataFileName):
 ###################################################
 class MODISFileName(StandardDataFileName):
 
+    def istype(self):
+        '''
+        istype method is called after successfully matching a filename
+        format.  If istype returns True (default in StandardDataFileName),
+        use the current class.
+        If istype returns false, continue checking additional filename
+        formats.  Override istype method in subclasses (ie MEgha..FileName)
+        if there are more than one data types with the same filename
+        format (look at a field within the filename to determine which
+        data type it actually is
+        '''
+        if hasattr(self, 'datatype') and ('MOD' in self.datatype or 'MYD' in self.datatype):
+            return True
+        else:
+            return False
+
     def set_fields(self,df,wildcards=False,scifile_obj=None):
 
         #print 'set_fields in MODISFileName'
@@ -2148,6 +2167,53 @@ class SMAPFileName(StandardDataFileName):
         df.channel = self.get_fillvalue()
         df.extra = self.get_fillvalue()
         df.area = self.get_fillvalue()
+
+        return df
+
+class NAVGEMIEEEFileName(StandardDataFileName):
+
+    def istype(self):
+        ''' 
+        istype method is called after successfully matching a filename
+        format.  If istype returns True (default in StandardDataFileName), 
+        use the current class.
+        If istype returns false, continue checking additional filename
+        formats.  Override istype method in subclasses (ie NAVGEMIEEEFileName)
+        if there are more than one data types with the same filename
+        format (look at a field within the filename to determine which
+        data type it actually is
+        relhum_pre_0500.0_0000.0_glob720x361_2019022006_00020000_fcstfld
+        '''
+        #print 'in istype'
+
+        if 'fcstfld' == self.fcstfld:
+            return True
+        else:
+            return False
+
+    def set_fields(self, df, wildcards=False, scifile_obj=None):
+
+        # print 'in NAVGEMFileName set_fields'
+        # relhum_pre_0500.0_0000.0_glob720x361_2019022006_00040000_fcstfld
+
+        # See utils/satellite_info.py for these fields
+        #print self.SYYYYJJJ[1:8]
+        df.datetime = self.datetime
+        dt_strs = df.set_datetime_str() 
+        for dt_field in dt_strs.keys():
+            setattr(df, dt_field, dt_strs[dt_field])
+        df.dataprovider = 'ieee'
+        df.producttype = self.varname
+        tau = int(self.tau) / 10000
+        df.resolution = 'tau%02d' % (tau)
+        df.sensorname = 'navgem'
+        df.satname = 'model'
+        df.scifile_source = df.sensorname
+        df.channel = 'navgem'
+        lev = float(self.level)
+        df.extra = 'lev%0.1f' % (lev)
+        df.area = 'global'
+        df.ext = 'bin'
 
         return df
 

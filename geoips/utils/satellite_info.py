@@ -1567,6 +1567,8 @@ class WINDSSensorInfo(SensorInfo):
 class MODELSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
         self.interpolation_radius_of_influence = 56000
+        self.OrigFName['base_dir'] = os.path.join(gpaths['GEOIPS_OUTDIRS'],
+                                                  'data', 'incoming')
         # This must match appropriate DataFileName class name in utils/path/datafilename.py
         # US058GCOM-GR1mdl.0018_0056_03300F0OF2017020206_0001_000000-000000grnd_sea_temp
         # US058GCOM-GR1dyn.COAMPS-NEPAC_NEPAC-n2-a1_01800F0NL2017010112_0001_000000-000000grnd_sea_temp
@@ -1574,6 +1576,8 @@ class MODELSensorInfo(SensorInfo):
         OrigFName2 = self.OrigFName.copy()
         OrigFName3 = self.OrigFName.copy()
         OrigFName4 = self.OrigFName.copy()
+        OrigFName5 = self.OrigFName.copy()
+        OrigFName6 = self.OrigFName.copy()
         OrigFName['cls'] = 'NAVGEMGribFileName'
         OrigFName['nameformat'] = '<stuff1>_<stuff2>_<date{%!%!%!%!%!%!%!%!%!%Y%m%d%H}>_<stuff3>_<product1>_<product2>'
         OrigFName['fieldsep'] = '_'
@@ -1594,20 +1598,22 @@ class MODELSensorInfo(SensorInfo):
         OrigFName4['fieldsep'] = '_'
         OrigFName4['fillvalue'] = 'x'
         OrigFName4['noextension'] = True
-        self.OrigFNames = [OrigFName, OrigFName2, OrigFName3, OrigFName4]
+        OrigFName5['cls'] = 'NAVGEMIEEEFileName'
+        # relhum_pre_0550.0_0000.0_glob720x361_2019022006_00000000_fcstfld
+        OrigFName5['nameformat'] = '<varname>_<leveltype>_<level>_<zeros>_<shape>_<date{%Y%m%d%H}>_<tau>_<fcstfld>'
+        OrigFName5['fieldsep'] = '_'
+        OrigFName5['fillvalue'] = 'x'
+        OrigFName5['noextension'] = True
+        self.OrigFNames = [OrigFName, OrigFName2, OrigFName3, OrigFName4, OrigFName5]
         self.FName['runfulldir'] = True
         if os.getenv('SATDATROOT'):
             #print 'setting base_dir in setSensorInfoAtts'
             self.FName['base_dirs'] = [os.getenv('SATDATROOT')]
         # resolution is the tau, extra is the level
         self.pathnameformat = os.path.join('<satname>', '<sensorname>',
-                                           '<area>','<date{%Y%m%d%H}>',
+                                           '<area>', '<date{%Y%m%d%H}>',
                                            '<resolution>-<extra>')
-        #self.num_lines = 2030
-        #self.num_samples = 1354
-        #self.mins_per_file = 60
-        #self.FName['base_dirs'] = [os.getenv('SATDATROOT') + '/amsub/global']
-        #self.pathnameformat = ''
+                                           #'<resolution>')
 
 class ICAPSensorInfo(SensorInfo):
     def _set_sensor_atts(self):
@@ -1802,7 +1808,7 @@ class SMAPSensorInfo(SensorInfo):
         # This must match appropriate DataFileName class name in utils/path/datafilename.py
         # SMAP_winds_RSS_20190124
         self.OrigFName['cls'] = 'SMAPFileName'
-        self.OrigFName['nameformat'] = '<satname>_<stuff1>_<stuff2>_<data{%Y%m%d}>'
+        self.OrigFName['nameformat'] = '<satname>_<stuff1>_<stuff2>_<date{%Y%m%d}>'
         self.OrigFName['fieldsep'] = '_'
         self.OrigFName['fillvalue'] = 'x'
         # outer is 1100km

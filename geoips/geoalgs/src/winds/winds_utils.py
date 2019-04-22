@@ -103,8 +103,10 @@ def get_pressure_levels(pres, arrays, pressure_cutoffs=[0, 400, 800, 1014], retu
 
     return levArrays
 
-def thin_arrays(num_points, max_points=None, arrs=[], maskInds = False):
+def thin_arrays(num_points, max_points=None, arrs=[], maskInds=False, sector=None):
 
+    if sector is not None:
+        from IPython import embed as shell; shell()
 
 #    if not max_points:
 #        thinvalue = 5
@@ -138,8 +140,6 @@ def thin_arrays(num_points, max_points=None, arrs=[], maskInds = False):
         thinval = int(num_points / max_points)
     retarrs = []
 
-    if thinval == 1:
-        return arrs
 
     # If we are masking the supplied indices in place within the passed arrs, 
     # thin as requested and mask the thinned values.
@@ -154,13 +154,17 @@ def thin_arrays(num_points, max_points=None, arrs=[], maskInds = False):
             log.info('        Number unmasked after thinning {1}: {0}'.format(np.ma.count(arr), arr.name))
         return arrs
 
+    # Only want to return original array if maskInds was not passed
+    if thinval == 1:
+        return arrs
+
     # If we are returning a smaller array, thin and return smaller arrays
     try:
         for arr in arrs:
             newthinval = int(math.sqrt(thinval))
-            log.info('Thinning 2D array {3}: orig {0} points, by thin value {1} to new {2} points'.format(
-                     num_points, newthinval, max_points, arr.name))
             retarrs += [arr[::newthinval, ::newthinval]]
+            log.info('Thinned 2D array {3}: orig {0} points, by thin value {1} to new {2} points'.format(
+                     num_points, newthinval, max_points, arr.name))
 			
     except IndexError:
         for arr in arrs:

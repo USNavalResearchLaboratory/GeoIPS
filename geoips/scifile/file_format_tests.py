@@ -53,9 +53,10 @@ def grib_format_test(fname):
             return False
         df = pg.open(fname)
         if df.messages:
+            df.close()
             return True
-        return False
         df.close()
+        return False
     except:
         return False
 
@@ -167,7 +168,7 @@ def hsd_format_test(fname):
 def bin_format_test(fname):
     # print 'Entering debug shell in scifile/readers/format_tests.py/bin_format_test'
     # shell()
-    if '.bin' not in fname and '.raw' not in fname:
+    if '.bin' not in fname and '.raw' not in fname and 'fcstfld' not in fname and 'fcst_' not in fname:
         return False
     out, err = Popen(['file', '--mime', str(fname)], stdout=PIPE, stderr=PIPE).communicate()
     if ('charset=ebdic' in out) or ('charset=binary' in out) or ('charset=ebcdic' in out):

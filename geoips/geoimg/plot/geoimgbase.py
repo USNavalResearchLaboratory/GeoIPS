@@ -513,14 +513,13 @@ class GeoImgBase(object):
                         other_width = otherimg.variables[othervar].shape[0]
                         self_width = self.datafile.variables[var].shape[0]
                         if other_width != self_width:
+                            # I do not know why we would be merging different shaped arrays, but for now, 
+                            # continue hstacking if this ever happens. Not sure how you would blend if they are 
+                            # different shapes, as you don't know which pixels line up....
                             if other_width > self_width:
                                 #If other is bigger, must pad self.                               
                                 pad_width = other_width - self_width
                                 pad_array = np.ma.masked_all((pad_width,self.datafile.variables[var].shape[1]))
-                                # failed attempt to properly union these arrays (spatially)
-                                #otherArray = otherimg.variables[othervar]
-                                #thisArrayPadded = np.ma.vstack((self.datafile.variables[var],pad_array))
-                                #data = np.ma.where(otherArray == False,otherArray,thisArrayPadded)
                                 data = np.ma.hstack(
                                     (otherimg.variables[othervar],
                                      np.ma.vstack((self.datafile.variables[var],pad_array))))                                
@@ -528,10 +527,6 @@ class GeoImgBase(object):
                                 #If self is bigger, must pad other.                               
                                 pad_width = self_width - other_width
                                 pad_array = np.ma.masked_all((pad_width,otherimg.variables[othervar].shape[1]))
-                                # failed attempt to properly union these arrays (spatially)
-                                #otherArrayPadded = np.ma.vstack((otherimg.variables[othervar],pad_array))
-                                #thisArray = self.datafile.variables[var]
-                                #data = np.ma.where(otherArrayPadded == False,otherArrayPadded,thisArray)
                                 data = np.ma.hstack(
                                     (np.ma.vstack((otherimg.variables[othervar],pad_array)),
                                      self.datafile.variables[var])
@@ -540,15 +535,17 @@ class GeoImgBase(object):
                         
                         
                         else:
-                            # failed attempt to properly union these arrays (spatially)
-                            # rcj20190118 merge the arrays with a preference for this data (should it be reversed?)
-                            #otherMaskedArray = otherimg.variables[othervar]
-                            #thisMaskedArray = self.datafile.variables[var]
-                            #data = np.ma.where(otherMaskedArray == False,otherMaskedArray,thisMaskedArray)
-                            data = np.ma.hstack(
-                                (otherimg.variables[othervar],
-                                 self.datafile.variables[var])
-                                )
+                            otherMask = otherimg.variables[othervar].mask
+                            # Please ignore flake8 - if you use otherMask is False, it does NOT work 
+                            data = np.ma.where(otherMask == False,
+                                               otherimg.variables[othervar],
+                                               self.datafile.variables[var])
+                            # At some point, instead of either-or here, we will blend the values if they are both
+                            # defined
+                            # thisMask = self.datafile.variables[var].mask
+                            # overlap_points = np.ma.where(np.ma.logical_and(otherMask == False, thisMask == False))
+                            # data[overlap_points] = (otherimg.variables[othervar][overlap_points]\
+                            #                         + self.datafile.variables[var][overlap_points]) / 2
                         varinfo = self.datafile.datasets[dsname].variables[var]._varinfo
                         variables += [Variable(var,data=data,_varinfo=varinfo,_nomask=False)]
 
@@ -557,41 +554,31 @@ class GeoImgBase(object):
                             log.info('    Trying to merge geolocation variable '+gvar)
                             if other_width != self_width:
                                 if other_width > self_width:
-                                    # failed attempt to properly union these arrays (spatially)
-                                    #otherArray = otherimg.datasets[dsname].geolocation_variables[gvar]
-                                    #thisArrayPadded = np.ma.vstack((self.datafile.datasets[dsname].geolocation_variables[gvar],pad_array))
-                                    #data = np.ma.where(otherArray == False,otherArray,thisArrayPadded)                                    
                                     data = np.ma.hstack(
                                                     (otherimg.datasets[dsname].geolocation_variables[gvar],
                                                     np.ma.vstack((self.datafile.datasets[dsname].geolocation_variables[gvar],pad_array)))
                                                     )
                                 else:
-                                    # failed attempt to properly union these arrays (spatially)
-                                    #otherArrayPadded = np.ma.vstack((otherimg.datasets[dsname].geolocation_variables[gvar],pad_array))
-                                    #thisArray = self.datafile.datasets[dsname].geolocation_variables[gvar]
-                                    #data = np.ma.where(otherArrayPadded == False,otherArrayPadded,thisArray)                                    
                                     data = np.ma.hstack(
                                                     (np.ma.vstack((otherimg.datasets[dsname].geolocation_variables[gvar],pad_array)),
                                                     self.datafile.datasets[dsname].geolocation_variables[gvar])
                                                     )
                             else:
-                                # failed attempt to properly union these arrays (spatially)
-                                #otherGvarArray = otherimg.datasets[dsname].geolocation_variables[gvar]
-                                #thisGvarArray = self.datafile.datasets[dsname].geolocation_variables[gvar]
-                                # rcj20190122 merge the arrays with a preference for this data (should it be reversed?)
-                                #data = np.ma.where(otherGvarArray == False,otherGvarArray,thisGvarArray)
-                                data = np.ma.hstack(
-                                                (otherimg.datasets[dsname].geolocation_variables[gvar],
-                                                self.datafile.datasets[dsname].geolocation_variables[gvar])
-                                                )
+                                otherMask = otherimg.geolocation_variables[gvar].mask
+                                # Please ignore flake8 - if you use otherMask is False, it does NOT work 
+                                data = np.ma.where(otherMask == False,
+                                                   otherimg.geolocation_variables[gvar],
+                                                   self.datafile.geolocation_variables[gvar])
                             varinfo = self.datafile.datasets[dsname].geolocation_variables[gvar]._varinfo
                             geolocation_variables += [Variable(gvar,data=data,_varinfo=varinfo,_nomask=False)]
                                 
                 vdataset = DataSet(dsname,variables=variables,copy=False)
                 gdataset = DataSet(dsname,geolocation_variables=geolocation_variables,copy=False)
-                self.datafile.delete_dataset(dsname)
+                old_metadata = self.datafile.metadata.copy()
+                self._datafile = SciFile()
                 self.datafile.add_dataset(vdataset,copy=False)
                 self.datafile.add_dataset(gdataset,copy=False)
+                self.datafile.metadata = old_metadata
 
 
             #log.info('In def merge')
@@ -992,8 +979,11 @@ class GeoImgBase(object):
             log.interactive(logstr+'Writing image file: '+geoips_product_filename.name)
             geoips_product_filename.set_processing()
 
-            self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
+            try:
+                self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
                             bbox_extra_artists=self.axes.texts, pad_inches=0.2, transparent=False)
+            except AttributeError:
+                log.exception('self.figure is None!  Can\'t Plot!')
             log.interactive('Done writing image file: '+geoips_product_filename.name)
             if geoips_product_filename.coverage > 90:
                 log.info('LATENCY: '+str(datetime.utcnow()-geoips_product_filename.datetime)+' '+gpaths['BOXNAME']+' '+geoips_product_filename.name)
@@ -1071,7 +1061,10 @@ class GeoImgBase(object):
         # but that is not going to work to begin with, so we'll have to readdress in the
         # future anyway.
         if self.is_final or not self.intermediate_data_output:
-            plt.close(self.figure)
+            try:
+                plt.close(self.figure)
+            except:
+                pass
 
     def coverage(self):
         '''Tests self.image to determine what percentage of the image is filled with good data.

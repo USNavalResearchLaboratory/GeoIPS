@@ -77,6 +77,14 @@ MODULECLEAN := $(patsubst %,clean_%,$(MODULES))
 VPATH := $(LIB) . $(MODULES)
 .PHONY: $(MODULES)
 
+test:
+	echo '--------------Modules'
+	echo $(MODULES)
+	echo '--------------Module Files'
+	echo $(MODULEFILES)
+	echo '--------------Clean'
+	echo $(MODULECLEAN)
+
 #Fortran compiler
 # LOCALFORTANLIB, LOCALFORTRANINC, and FORTRANLIBS 
 # are environment variables set in config shrc scripts.
@@ -178,7 +186,7 @@ lib%.so: %.F90
 	@echo ""
 
 .PHONY: clean
-clean: $(MODULECLEAN)
+clean: clean_init
 	@echo ""
 	@echo ""
 	@echo ""

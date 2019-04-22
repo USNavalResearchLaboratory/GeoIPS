@@ -1,5 +1,5 @@
 geoalgs Package
-=============
+===============
 
 :mod:`geoalgs` is a set of packages intended to apply various corrections to satellite data.
 Most of the code provided is written in `fortran90` and compiled using `numpy.f2py`
@@ -8,7 +8,7 @@ Although some special steps were taken in order to prepare each package for
 f2py, each package is useable as a pure fortran90 package.
 
 Configuring :mod:`geoalgs`
-------------------------
+--------------------------
 While most configuration is taken care of automatically in the build process, there are
 a couple of configuration issues that need to be taken care of prior to building :mod:`geoalgs`.
 
@@ -27,7 +27,7 @@ edited:
 * src/bldust/modis_bldust_constants.F90
 
 Building :mod:`geoalgs`
-----------------------
+-----------------------
 Building this package is as simple as calling "make" in the top level directory.
 To install in a different location, simply change directories to the location
 at which you wish to install the software, then run "<path_to_package>/make".
@@ -44,7 +44,7 @@ bin, include, and lib.  Please note the warning below.
     of the "smart" make procedures, where not all files produces are known a prioi.  
 
 Importing :mod:`geoalgs`
------------------------
+------------------------
 :mod:`geoalgs` can be imported in Python using the same syntax as any other Python package:
 
 .. code-block:: python

@@ -1346,8 +1346,8 @@ class DataSet(object):
 
         if hasattr(ad, 'pixel_size_x') and hasattr(ad, 'pixel_size_y'):
             if ad.pixel_size_x > roi or ad.pixel_size_y > roi:
-                log.info('        Using sector radius of influence: '+str(ad.pixel_size_x)+' or '+str(ad.pixel_size_y)+', not sensor/product: '+str(roi))
-                roi = ad.pixel_size_x if ad.pixel_size_x > ad.pixel_size_y else ad.pixel_size_y
+                log.info('        Using sector radius of influence: '+str(ad.pixel_size_x*1.5)+' or '+str(ad.pixel_size_y*1.5)+', not sensor/product: '+str(roi))
+                roi = ad.pixel_size_x * 1.5 if ad.pixel_size_x > ad.pixel_size_y else ad.pixel_size_y * 1.5
         # print_mem_usage('cont2beforeresample',True)
         # MLS 20160203 huge memory usage during resample, but comes back down
         #       to pre-dstack levels immediately after (can be >2x during)
