@@ -1366,6 +1366,11 @@ class DataSet(object):
                                             joined, ad, radius_of_influence=roi,
                                             sigmas=[4000]*len(arrays))#, fill_value=None)
 
+        elif interp_method == 'gauss_imerg':
+            joined = kd_tree.resample_gauss(self.data_box_definition,
+                                            joined, ad, radius_of_influence=roi,
+                                            sigmas=[10000]*len(arrays))#, fill_value=None)
+
         elif interp_method == 'rectbivariatespline':
             lati = self.geolocation_variables['Latitude']
             longi = self.geolocation_variables['Longitude']

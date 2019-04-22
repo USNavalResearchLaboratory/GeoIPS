@@ -64,7 +64,7 @@
 <!ELEMENT dataset               (#PCDATA)>
 <!ELEMENT equation              (#PCDATA)>
 
-<!ELEMENT range                 (min_value, max_value, outbounds?,min_outbounds?,max_outbounds?,normalize?,inverse?, units)>
+<!ELEMENT range                 (min_value, max_value, bounds?, outbounds?,min_outbounds?,max_outbounds?,normalize?,inverse?, units)>
 <!-- Equation range paramaters are executed in this order, if specified:
     inverse 
     min_value
@@ -79,6 +79,7 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 
     units is currently UNUSED. Has not been implemented
 -->
+<!ATTLIST source granule_composites CDATA "yes">
 <!ELEMENT min_value             (#PCDATA)>
 <!ELEMENT max_value             (#PCDATA)>
 <!ELEMENT outbounds             (#PCDATA)>
@@ -98,7 +99,7 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 <!ELEMENT ticklabels            (#PCDATA)>
 <!ELEMENT title                 (#PCDATA)>
 <!ELEMENT bounds                (#PCDATA)>
-<!ELEMENT norm                  (#PCDATA)>
+<!ELEMENT norm                  (#PCDATA)> 
 <!ELEMENT spacing               (#PCDATA)>
 
 <!ELEMENT coastcolor            (#PCDATA)>
