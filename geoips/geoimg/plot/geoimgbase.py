@@ -94,7 +94,7 @@ class GeoImgBase(object):
         if product is not None:
             self._gridcolor = product.gridcolor
             self._coastcolor = product.coastcolor
-            print str(product.cmap).split(' ')
+            #print str(product.cmap).split(' ')
             if product.cmap is not None:
                 self._cmap = get_cmap(product.cmap)
             else:
