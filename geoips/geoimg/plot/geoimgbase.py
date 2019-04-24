@@ -999,7 +999,7 @@ class GeoImgBase(object):
             for dest,dest_on in self.sector.destinations_dict.items():
                 if not dest_on:
                     continue
-                if geoips_only:
+                if geoips_only and dest != 'metoctiff':
                     log.info('SKIPPING'+dest.upper()+' geoips_only set')
                     continue
                 external_product_filename = self.get_filename(external_product=dest, new_sourcename=new_sourcename,
