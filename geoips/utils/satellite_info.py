@@ -586,6 +586,7 @@ class MULTISatInfo(SatInfo):
         #self.celestrak_tle_name = 'GOES 13'
         #self.tscan_tle_name = 'goes-13'
         self.geostationary = False
+        self.interpolation_radius_of_influence = 500000
 
 
 class N15SatInfo(SatInfo):
@@ -1799,7 +1800,7 @@ class MULTISensorInfo(SensorInfo):
         # outer is 1100km
         #self.swath_width_km = 1000         #the real number is?
         self.pathnameformat = ''
-        self.interpolation_radius_of_influence = 25000
+        self.interpolation_radius_of_influence = 750000
         #self.data_types = {}
 
 class SMAPSensorInfo(SensorInfo):

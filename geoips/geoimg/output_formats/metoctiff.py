@@ -135,7 +135,10 @@ def metoctiff(self, sector, output_filename):
         return None
     data_max = int(self.product.images['img'].max)
     data_min = int(self.product.images['img'].min)
-    data_units = self.product.images['img'].units
+    if self.product.images['img'].units:
+        data_units = self.product.images['img'].units
+    else:
+        data_units = 'unkown'
 
 #
 #  The image is normalized data 0-1 and the imagey needs to be 0-255
@@ -178,4 +181,4 @@ def metoctiff(self, sector, output_filename):
 #
 #  Use imsave to write the metoctiff file
 #
-    imsave(output_filename,data_tbsint,extratags=[(33000,'i',1,nProjection,True),(33001,'i',1,rsStandard1,True),(33002,'i',1,rsStandard2,True),(33003,'i',1,nHemisphere,True),(33004,'i',1,rsULLat,True),(33005,'i',1,rsULLon,True),(33006,'i',1,rsLLLat,True),(33007,'i',1,rsLLLon,True),(33008,'i',1,rsURLat,True),(33009,'i',1,rsURLon,True),(33010,'i',1,rsLRLat,True),(33011,'i',1,rsLRLon,True),(33012,'i',1,rsBCLat,True),(33013,'i',1,rsBCLon,True),(33014,'i',1,rsUCLat,True),(33015,'i',1,rsUCLon,True),(270,'s',1,szDescription,True),(320,'H',768,color_map,True)])
+    imsave(output_filename,data_tbsint,extratags=[(33000,'i',1,nProjection,True),(33001,'i',1,rsStandard1,True),(33002,'i',1,rsStandard2,True),(33003,'i',1,nHemisphere,True),(33004,'i',1,rsULLat,True),(33005,'i',1,rsULLon,True),(33006,'i',1,rsLLLat,True),(33007,'i',1,rsLLLon,True),(33008,'i',1,rsURLat,True),(33009,'i',1,rsURLon,True),(33010,'i',1,rsLRLat,True),(33011,'i',1,rsLRLon,True),(33012,'i',1,rsBCLat,True),(33013,'i',1,rsBCLon,True),(33014,'i',1,rsUCLat,True),(33015,'i',1,rsUCLon,True),(270,'s',1,szDescription,True)])
