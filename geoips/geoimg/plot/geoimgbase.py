@@ -810,8 +810,11 @@ class GeoImgBase(object):
             return None
 
         for prodname in self.sector.products['multisource']:
+            try:
+                self._product = productfile.open_product('multisource',prodname)
+            except AttributeError:
+                continue
             log.info('    Trying '+prodname)
-            self._product = productfile.open_product('multisource',prodname)
             # Open productfile, read out productlayers, then sort based on "order" attribute. Trust me.
             layers = sorted(productfile.open_product('multisource',prodname).productlayers.iteritems(),key=lambda x:int(x[1].order),reverse=True)
 
