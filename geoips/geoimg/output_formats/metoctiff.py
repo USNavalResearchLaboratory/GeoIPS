@@ -169,11 +169,14 @@ def metoctiff(self, sector, output_filename):
 
     data_tbsint = numpy.flipud(data_tbs.astype(numpy.uint8))
     
+    #TODO
     #set the color map based on the product in data_name = self.title.product
-    if data_name in ['Visible']:
-        colorMap = color_map_greyScale
-    else:
-        colorMap = color_map_color
+    #if data_name in ['Visible']:
+        #colorMap = color_map_greyScale
+    #else:
+        #colorMap = color_map_color
+        
+    colorMap = color_map_greyScale
 
     # if passing in tag 320 as an extratag, TiffWriter expects a 1d array with all red values, then green values, then blue values of length 2**(data.itemsize*8)
     # if using TiffWriter.save colormap parameter, the object passed must be shape (3, 2**(data.itemsize*8)) and dtype uint16
@@ -190,8 +193,9 @@ def metoctiff(self, sector, output_filename):
     # write out the file
     with tf.TiffWriter(output_filename) as mtif:
         # data shape should be image depth, height (length), width
+        # after transposing just take one dimension so that a single page mtif pops out the other side
         # have only successfully loaded into ATCF mtif's with photometric (tag 262) as palette.  This setting is inferred from the data shape and the value of the colormap.
         # setting metadata=None prevents some double writing of tags that can occur during the mtif.save process that the user (me or you) may not expect to be written
-        mtif.save(data_tbsint.transpose(2,0,1),colormap=clrmap,description=szDescription,metadata=None,extratags=[(33000,'i',1,nProjection,True),(33001,'i',1,rsStandard1,True),(33002,'i',1,rsStandard2,True),(33003,'i',1,Hemisphere,True),(33004,'i',1,rsULLat,True),(33005,'i',1,rsULLon,True),(33006,'i',1,rsLLLat,True),(33007,'i',1,rsLLLon,True),(33008,'i',1,rsURLat,True),(33009,'i',1,rsURLon,True),(33010,'i',1,rsLRLat,True),(33011,'i',1,rsLRLon,True),(33012,'i',1,rsBCLat,True),(33013,'i',1,rsBCLon,True),(33014,'i',1,rsUCLat,True),(33015,'i',1,rsUCLon,True)])    
+        mtif.save(data_tbsint.transpose(2,0,1)[0,:,:],colormap=clrmap,description=szDescription,metadata=None,extratags=[(33000,'i',1,nProjection,True),(33001,'i',1,rsStandard1,True),(33002,'i',1,rsStandard2,True),(33003,'i',1,Hemisphere,True),(33004,'i',1,rsULLat,True),(33005,'i',1,rsULLon,True),(33006,'i',1,rsLLLat,True),(33007,'i',1,rsLLLon,True),(33008,'i',1,rsURLat,True),(33009,'i',1,rsURLon,True),(33010,'i',1,rsLRLat,True),(33011,'i',1,rsLRLon,True),(33012,'i',1,rsBCLat,True),(33013,'i',1,rsBCLon,True),(33014,'i',1,rsUCLat,True),(33015,'i',1,rsUCLon,True)])    
  
   
