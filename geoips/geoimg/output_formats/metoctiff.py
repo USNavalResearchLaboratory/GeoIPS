@@ -171,12 +171,12 @@ def metoctiff(self, sector, output_filename):
     
     #TODO
     #set the color map based on the product in data_name = self.title.product
-    #if data_name in ['Visible']:
-        #colorMap = color_map_greyScale
-    #else:
-        #colorMap = color_map_color
+    if data_name in ['Visible']:
+        colorMap = color_map_greyScale
+    else:
+        colorMap = color_map_color
         
-    colorMap = color_map_color
+    #colorMap = color_map_color
 
     # if passing in tag 320 as an extratag, TiffWriter expects a 1d array with all red values, then green values, then blue values of length 2**(data.itemsize*8)
     # if using TiffWriter.save colormap parameter, the object passed must be shape (3, 2**(data.itemsize*8)) and dtype uint16
