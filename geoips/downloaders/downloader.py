@@ -208,9 +208,9 @@ def downloader(data_type,
     log.info('Hostname: ' + socket.gethostname())
     log.info('Current date time '+timestamp)
     if (nodownload):
-        log.info('Not ftping files...')
+        log.info('Not getting files...')
     else:
-        log.info('Going to ftp files...')
+        log.info('Going to get files...')
     log.info('\n\n')
 
     # Top level downloaders are GD<host_type>_<data_type>, 
@@ -306,6 +306,7 @@ def downloader(data_type,
         # have to connect - this way we don't need to reserve a 
         # connection for the wrappers...
         log.info('      *** download from '+site.host)
+        #check if the remote location requires authentication
         site.con = site.login(timeout=20)
         for ff in files:
             log.info(ff)
