@@ -106,7 +106,7 @@ __all__ = ['driver']
 def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess, no_multiproc, mp_max_cpus,
                 printmemusg, sects, mp_jobs, mp_waiting, geoips_only, sectors_run, mp_num_procs,
                 mp_max_num_jobs, mp_num_waits, mp_num_times_cleared, waittimes, didmem, separate_datasets,
-                write_sectored_datafile, write_registered_datafile):
+                write_sectored_datafile, write_registered_datafile, product_options):
     if printmemusg and (datetime.utcnow().second % 5) == 0 and not didmem:
         print_mem_usage('drmainloop ', printmemusg)
         didmem = True
@@ -417,11 +417,13 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                                     dfnew.datasets[dsname].platform_name = dfnew.metadata['top']['platform_name']
                         olddsname = dsname
                         process(dfnew, curr_sector, productlist, forcereprocess=forcereprocess,
-                            sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
+                            sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only,
+                                product_options=product_options)
                 else:
                     LOG.info('{0} NOMPLOG Running process'.format(plog))
                     process(sectored, curr_sector, productlist, forcereprocess=forcereprocess,
-                        sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only)
+                        sectorfile=sector_file, printmemusg=printmemusg, geoips_only=geoips_only,
+                            product_options=product_options)
                 # MLS 20160126 Try this for memory usage ? Probably doesn't do anything
                 gc.collect()
             else:
@@ -438,7 +440,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
                 # Need to pass all arguments, can not have = in args arg for Process
                 sectors_run += [curr_sector.name]
                 proc_args = (sectored, curr_sector, productlist, None, False, forcereprocess,
-                             sector_file, printmemusg, geoips_only)
+                             sector_file, printmemusg, geoips_only, product_options)
                 mpp = multiprocessing.Process(target=process, args=proc_args)
     
                 try:
@@ -495,7 +497,7 @@ def run_sectors(data_file, sector_file, productlist, sectorlist, forcereprocess,
 def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=None, call_next=True,
            forcereprocess=False, queue=None, no_multiproc=False, mp_max_cpus=1, 
            printmemusg=False, separate_datasets=False, write_sectored_datafile=False, 
-            write_registered_datafile=False):
+            write_registered_datafile=False, product_options=None):
     '''
     Produce imagery from a single input data file for any number of sectors and products.
 
@@ -568,6 +570,11 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
     |                        |        | ** False:** do not write out datafile                     |
     |                        |        |                                                           |
     |                        |        | **Default:** False                                        |
+    +----------------+--------+-------------------------------------------------------------------+
+    | product_options         | *str*  | String keyword specifying parameter set for use in geoalgs|
+    |                        |        |             MUST BE IMPLEMENTED WITHIN ALGORITHM FOR IT TO|
+    |                        |        |             DO ANYTHING                                   |
+    |                        |        | **Default:** None                                         |
     +----------------+--------+-------------------------------------------------------------------+
     '''
     # If we are not calling this from driver.py, set these times
@@ -648,7 +655,7 @@ def driver(data_file, sector_file, productlist=None, sectorlist=None, outdir=Non
                              mp_max_cpus, printmemusg, sects, mp_jobs, mp_waiting, geoips_only,
                              sectors_run, mp_num_procs, mp_max_num_jobs, mp_num_waits, mp_num_times_cleared,
                              waittimes, didmem, separate_datasets, write_sectored_datafile,
-                            write_registered_datafile)
+                             write_registered_datafile, product_options)
         mp_num_waits, mp_num_procs, mp_num_times_cleared, mp_max_num_jobs, mp_waiting, didmem = rs_ret
     if not sects and not mp_jobs:
         LOG.info('MPLOG All jobs completed')
@@ -718,7 +725,7 @@ def _get_argument_parser():
     parser.add_arguments(['paths', 'separate_datasets', 'write_sectored_datafile', 'write_registered_datafile', 
                             'sectorlist', 'productlist', 'product_outpath', 'next', 'loglevel',
                           'forcereprocess', 'all', 'allstatic', 'alldynamic', 'tc', 'volcano', 'sectorfiles',
-                          'templatefiles', 'no_multiproc', 'mp_max_cpus', 'queue', 'printmemusg'])
+                          'templatefiles', 'no_multiproc', 'mp_max_cpus', 'queue', 'printmemusg', 'product_options'])
     return parser
 
 
@@ -792,7 +799,7 @@ if __name__ == '__main__':
     req_prods = []
     for ds in df.datasets.values():
         req_prods += sectfile.get_requested_products(ds.source_name, args['productlist'])
-        pf = productfile.open2(ds.source_name, req_prods)
+        pf = productfile.open2(ds.source_name, req_prods, product_options=args['product_options'])
         if hasattr(pf, 'names'):
             LOG.info('\t\tProducts from files: ')
             for pfname in sorted(pf.names):
@@ -903,7 +910,8 @@ if __name__ == '__main__':
                    no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
                    printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
                    write_sectored_datafile=args['write_sectored_datafile'],
-                   write_registered_datafile=args['write_registered_datafile'])
+                   write_registered_datafile=args['write_registered_datafile'],
+                       product_options=args['product_options'])
 
         else:
             driver(df, sectfile, productlist=args['productlist'], sectorlist=args['sectorlist'],
@@ -912,5 +920,6 @@ if __name__ == '__main__':
                no_multiproc=args['no_multiproc'], mp_max_cpus=args['mp_max_cpus'],
                printmemusg=args['printmemusg'], separate_datasets=args['separate_datasets'],
                write_sectored_datafile=args['write_sectored_datafile'],
-                   write_registered_datafile=args['write_registered_datafile'])
+                   write_registered_datafile=args['write_registered_datafile'],
+                   product_options=args['product_options'])
 
