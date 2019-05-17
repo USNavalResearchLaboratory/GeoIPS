@@ -60,8 +60,10 @@ def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, plat
                     maxval = int(pressure.max())
                 if pressure.min() < minval:
                     minval = int(pressure.min())
-                ticks = [minval,400,800,maxval]
-                cmap = ListedColormap(['red', 'cyan', 'tan'])
+                #ticks = [minval,400,800,maxval]
+                #cmap = ListedColormap(['red', 'cyan', 'tan'])
+                ticks = [minval, 50, 100, 250, 400, 600, 800, 900, maxval]
+                cmap = ListedColormap(['magenta', 'red', 'orangered', 'coral', 'cyan', 'turquoise', 'bisque', 'tan'])
             cbtitle = 'Atmospheric Pressure at Cloud Top, mb'
         elif altitude is not None:
             if ticks_vals is not None:
@@ -71,12 +73,16 @@ def set_winds_plotting_params(gi, speed=None, pressure=None, altitude=None, plat
                 maxval = ticks[-1]
             else:
                 maxval = 44
+                #maxval = 1013 
                 if altitude.max() > maxval:
                     maxval = int(altitude.max())
                 if altitude.min() < minval:
                     minval = int(altitude.min())
-                cmap = ListedColormap(['tan','salmon','blue','cyan','green','limegreen','chartreuse','lime','magenta'])
-                ticks = [minval,1,2,4,7,10,16,20,40,maxval]
+                #cmap = ListedColormap(['tan','salmon','blue','cyan','green','limegreen','chartreuse','lime','magenta'])
+                #ticks = [minval,1,2,4,7,10,16,20,40,maxval]
+                #ticks = [minval, 50, 100, 250, 400, 600, 800, 900, maxval]
+                ticks = [minval, 1, 2, 4, 7, 10, 16, 20, 40, maxval]
+                cmap = ListedColormap(['tan', 'bisque', 'turquoise', 'cyan', 'coral', 'orangered', 'red', 'firebrick', 'magenta'])
             cbtitle = 'Cloud Top Altitude, km'
 
         bounds = [minval-1] + ticks + [maxval+1]
