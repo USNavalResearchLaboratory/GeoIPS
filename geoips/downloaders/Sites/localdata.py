@@ -207,10 +207,10 @@ class TESTLOCAL_TESTABI_LOCALDATA(LocalDataSite):
         log.info('  In run_on_files TESTLOCAL_TESTABI '+str(num_files)+' files in directory '+listthesefiles)
 
         # Limit frequency we actually process 
-        #dfn = DataFileName(os.path.basename(final_file)).create_standard()
-        #if dfn.datetime.minute != 0 and dfn.datetime.minute != 30: 
-        #    log.info('ONLY RUNNING 0 30 MINUTES FOR NOW. Skipping processing')
-        #    return []
+        dfn = DataFileName(os.path.basename(final_file)).create_standard()
+        if dfn.datetime.minute != 0 and dfn.datetime.minute != 30: 
+            log.info('ONLY RUNNING 0 30 MINUTES FOR NOW. Skipping processing')
+            return []
 
         # Once we get 16 files, and the current file is RadF, kick off processing 
         if num_files == 16 and runtype in final_file:

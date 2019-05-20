@@ -159,6 +159,12 @@ class ArgParse(argparse.ArgumentParser):
                         help='''If write_registered_datafile is included command line, write out the sectored
                                 datafile to plugin_paths.paths['PREREGISTERED_DATA_PATH'] before processing''')
 
+        if 'product_options' in arglist:
+            self.add_argument('--product_options', default=None,
+                              help='''Keyword specifying a desired set of parameters
+                              for processing (can be used in geoalgs)'''
+                              )
+
         if 'sectorlist' in arglist: self.add_argument('-s', '--sectorlist', nargs='?', default=None,
                         help='''A list of short sector names over which the data file should be processed.
                              Short sector names are available in the "name" attribute of the "sector"

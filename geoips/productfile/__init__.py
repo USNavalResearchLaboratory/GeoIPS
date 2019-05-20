@@ -40,7 +40,7 @@ productfile_classes = {'.xml': XMLProductFile,
 
 pfpaths = plugins.paths['PRODUCTFILEPATHS']
 
-def open(paths=pfpaths, suffix='xml', recursive=False, maxdepth=None, depth=0, scifile=None):
+def open(paths=pfpaths, suffix='xml', recursive=False, maxdepth=None, depth=0, scifile=None, product_options=None):
     '''Opens all product files in the given list of paths.
         INPUTS:
             paths: LIST
@@ -73,7 +73,7 @@ def open(paths=pfpaths, suffix='xml', recursive=False, maxdepth=None, depth=0, s
         log.debug('    Opening product file: %s' % paths[0])
         productfile = os.path.abspath(paths[0])
         pf_class = get_productfile_class(productfile)
-        return pf_class(productfile, scifile=scifile)
+        return pf_class(productfile, scifile=scifile, product_options=product_options)
     # If we were passed multiple files, or one or more paths, loop through,
     # recursively calling open to open each file we find.
     for path in paths:
@@ -87,9 +87,9 @@ def open(paths=pfpaths, suffix='xml', recursive=False, maxdepth=None, depth=0, s
                 if os.path.isdir(pf) and (recursive is False or depth == maxdepth):
                     continue
                 elif productfile is None:
-                    productfile = open([pf], depth=depth, scifile=scifile)
+                    productfile = open([pf], depth=depth, scifile=scifile, product_options=product_options)
                 else:
-                    curr_pf = open([pf], scifile=scifile)
+                    curr_pf = open([pf], scifile=scifile, product_options=product_options)
                     if curr_pf is not None:
                         productfile.join(curr_pf)
             productfile.name = path
@@ -99,7 +99,7 @@ def open(paths=pfpaths, suffix='xml', recursive=False, maxdepth=None, depth=0, s
             log.debug('    Opening product file: %s' % path)
             productfile = os.path.abspath(path)
             pf_class = get_productfile_class(productfile)
-            return pf_class(productfile, scifile=scifile)
+            return pf_class(productfile, scifile=scifile, product_options=product_options)
         # Skip everything else.
         else:
             #Silently skip files that do not end in .xml
@@ -178,7 +178,7 @@ def get_product_sensors(paths=pfpaths):
 
 #NEW STUFF FOR CLEANED UP GEOIPS!!!
 
-def open2(sensor, productlist=[], paths=pfpaths, scifile=None):
+def open2(sensor, productlist=[], paths=pfpaths, scifile=None, product_options=None):
     '''
     Opens all productfiles in a given set of paths for given sensor.
     Inputs:
@@ -215,14 +215,14 @@ def open2(sensor, productlist=[], paths=pfpaths, scifile=None):
             else:
                 prodfiles += [prodfile]
                 if products is None:
-                    products = XMLProductFile(prodfile, scifile=scifile)
+                    products = XMLProductFile(prodfile, scifile=scifile, product_options=product_options)
                 else:
-                    products.join(XMLProductFile(prodfile, scifile=scifile))
+                    products.join(XMLProductFile(prodfile, scifile=scifile, product_options=product_options))
     if prodfiles:
         products.names = prodfiles
     return products
 
-def open_product(sensor, product, paths=pfpaths, scifile=None):
+def open_product(sensor, product, paths=pfpaths, scifile=None, product_options=None):
     '''Opens a single product for a single sensor.
     Inputs:
         sensor: string
@@ -234,4 +234,4 @@ def open_product(sensor, product, paths=pfpaths, scifile=None):
             default plugins PRODUCTFILEPATHS
     Returns: XMLProductFile object
     '''
-    return open2(sensor, [product],paths, scifile=scifile).open_product(product)
+    return open2(sensor, [product],paths, scifile=scifile, product_options=product_options).open_product(product)

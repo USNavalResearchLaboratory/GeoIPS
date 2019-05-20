@@ -65,7 +65,7 @@ __all__ = ['process']
 #@profile
 def create_imagery(data_file, sector, productlist, outdir,
                 nofinal, forcereprocess, sectorfile,
-                printmemusg,geoips_only,product,datetimes,plog):
+                printmemusg,geoips_only,product,datetimes,plog, product_options):
     final_productnames = []
     if productlist is None or product.lower() in productlist:
         datetimes['start_'+sector.name+product] = datetime.utcnow()
@@ -77,7 +77,7 @@ def create_imagery(data_file, sector, productlist, outdir,
         LOG.interactive('\n\n\n\n\n        STARTING PRODUCT: %s\n' % product)
         # Find the requested product
         try:
-            curr_product = productfile.open_product(data_file.source_name, product, scifile=data_file)
+            curr_product = productfile.open_product(data_file.source_name, product, scifile=data_file, product_options=product_options)
         except AttributeError:
             LOG.info(pplog+' SKIPPING: Product %s not found for sector' % str(product))
             return None
@@ -372,7 +372,7 @@ def check_if_testonly(finalimg, geoips_only):
 
 # MLS 20160203 monitor - mem jump at for product in sector.products(.5G)
 #@profile
-def process(data_file, sector, productlist=None, outdir=None, nofinal=False, forcereprocess=False, sectorfile=None,printmemusg=False,geoips_only=False):
+def process(data_file, sector, productlist=None, outdir=None, nofinal=False, forcereprocess=False, sectorfile=None,printmemusg=False,geoips_only=False, product_options=None):
     '''
     Produce imagery from a single pre-sectored data file.  Will stitch granules
     and (if requested) swaths into composite final imagery.
@@ -442,7 +442,7 @@ def process(data_file, sector, productlist=None, outdir=None, nofinal=False, for
     for product in sector.get_requested_products(data_file.source_name,productlist):
         create_imagery(data_file, sector, productlist, outdir,
                 nofinal, forcereprocess, sectorfile,
-                printmemusg,geoips_only,product,datetimes,plog)
+                printmemusg,geoips_only,product,datetimes,plog, product_options)
     datetimes['end_sect'+sector.name] = datetime.utcnow()
     LOG.info(plog+' endsect')
     for sttag in sorted(datetimes.keys()):
