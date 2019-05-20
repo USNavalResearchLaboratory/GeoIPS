@@ -22,6 +22,7 @@
 # Standard Python Libraries
 from datetime import datetime
 import logging
+import os
 
 
 # Installed Libraries
@@ -32,10 +33,12 @@ try:
 except Exception as err:
     print('error importing color_map',str(err.message))
 try:
-    #use this package to create metoctiffs
+    #use these packages to create and destroy metoctiffs
     from skimage.external import tifffile as tf
+    import gzip
+    import shutil
 except Exception as err:
-    print('error importing tifffile',str(err.message))
+    print('error importing tiff related packages',str(err.message))
 
 try: 
     from IPython import embed as shell
@@ -190,12 +193,24 @@ def metoctiff(self, sector, output_filename):
     #create the object to pass into the colormap parameter of TiffWriter.save
     clrmap = numpy.array([r,g,b],dtype=numpy.uint16)    
     
-    # write out the file
-    with tf.TiffWriter(output_filename) as mtif:
-        # data shape should be image depth, height (length), width
-        # after transposing just take one dimension so that a single page mtif pops out the other side
-        # have only successfully loaded into ATCF mtif's with photometric (tag 262) as palette.  This setting is inferred from the data shape and the value of the colormap.
-        # setting metadata=None prevents some double writing of tags that can occur during the mtif.save process that the user (me or you) may not expect to be written
-        mtif.save(data_tbsint.transpose(2,0,1)[0,:,:],colormap=clrmap,description=szDescription,metadata=None,extratags=[(284,'H',1,1,True),(33000,'i',1,nProjection,True),(33001,'i',1,rsStandard1,True),(33002,'i',1,rsStandard2,True),(33003,'i',1,Hemisphere,True),(33004,'i',1,rsULLat,True),(33005,'i',1,rsULLon,True),(33006,'i',1,rsLLLat,True),(33007,'i',1,rsLLLon,True),(33008,'i',1,rsURLat,True),(33009,'i',1,rsURLon,True),(33010,'i',1,rsLRLat,True),(33011,'i',1,rsLRLon,True),(33012,'i',1,rsBCLat,True),(33013,'i',1,rsBCLon,True),(33014,'i',1,rsUCLat,True),(33015,'i',1,rsUCLon,True)])    
- 
+    try:
+        # write out the file
+        with tf.TiffWriter(output_filename) as mtif:
+            # data shape should be image depth, height (length), width
+            # after transposing just take one dimension so that a single page mtif pops out the other side
+            # have only successfully loaded into ATCF mtif's with photometric (tag 262) as palette.  This setting is inferred from the data shape and the value of the colormap.
+            # setting metadata=None prevents some double writing of tags that can occur during the mtif.save process that the user (me or you) may not expect to be written
+            mtif.save(data_tbsint.transpose(2,0,1)[0,:,:],colormap=clrmap,description=szDescription,metadata=None,extratags=[(284,'H',1,1,True),(33000,'i',1,nProjection,True),(33001,'i',1,rsStandard1,True),(33002,'i',1,rsStandard2,True),(33003,'i',1,Hemisphere,True),(33004,'i',1,rsULLat,True),(33005,'i',1,rsULLon,True),(33006,'i',1,rsLLLat,True),(33007,'i',1,rsLLLon,True),(33008,'i',1,rsURLat,True),(33009,'i',1,rsURLon,True),(33010,'i',1,rsLRLat,True),(33011,'i',1,rsLRLon,True),(33012,'i',1,rsBCLat,True),(33013,'i',1,rsBCLon,True),(33014,'i',1,rsUCLat,True),(33015,'i',1,rsUCLon,True)])  
+    except Exception as err:
+        log.info('{0}: {1} >> {2}'.format(type(err).__name__,str(err.__doc__),str(err.args)))
+    
+    #Uncomment this to send gzipped files to /SATPRODUCTS/TC/... and remove the uncompressed files from that same directory
+    #try:
+        ##gzip the file and remove original
+        #with open(output_filename, 'rb') as uncompressedFile, gzip.open(output_filename + '.gz', 'wb') as compressedFile:
+            #shutil.copyfileobj(uncompressedFile, compressedFile)    
+        #if os.path.isfile(output_filename):
+            #os.remove(output_filename)
+    #except Exception as err:
+        #log.info('{0}: {1} >> {2}'.format(type(err).__name__,str(err.__doc__),str(err.args)))
   
