@@ -811,8 +811,11 @@ class GeoImgBase(object):
             return None
 
         for prodname in self.sector.products['multisource']:
+            try:
+                self._product = productfile.open_product('multisource',prodname)
+            except AttributeError:
+                continue
             log.info('    Trying '+prodname)
-            self._product = productfile.open_product('multisource',prodname)
             # Open productfile, read out productlayers, then sort based on "order" attribute. Trust me.
             layers = sorted(productfile.open_product('multisource',prodname).productlayers.iteritems(),key=lambda x:int(x[1].order),reverse=True)
 
@@ -1012,8 +1015,13 @@ class GeoImgBase(object):
                 log.info('\n\n')
                 log.info(logstr+'Writing image file: '+external_product_filename.name)
                 if dest == 'metoctiff':
-                    from ..output_formats.metoctiff import metoctiff
-                    metoctiff(self,self.sector,external_product_filename.name) 
+                    #rcj 16MAY2019 this is a hacky way to only allow metoctiff creation for these two products
+                    #these are the only two products with code to properly place them in the public (TC)
+                    #directory structure (productfilename.py).  the geoips file path thing needs
+                    #updated for metoctiffs before expanding to other products
+                    if geoips_product_filename._DYNPROPproductname in ['Visible','Infrared']:
+                        from ..output_formats.metoctiff import metoctiff
+                        metoctiff(self,self.sector,external_product_filename.name) 
                 else:
                     try:
                         finalimg = Image.open(geoips_product_filename.name)

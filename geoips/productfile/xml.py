@@ -31,12 +31,13 @@ from geoips.utils.xml_utilities import read_xmlfile
 log = logging.getLogger(__name__)
 
 class XMLProductFile(object):
-    def __init__(self, productfile, scifile=None):
+    def __init__(self, productfile, scifile=None, product_options=None):
         if not os.path.isfile(productfile):
             raise IOError('Input path is not a regular file.  Got %s.' % productfile)
         self.name = productfile
         self.tree = read_xmlfile(self.name, do_objectify=True)
         self.scifile = scifile
+        self.product_options = product_options
         self.root = self.tree.getroot()
 
     def __repr__(self):
@@ -119,7 +120,7 @@ class XMLProductFile(object):
     def getproducts(self, source=None):
         '''Returns a list of all contained products'''
         prods = []
-        prods = [Product(prod, scifile=self.scifile) for prod in self.root.xpath('product')]
+        prods = [Product(prod, scifile=self.scifile, product_options=self.product_options) for prod in self.root.xpath('product')]
         return prods
 
     def iterproducts(self, source=None):
@@ -130,11 +131,11 @@ class XMLProductFile(object):
                 #Grab the element at position "ind"
                 element = self.root.xpath('product[%r]' % ind)[0]
                 ind += 1
-                prod = Product(element, scifile=self.scifile)
+                prod = Product(element, scifile=self.scifile, product_options=self.product_options)
                 if source is not None and source not in prod.sources:
                     continue
                 else:
-                    yield Product(element, scifile=self.scifile)
+                    yield Product(element, scifile=self.scifile, product_options=self.product_options)
             except IndexError:
                 break
 
@@ -156,7 +157,7 @@ class XMLProductFile(object):
         elements = self.root.xpath('product')
         for element in elements:
             if element.attrib['name'].lower() == name.lower():
-                return Product(element, scifile=self.scifile)
+                return Product(element, scifile=self.scifile, product_options=self.product_options)
         #If no product found, return None
         return None
 
@@ -200,9 +201,10 @@ class XMLProductFile(object):
             log.warning('Cannot remove product named %s.  Does not exist.'  % name)
 
 class Product(object):
-    def __init__(self, product_xml, scifile=None):
+    def __init__(self, product_xml, scifile=None, product_options=None):
         self.node = product_xml
         self.scifile = scifile
+        self.product_options = product_options
         #self.min_cover = 40
 
     def __str__(self):
@@ -302,7 +304,7 @@ class Product(object):
         if not hasattr(self, '_sources'):
             self._sources = {}
             for source_elem in self.node.iterfind('./%s_args/source' % self.method):
-                source = Source(self, source_elem, scifile=self.scifile)
+                source = Source(self, source_elem, scifile=self.scifile, product_options=self.product_options)
                 if not self._sources.has_key(source.name):
                     self._sources[source.name] = source
                 else:
@@ -322,7 +324,7 @@ class Product(object):
         if not hasattr(self, '_productlayers'):
             self._productlayers = {}
             for productlayer_elem in self.node.iterfind('./%s_args/productlayer' % self.method):
-                productlayer = Productlayer(self, productlayer_elem, scifile=self.scifile)
+                productlayer = Productlayer(self, productlayer_elem, scifile=self.scifile, product_options=self.product_options)
                 if not self._productlayers.has_key(productlayer.name):
                     self._productlayers[productlayer.name] = productlayer
                 else:
@@ -335,7 +337,7 @@ class Product(object):
         if not hasattr(self, '_datasets'):
             self._datasets = {}
             for ds_elem in self.node.iterfind('./%s_args/datasets' % self.method):
-                dataset = Dataset(ds_elem, scifile=self.scifile)
+                dataset = Dataset(ds_elem, scifile=self.scifile, product_options=self.product_options)
                 if not self._datasets.has_key(dataset.name):
                     self._datasets[dataset.name] = dataset
                 else:
@@ -438,7 +440,7 @@ class Product(object):
             cbnodes = self.product_args.findall('colorbar')
             self._colorbars = []
             for cbnode in cbnodes:
-                self._colorbars.append(Colorbar(cbnode, scifile=self.scifile))
+                self._colorbars.append(Colorbar(cbnode, scifile=self.scifile, product_options=self.product_options))
         return self._colorbars
 
     @property
@@ -727,10 +729,11 @@ class Image(object):
 # in geoimg.
 # Copied and pasted analog from "source" (for "normal" data processing product files)
 class Productlayer(object):
-    def __init__(self, product, source_xml=None, scifile=None):
+    def __init__(self, product, source_xml=None, scifile=None, product_options=None):
         self.product = product
         self.node = source_xml
         self.scifile = scifile
+        self.product_options = product_options
 
     def __str__(self):
         return etree.tostring(self.node, pretty_print=True)
@@ -775,7 +778,7 @@ class Productlayer(object):
         if not hasattr(self, '_possiblesources'):
             self._possiblesources = {}
             for src_elem in self.node.iterfind('.//possiblesource'):
-                src = Possiblesource(self.product, self, src_elem, scifile=self.scifile)
+                src = Possiblesource(self.product, self, src_elem, scifile=self.scifile, product_options=self.product_options)
                 if not self._possiblesources.has_key(src.name):
                     self._possiblesources[src.name] = src
                 else:
@@ -807,10 +810,11 @@ class _Productlayer(Productlayer):
         self._possiblesources = None
 
 class Source(object):
-    def __init__(self, product, source_xml=None, scifile=None):
+    def __init__(self, product, source_xml=None, scifile=None, product_options=None):
         self.product = product
         self.node = source_xml
         self.scifile = scifile
+        self.product_options = product_options
 
     def __str__(self):
         return etree.tostring(self.node, pretty_print=True)
@@ -832,7 +836,7 @@ class Source(object):
         if not hasattr(self, '_variables'):
             self._variables = {}
             for var_elem in self.node.iterfind('.//var'):
-                var = Variable(self.product, self, var_elem, scifile=self.scifile)
+                var = Variable(self.product, self, var_elem, scifile=self.scifile, product_options=self.product_options)
                 if not self._variables.has_key(var.name):
                     self._variables[var.name] = var
                 else:
@@ -844,7 +848,7 @@ class Source(object):
         if not hasattr(self, '_geolocation_variables'):
             self._geolocation_variables = {}
             for var_elem in self.node.iterfind('.//gvar'):
-                var = Variable(self.product, self, var_elem, scifile=self.scifile)
+                var = Variable(self.product, self, var_elem, scifile=self.scifile, product_options=self.product_options)
                 if not self._geolocation_variables.has_key(var.name):
                     self._geolocation_variables[var.name] = var
                 else:
@@ -874,11 +878,12 @@ class _Source(Source):
 # in geoimg.
 # Copied and pasted analog from "var" (for "normal" data processing product files)
 class Possiblesource(object):
-    def __init__(self, product, productlayer, possiblesource_xml, scifile=None):
+    def __init__(self, product, productlayer, possiblesource_xml, scifile=None, product_options=None):
         self.product = product
         self.source = productlayer
         self.node = possiblesource_xml
         self.scifile = scifile
+        self.product_options = product_options
 
     def __str__(self):
         return etree.tostring(self.node, pretty_print=True)
@@ -899,11 +904,12 @@ class Possiblesource(object):
         return self._name
 
 class Variable(object):
-    def __init__(self, product, source, variable_xml, scifile=None):
+    def __init__(self, product, source, variable_xml, scifile=None, product_options=None):
         self.product = product
         self.source = source
         self.node = variable_xml
         self.scifile = scifile
+        self.product_options = product_options
 
     def __str__(self):
         return etree.tostring(self.node, pretty_print=True)
@@ -988,9 +994,10 @@ class Variable(object):
         return self._units
 
 class Dataset(object):
-    def __init__(self, dataset_xml, scifile=None):
+    def __init__(self, dataset_xml, scifile=None, product_options=None):
         self.node = dataset_xml
         self.scifile = scifile
+        self.product_options = product_options
 
     def __str__(self):
         return etree.tostring(self.node, pretty_print=True)
@@ -1000,9 +1007,10 @@ class Dataset(object):
         return self.node.pyval
 
 class Colorbar(object):
-    def __init__(self, dataset_xml=None, scifile=None):
+    def __init__(self, dataset_xml=None, scifile=None, product_options=None):
         self.node = dataset_xml
         self.scifile = scifile
+        self.product_options = product_options
 
     @staticmethod
     def fromvals(cmap, ticks=None, ticklabels=None, title=None, bounds=None, norm=None, spacing=None):
