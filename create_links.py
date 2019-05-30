@@ -188,7 +188,7 @@ for destbase in destinations:
                         #print 'need to link file '+pluginpath
                         if ingit(pluginpath,pluginbase) and linkedsubdir in pluginpath:
                             if not dryrun:
-                                print 'linking {}'.format(pluginpath)
+                                print 'linking {0}'.format(pluginpath)
                                 if hardlinks:
                                     os.link(pluginpath,destpath)
                                 else:
@@ -203,7 +203,7 @@ for destbase in destinations:
                         #print 'need to link dir '+plugindir
                         if ingit(plugindir,pluginbase) and linkedsubdir in plugindir:
                             if not dryrun:
-                                print 'linking {}'.format(plugindir)
+                                print 'linking {0}'.format(plugindir)
                                 os.symlink(plugindir,destdir)
                             linkeddirs += [plugindir]
                     elif os.path.exists(destdir):
