@@ -9,7 +9,7 @@ try:
 except:
     pass
 
-from hashlib import md5
+from hashlib import sha1
 
 from pyresample.geometry import SwathDefinition
 from pyresample.kd_tree import get_neighbour_info
@@ -442,7 +442,7 @@ class SatNav(object):
             md_dict.update(ad.proj_dict)
         md_dict.pop('datetime')
         log.info(md_dict.__str__())
-        md_hash = md5(md_dict.__str__()).hexdigest()
+        md_hash = sha1(md_dict.__str__()).hexdigest()
         log.info(md_hash)
         fname = '{}_{}.DAT'.format(fname, md_hash)
 
