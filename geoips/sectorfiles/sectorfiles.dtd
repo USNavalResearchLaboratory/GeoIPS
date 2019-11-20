@@ -159,8 +159,10 @@
 <!ATTLIST source source_name_display CDATA "False">
 <!ATTLIST source platform_name_display CDATA "False">
 <!ATTLIST source testonly CDATA "no">
+<!ATTLIST source allowed_platforms CDATA "all">
 <!ATTLIST product name CDATA #REQUIRED>
 <!ATTLIST product testonly CDATA "no">
+
 
 
 <!--
@@ -186,6 +188,7 @@ Each SECTOR element defines another sector for which to produce products and
                        Allowable values: "yes", "no"
         datanrl     -> A flag to determine whether this data shoudl be sent to NRL (string)
                        Allowable values: "yes", "no"
+                       
 
     ELEMENTS:
     

@@ -9,5 +9,5 @@ if [ -d $GEOIPS_EXT_INSTALLDIR ]; then
     export LIBRARY_PATH=$GEOIPS_EXT_INSTALLDIR/include:$GEOIPS_EXT_INSTALLDIR/lib
     export CPATH=$GEOIPS_EXT_INSTALLDIR/lib:$GEOIPS_EXT_INSTALLDIR/include
     
-    export XRIT_DECOMPRESS_PATH=$GEOIPS_EXT_INSTALLDIR/../xRITDecompress/xRITDecompress/xRITDecompress
+    export XRIT_DECOMPRESS_PATH=$GEOIPS_EXT_INSTALLDIR/xRITDecompress/xRITDecompress/xRITDecompress
 fi

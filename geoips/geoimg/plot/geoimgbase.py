@@ -94,6 +94,7 @@ class GeoImgBase(object):
         if product is not None:
             self._gridcolor = product.gridcolor
             self._coastcolor = product.coastcolor
+            #print str(product.cmap).split(' ')
             if product.cmap is not None:
                 self._cmap = get_cmap(product.cmap)
             else:
@@ -107,17 +108,27 @@ class GeoImgBase(object):
             else:
                 self._cmap = None
 
-    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
+    def set_geoimg_attrs(self, platform_name=None, source_name=None, prodname=None, platform_display=None, source_display=None, bgname=None, cbarinfo=None, append_cbar=False, start_dt=None, end_dt=None):
         extra_extra = ''
         # Platform name and source name should end up in the title, so do not
         # need to be repeated in the bgname extra_lines. If it is a different
         # platform/source with bgname, it should be included in bgname
+        
+        # NOTE this actually changes the attributes on the datafile!!
+        # It is not a copy!  This is probably not what we want, but
+        # for now, just be careful.
         if platform_name:
             #extra_extra = '%s %s'%(extra_extra, platform_name)
             self.datafile._finfo['platform_name'] = platform_name
         if source_name:
             #extra_extra = '%s %s'%(extra_extra, source_name)
             self.datafile._finfo['source_name'] = source_name
+        if platform_display:
+            #extra_extra = '%s %s'%(extra_extra, platform_name)
+            self.datafile._finfo['platform_name_display'] = platform_display
+        if source_display:
+            #extra_extra = '%s %s'%(extra_extra, source_name)
+            self.datafile._finfo['source_name_display'] = source_display
         if start_dt:
             self.datafile._finfo['start_datetime'] = start_dt
             self._start_datetime = start_dt
@@ -197,7 +208,7 @@ class GeoImgBase(object):
         elif isinstance(cmap, list):
             if not append:
                 self._colorbars = []
-            for (ccmap, cticks, cticklabels, ctitles, cbounds, cnorm, cspacing) in zip(cmap, ticks, ticklabels, titles,
+            for (ccmap, cticks, cticklabels, ctitle, cbounds, cnorm, cspacing) in zip(cmap, ticks, ticklabels, title,
                     bounds, norm, spacing):
                 self._colorbars += [Colorbar.fromvals(ccmap, cticks, cticklabels, ctitle, cbounds, cnorm, cspacing)]
         else:
@@ -265,7 +276,7 @@ class GeoImgBase(object):
             if 'start_' in sttag:
                 tag = sttag.replace('start_','')
                 try:
-                    log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag])+' '+socket.gethostname())
+                    log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag]))
                 except:
                     log.info('WARNING! No end time for '+sttag)
         return registered
@@ -467,14 +478,17 @@ class GeoImgBase(object):
             # This has to be self._image, not self.image! Can't set self.image.
             self._image = np.flipud(new)
         else:
+            other_req_vars = None
+            if otherimg.source_name != self.datafile.source_name:
+                try:
+                    other_req_vars = productfile.open_product(otherimg.source_name,self.product.name).get_required_source_vars(otherimg.source_name)
+                except AttributeError:
+                    return
             if hasattr(self,'_image'):
                 delattr(self,'_image')
             if hasattr(self,'_registered_data'):
                 delattr(self,'_registered_data')
             datasets = []
-            other_req_vars = None
-            if otherimg.source_name != self.datafile.source_name:
-                other_req_vars = productfile.open_product(otherimg.source_name,self.product.name).get_required_source_vars(otherimg.source_name)
             for dsname in self.datafile.datasets.keys():
                 log.info('Trying to merge dataset '+dsname)
                 for var in self.req_vars:
@@ -499,13 +513,16 @@ class GeoImgBase(object):
                         other_width = otherimg.variables[othervar].shape[0]
                         self_width = self.datafile.variables[var].shape[0]
                         if other_width != self_width:
+                            # I do not know why we would be merging different shaped arrays, but for now, 
+                            # continue hstacking if this ever happens. Not sure how you would blend if they are 
+                            # different shapes, as you don't know which pixels line up....
                             if other_width > self_width:
                                 #If other is bigger, must pad self.                               
                                 pad_width = other_width - self_width
                                 pad_array = np.ma.masked_all((pad_width,self.datafile.variables[var].shape[1]))
                                 data = np.ma.hstack(
                                     (otherimg.variables[othervar],
-                                     np.ma.vstack((self.datafile.variables[var],pad_array))))
+                                     np.ma.vstack((self.datafile.variables[var],pad_array))))                                
                             else:
                                 #If self is bigger, must pad other.                               
                                 pad_width = self_width - other_width
@@ -514,11 +531,21 @@ class GeoImgBase(object):
                                     (np.ma.vstack((otherimg.variables[othervar],pad_array)),
                                      self.datafile.variables[var])
                                     )
+                         
+                        
+                        
                         else:
-                            data = np.ma.hstack(
-                                (otherimg.variables[othervar],
-                                 self.datafile.variables[var])
-                                )
+                            otherMask = otherimg.variables[othervar].mask
+                            # Please ignore flake8 - if you use otherMask is False, it does NOT work 
+                            data = np.ma.where(otherMask == False,
+                                               otherimg.variables[othervar],
+                                               self.datafile.variables[var])
+                            # At some point, instead of either-or here, we will blend the values if they are both
+                            # defined
+                            # thisMask = self.datafile.variables[var].mask
+                            # overlap_points = np.ma.where(np.ma.logical_and(otherMask == False, thisMask == False))
+                            # data[overlap_points] = (otherimg.variables[othervar][overlap_points]\
+                            #                         + self.datafile.variables[var][overlap_points]) / 2
                         varinfo = self.datafile.datasets[dsname].variables[var]._varinfo
                         variables += [Variable(var,data=data,_varinfo=varinfo,_nomask=False)]
 
@@ -537,18 +564,21 @@ class GeoImgBase(object):
                                                     self.datafile.datasets[dsname].geolocation_variables[gvar])
                                                     )
                             else:
-                                data = np.ma.hstack(
-                                                (otherimg.datasets[dsname].geolocation_variables[gvar],
-                                                self.datafile.datasets[dsname].geolocation_variables[gvar])
-                                                )
+                                otherMask = otherimg.geolocation_variables[gvar].mask
+                                # Please ignore flake8 - if you use otherMask is False, it does NOT work 
+                                data = np.ma.where(otherMask == False,
+                                                   otherimg.geolocation_variables[gvar],
+                                                   self.datafile.geolocation_variables[gvar])
                             varinfo = self.datafile.datasets[dsname].geolocation_variables[gvar]._varinfo
                             geolocation_variables += [Variable(gvar,data=data,_varinfo=varinfo,_nomask=False)]
                                 
                 vdataset = DataSet(dsname,variables=variables,copy=False)
                 gdataset = DataSet(dsname,geolocation_variables=geolocation_variables,copy=False)
-                self.datafile.delete_dataset(dsname)
+                old_metadata = self.datafile.metadata.copy()
+                self._datafile = SciFile()
                 self.datafile.add_dataset(vdataset,copy=False)
                 self.datafile.add_dataset(gdataset,copy=False)
+                self.datafile.metadata = old_metadata
 
 
             #log.info('In def merge')
@@ -599,8 +629,10 @@ class GeoImgBase(object):
         
         if self.intermediate_data_output:
             # Remove image attribute to force reprocessing
-            delattr(self,'_image')
-            delattr(self,'_registered_data')
+            if hasattr(self,'_image'):
+                delattr(self,'_image')
+            if hasattr(self,'_registered_data'):
+                delattr(self,'_registered_data')
             
             self.plot()
         #print_mem_usage(self.logtag+'gimgafterfilemerges',True)
@@ -779,8 +811,11 @@ class GeoImgBase(object):
             return None
 
         for prodname in self.sector.products['multisource']:
+            try:
+                self._product = productfile.open_product('multisource',prodname)
+            except AttributeError:
+                continue
             log.info('    Trying '+prodname)
-            self._product = productfile.open_product('multisource',prodname)
             # Open productfile, read out productlayers, then sort based on "order" attribute. Trust me.
             layers = sorted(productfile.open_product('multisource',prodname).productlayers.iteritems(),key=lambda x:int(x[1].order),reverse=True)
 
@@ -947,8 +982,11 @@ class GeoImgBase(object):
             log.interactive(logstr+'Writing image file: '+geoips_product_filename.name)
             geoips_product_filename.set_processing()
 
-            self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
+            try:
+                self.figure.savefig(geoips_product_filename.name, dpi=rcParams['figure.dpi'], bbox_inches='tight',
                             bbox_extra_artists=self.axes.texts, pad_inches=0.2, transparent=False)
+            except AttributeError:
+                log.exception('self.figure is None!  Can\'t Plot!')
             log.interactive('Done writing image file: '+geoips_product_filename.name)
             if geoips_product_filename.coverage > 90:
                 log.info('LATENCY: '+str(datetime.utcnow()-geoips_product_filename.datetime)+' '+gpaths['BOXNAME']+' '+geoips_product_filename.name)
@@ -964,7 +1002,7 @@ class GeoImgBase(object):
             for dest,dest_on in self.sector.destinations_dict.items():
                 if not dest_on:
                     continue
-                if geoips_only:
+                if geoips_only and dest != 'metoctiff':
                     log.info('SKIPPING'+dest.upper()+' geoips_only set')
                     continue
                 external_product_filename = self.get_filename(external_product=dest, new_sourcename=new_sourcename,
@@ -977,8 +1015,13 @@ class GeoImgBase(object):
                 log.info('\n\n')
                 log.info(logstr+'Writing image file: '+external_product_filename.name)
                 if dest == 'metoctiff':
-                    from ..output_formats.metoctiff import metoctiff
-                    metoctiff(self,self.sector,external_product_filename.name) 
+                    #rcj 16MAY2019 this is a hacky way to only allow metoctiff creation for these two products
+                    #these are the only two products with code to properly place them in the public (TC)
+                    #directory structure (productfilename.py).  the geoips file path thing needs
+                    #updated for metoctiffs before expanding to other products
+                    if geoips_product_filename._DYNPROPproductname in ['Visible','Infrared']:
+                        from ..output_formats.metoctiff import metoctiff
+                        metoctiff(self,self.sector,external_product_filename.name) 
                 else:
                     try:
                         finalimg = Image.open(geoips_product_filename.name)
@@ -1026,7 +1069,10 @@ class GeoImgBase(object):
         # but that is not going to work to begin with, so we'll have to readdress in the
         # future anyway.
         if self.is_final or not self.intermediate_data_output:
-            plt.close(self.figure)
+            try:
+                plt.close(self.figure)
+            except:
+                pass
 
     def coverage(self):
         '''Tests self.image to determine what percentage of the image is filled with good data.
@@ -1206,99 +1252,26 @@ class GeoImgBase(object):
                         if cbarinfo.norm == 'Boundary':
                             # Need to know how many intervals the colormap is 
                             # going to be divided into
-                            interval = cmap.N/len(bounds)
-                            index = 0
-                            colorlist = []
-                            
-                            # Want to proportionally divide the colormap
-                            # so we need to see the range of bounds
-                            
-                            bounds_range = abs(bounds[0] - bounds[-1])
-                            # Need to add the two "ends" to the bounds
-                            bounds = [bounds[0]-1] + bounds + [bounds[-1]+1] 
-                            
-                            # Append the first color to the list
-                            # we are going to make a new colormap out
-                            # of this list
-                            colorlist.append(cmap(index))
-                            # See which ticklabels are actually going to be used
-                            # These should be a subset of the bounds
-                            ticklabels_ints = [float(i) for i in cbarinfo.ticklabels]
-                            # Gets the "space"/difference between the first
-                            # item in bounds and the first utilized bound 
-                            # which is identified in the subset ticklabels
-                            bound_space = float(abs(bounds[0]-ticklabels_ints[0]))
-                            # In order to convert this difference into a 
-                            # normalized percentage of how much this difference
-                            # is out of a total 100% of the entire colormap we
-                            # convert it to the nearest percentage point.
-                            # This closest percentage point is due to the fact
-                            # that cmap only takes ints
-                            normalized_bound_space = int(math.ceil((bound_space*100)/float(bounds_range)))
-                            # We offset the first space utilized so we are now
-                            # at the first utilized bound
-                            index += int(normalized_bound_space)
-                            # Utilizing this normalized bound we can then 
-                            # append the color tuple from the cmap to a list
-                            # from which we will make the new colormap
-                            colorlist.append(cmap(index))
-                            
-                            # Colormap is normalized by the segments determined
-                            # in the bounds AKA divided into the specific 
-                            # regions specified in the bounds
-                            # We already have the endbar and the first segment
-                            i = 2 
-
-                            while i < len(bounds)-1:
-                                # do the same operations as above but now for
-                                # every bound_space
-                                bound_space = float(abs(bounds[i]-bounds[i+1]))
-                                normalized_bound_space = int(math.ceil((bound_space*100)/float(bounds_range)))
-                                # This is not very intuitive
-                                # The reason we do this is because colormaps
-                                # are on a gradient, and we want the color 
-                                # in the middle of that gradient.
-                                # *************************************
-
-                                # IF COLORS ARENT LINING UP, COME HERE!!
-
-                                # **************************************
-                                index += int(1.5*normalized_bound_space)
-                                colorlist.append(cmap(index))
-                                i +=1
-                            # put the ticklabels here
-                            # tick labels are of str type
-                            ticklabels = cbarinfo.ticklabels
-
-                            # we are going to create a subset where we 
-                            # only utilize the colors corresponding to
-                            # the intervals in the ticks subset.
-                            colorlist_subset = []
-                            for item in ticklabels_ints:
-                                if item in bounds:
-                                    colorlist_subset.append(colorlist[bounds.index(item)])
-
-                            colorlist = [colorlist[0]] + colorlist_subset + [colorlist[-1]]
-                            
-                            # we utilize the ticks from this subset to normalize
-                            ticks = [ticklabels_ints[0]-1] + ticklabels_ints + [ticklabels_ints[-1]+1]
-                            bounds = ticks
-                            # create a new colormap from the subset of colors
+                            # create a desired 15 colormap for IMERG rainfall 
+                            colorlist=['gray','navy','mediumblue','blue','turquoise','springgreen',
+                            'limegreen','green','yellow','bisque','orange','chocolate','red','maroon','black']
                             cmap = matplotlib.colors.ListedColormap(colorlist,N=len(colorlist))
                             # normalize it by bounds
-                            cbar_norm = matplotlib.colors.BoundaryNorm(ticks, cmap.N)
+                            cbar_norm = matplotlib.colors.BoundaryNorm(bounds, cmap.N)
                             
                             # CAB 20180822:
                             # for some reason GeoIPS isnt seeing  the XML tag 
                             # "spacing". So I have hardcoded it into "uniform" 
                             spacing = 'uniform'
-
+                            ticklabels = cbarinfo.bounds.split(' ')
+                    else:
+                            ticklabels = cbarinfo.ticklabels
                     # Now set the colorbar based on the passed values
                     cbar = ColorbarBase(cbar_axes, cmap=cmap, extend='both',
                                  orientation='horizontal', ticks=ticks, norm=cbar_norm,
                                  boundaries = bounds, spacing = spacing)
                     if len(cbarinfo.ticklabels) != 0 :
-                        cbar.set_ticklabels(cbarinfo.ticklabels)
+                        cbar.set_ticklabels(ticklabels)
                     # MLS 20151202 This sets the font size for the color bar 
                     # tick labels. Lots of available tick params for tweaking
                     cbar.ax.tick_params(labelsize='small')

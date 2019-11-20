@@ -34,6 +34,95 @@ from geoips.utils.satellite_info import SatSensorInfo
 
 log = logging.getLogger(__name__)
 
+class LOCAL_WINDS_LOCALDATA(LocalDataSite):
+    ''' Subclass of LocalDataSite for initiating processing of
+            locally available Winds text data.
+
+        Data_type and host_type are used as keys for running downloader
+            ./downloaders/downloader.py winds local
+        host is only used for display purposes for LocalDataSite -
+            set to the actual remote site for FTP/HTTP. '''
+    data_type = 'winds'
+    host_type = 'local'
+    host = 'localdirs '
+
+    dir1 = {'filename_pattern':      'QI*',
+            'base_dir':               os.path.join(os.getenv('GEOIPS_OUTDIRS'), 'data', 'incoming'),
+            }
+    dir2 = {'filename_pattern':      'AMV*',
+            'base_dir':               os.path.join(os.getenv('GEOIPS_OUTDIRS'), 'data', 'incoming'),
+            }
+    local_dirs_to_check = [dir1, dir2]
+
+    # These will show up  for logging purposes when you run
+    #   ./downloaders/downloader.py
+    for currdir in local_dirs_to_check:
+        if 'base_dir' in currdir.keys() and currdir['base_dir']:
+            host += ' '+currdir['base_dir']
+
+    def __init__(self,downloadactive=True,bandlist=None,**kwargs):
+        ''' Required __init__ method, set up downloader attributes:
+                queue parameters
+                    * queue set to $DEFAULT_QUEUE by default in downloader.py
+                    *       (None if DEFAULT_QUEUE not set)
+                    * can set the num cpus and mem per cpu here.
+                GeoIPS processing parameters
+                    * self.run_geoips defaults to False!
+                External processing scripts
+                    * self.pp_script : if defined, will run non-GeoIPS processing'''
+
+        super(LOCAL_WINDS_LOCALDATA,self).__init__(downloadactive,bandlist=bandlist,**kwargs)
+        self.run_geoips = True
+        #self.mp_max_cpus = 8
+        #self.mp_mem_per_cpu = 25
+
+    def get_final_filename(self,file):
+        ''' Keep original filename, and create basic output path
+            Avoid using DataFileName. '''
+        return os.path.join(os.getenv('GEOIPS_OUTDIRS'), 'data', 'winds', os.path.basename(file))
+
+    def makedirs(self, file):    
+        ''' Create path set in get_final_filename, without using DataFileName '''
+        try:
+            os.makedirs(os.path.join(os.getenv('GEOIPS_OUTDIRS'), 'data', 'winds'))
+        except OSError:
+            pass 
+
+    def postproc(self, file, geoips_args=None, forceprocess=False, noprocess=False):
+        ''' Kick off geoips processing, with no reliance on DataFilename 
+            Set basic output log path, and set basic queue name '''
+
+        geoips_executable = os.getenv('GEOIPS')+'/geoips/driver.py'
+        geoips_args.addarg(file)
+        arglist = geoips_args.get_arglist()
+
+        from geoips.utils.qsub import qsub
+        qsub(geoips_executable,
+             arglist,
+             queue=self.queue,
+             name='GWwinds',
+             resource_list=None,
+             outfile=os.path.join(os.getenv('GEOIPS_OUTDIRS'), 'logs', 'winds', os.path.basename(file)+'.log')
+             )
+
+    def sort_files(self,filelist):
+        ''' Sort the list of available files for download, without using DataFileName '''
+        filelist.sort(reverse=True)
+        return filelist
+
+    def getfilelist(self,start_datetime,end_datetime):
+        ''' Get list of available files, without relying on satellite_info or DataFileName '''
+
+        files = []
+        for dir in self.local_dirs_to_check:
+            if 'base_dir' in dir.keys() and dir['base_dir']:
+                # Files go in base_dir/QI* or AMV*
+                # where basedir is $GEOIPS_OUTDIRS/data/incoming
+                log.info('    Finding appropriate files in '+dir['base_dir']+'/'+dir['filename_pattern']+' ...')
+                currfiles = glob(dir['base_dir']+'/'+dir['filename_pattern'])
+                files += currfiles
+        return files
+
 class TESTLOCAL_TESTABI_LOCALDATA(LocalDataSite):
     ''' Subclass of LocalDataSite for initiating processing of
             locally available ABI data.
@@ -118,10 +207,10 @@ class TESTLOCAL_TESTABI_LOCALDATA(LocalDataSite):
         log.info('  In run_on_files TESTLOCAL_TESTABI '+str(num_files)+' files in directory '+listthesefiles)
 
         # Limit frequency we actually process 
-        #dfn = DataFileName(os.path.basename(final_file)).create_standard()
-        #if dfn.datetime.minute != 0 and dfn.datetime.minute != 30: 
-        #    log.info('ONLY RUNNING 0 30 MINUTES FOR NOW. Skipping processing')
-        #    return []
+        dfn = DataFileName(os.path.basename(final_file)).create_standard()
+        if dfn.datetime.minute != 0 and dfn.datetime.minute != 30: 
+            log.info('ONLY RUNNING 0 30 MINUTES FOR NOW. Skipping processing')
+            return []
 
         # Once we get 16 files, and the current file is RadF, kick off processing 
         if num_files == 16 and runtype in final_file:

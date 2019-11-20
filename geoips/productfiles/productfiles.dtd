@@ -23,26 +23,26 @@
 <!ELEMENT productlayer          (possiblesource+)>
 
 
-<!ELEMENT contour_args          (source+, dataset?, img1?, img2?, img3?, img4?, img5?, img6?, img7?,img8?, day_night,min_cover?, interpmethod?, cmap, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?,
+<!ELEMENT contour_args          (source+, dataset?, img1?, img2?, img3?, img4?, img5?, img6?, img7?,img8?, day_night,min_cover?, interpmethod?, cmap, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?,max_sat_zen_ang?,
                                  colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
                                  best_possible_pixel_width?)>
-<!ELEMENT basic_args            (source+, dataset?, img, day_night,min_cover?, interpmethod?, cmap, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?,
+<!ELEMENT basic_args            (source+, dataset?, img, day_night,min_cover?, interpmethod?, cmap, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?,max_sat_zen_ang?,
                                  colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
                                  best_possible_pixel_width?)>
-<!ELEMENT windbarbs_args        (source+, dataset?, img, img1, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,
+<!ELEMENT windbarbs_args        (source+, dataset?, img, img1, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,max_sat_zen_ang?,
                                  colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
                                  best_possible_pixel_width?)>
-<!ELEMENT streamline_args       (source+, dataset?, img, img1, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,
+<!ELEMENT streamline_args       (source+, dataset?, img, img1, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,max_sat_zen_ang?,
                                  colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
                                  best_possible_pixel_width?)>
-<!ELEMENT footprints_args       (source+, dataset?, speed, direction, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,
+<!ELEMENT footprints_args       (source+, dataset?, speed, direction, day_night,min_cover?, interpmethod?, cmap,interpolation_radius_of_influence?,  max_day_zen_ang?, min_ngt_zen_ang?,max_sat_zen_ang?,
                                  colorbar?,legend_text?, coastcolor?, gridcolor?,best_possible_pixel_height?,
                                  best_possible_pixel_width?)>
-<!ELEMENT external_args         (source+, dataset?, datasets?, day_night?,min_cover?,interpmethod?, interpolation_radius_of_influence?, colorbar*,legend_text?, max_day_zen_ang?,
+<!ELEMENT external_args         (source+, dataset?, datasets?, day_night?,min_cover?,interpmethod?, interpolation_radius_of_influence?, colorbar*,legend_text?, max_day_zen_ang?,max_sat_zen_ang?,
                                  coastcolor?, gridcolor?, best_possible_pixel_height?,best_possible_pixel_width?)>
-<!ELEMENT externalalg_args         (source+, dataset?, datasets?, day_night?,min_cover?,interpmethod?, cmap?, interpolation_radius_of_influence?, colorbar*,legend_text?, max_day_zen_ang?, min_ngt_zen_ang?,
+<!ELEMENT externalalg_args         (source+, dataset?, datasets?, day_night?,min_cover?,interpmethod?, cmap?, interpolation_radius_of_influence?, colorbar*,legend_text?, max_day_zen_ang?, min_ngt_zen_ang?,max_sat_zen_ang?,
                                  coastcolor?, gridcolor?, best_possible_pixel_height?,best_possible_pixel_width?)>
-<!ELEMENT rgb_args              (source+, dataset?, red, grn, blu, day_night,min_cover?,interpmethod?, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?, coastcolor?,
+<!ELEMENT rgb_args              (source+, dataset?, red, grn, blu, day_night,min_cover?,interpmethod?, interpolation_radius_of_influence?, max_day_zen_ang?, min_ngt_zen_ang?, max_sat_zen_ang?,coastcolor?,
                                  gridcolor?,best_possible_pixel_height?,best_possible_pixel_width?)>
 <!ELEMENT legend_text           (below_colorbars?,above_colorbars?,below_title?)>
 <!ELEMENT below_colorbars       (#PCDATA)>
@@ -64,7 +64,7 @@
 <!ELEMENT dataset               (#PCDATA)>
 <!ELEMENT equation              (#PCDATA)>
 
-<!ELEMENT range                 (min_value, max_value, outbounds?,min_outbounds?,max_outbounds?,normalize?,inverse?, units)>
+<!ELEMENT range                 (min_value, max_value, bounds?, outbounds?,min_outbounds?,max_outbounds?,normalize?,inverse?, units)>
 <!-- Equation range paramaters are executed in this order, if specified:
     inverse 
     min_value
@@ -79,6 +79,7 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 
     units is currently UNUSED. Has not been implemented
 -->
+<!ATTLIST source granule_composites CDATA "yes">
 <!ELEMENT min_value             (#PCDATA)>
 <!ELEMENT max_value             (#PCDATA)>
 <!ELEMENT outbounds             (#PCDATA)>
@@ -98,11 +99,12 @@ If outbounds is set, it's value is used for both min_outbounds and max_outbounds
 <!ELEMENT ticklabels            (#PCDATA)>
 <!ELEMENT title                 (#PCDATA)>
 <!ELEMENT bounds                (#PCDATA)>
-<!ELEMENT norm                  (#PCDATA)>
+<!ELEMENT norm                  (#PCDATA)> 
 <!ELEMENT spacing               (#PCDATA)>
 
 <!ELEMENT coastcolor            (#PCDATA)>
 <!ELEMENT gridcolor             (#PCDATA)>
+<!ELEMENT max_sat_zen_ang       (#PCDATA)>
 <!ELEMENT max_day_zen_ang       (#PCDATA)>
 <!ELEMENT min_ngt_zen_ang       (#PCDATA)>
 <!ELEMENT img                   (source?,equation+, color?, level?, range, gamma1?, gamma2?, best_possible_pixel_height?,

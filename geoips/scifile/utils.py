@@ -75,7 +75,7 @@ def find_datafiles_in_range(sector, platform_name, source_name, min_time, max_ti
             filenames += glob(os.path.join(dirname,baseoutfilename+suf))
     return filenames
 
-def write_datafile(basedir, datafile, sector, classif=None, filetype='h5'):
+def write_datafile(basedir, datafile, sector, classif=None, filetype='h5', get_filename_only=False, overwrite=False):
     if filetype != 'h5':
         raise TypeError('Currently only h5 filetypes supported for write')
 
@@ -93,6 +93,8 @@ def write_datafile(basedir, datafile, sector, classif=None, filetype='h5'):
     #pnames = []
     #snames = []
     numfiles = len(datafile.datafiles.keys())
+    if get_filename_only is True:
+        numfiles = 0
     for ds in datafile.datasets.values():
         #pnames += [ds.platform_name]
         #snames += [ds.source_name]
@@ -118,12 +120,21 @@ def write_datafile(basedir, datafile, sector, classif=None, filetype='h5'):
         os.makedirs(dirname)
     outfilename = os.path.join(dirname,baseoutfilename+suf)
     ii = 0
-    while os.path.exists(outfilename):
-        newbaseoutfilename = '%s-%03d%s'%(baseoutfilename,ii,suf)
-        outfilename = os.path.join(dirname, newbaseoutfilename)
-        ii+=1
-    log.info('Writing out %s SciFile data file: %s'%(suf,outfilename))
-    datafile.write(outfilename, filetype=filetype)
+    if get_filename_only is False and overwrite is False:
+        while os.path.exists(outfilename):
+            newbaseoutfilename = '%s-%03d%s'%(baseoutfilename,ii,suf)
+            outfilename = os.path.join(dirname, newbaseoutfilename)
+            ii+=1
+
+    if get_filename_only is True:
+        return outfilename
+    else:
+        log.info('Writing out %s SciFile data file: %s'%(suf,outfilename))
+        if overwrite is True:
+            mode = 'w'
+        else:
+            mode = 'w-'
+        datafile.write(outfilename, filetype=filetype, mode=mode)
 
 
 def recurse_update_dictionary(old_base_dict, new_base_dict, key):

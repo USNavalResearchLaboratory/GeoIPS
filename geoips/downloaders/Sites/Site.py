@@ -345,6 +345,8 @@ class Site(object):
                             resource_list = os.getenv('PBS_RESOURCE_LIST_SELECT')+str(int(self.mp_max_cpus))+\
                                             os.getenv('PBS_RESOURCE_LIST_MEM')+str(int(self.mp_mem_per_cpu*self.mp_max_cpus))+'gb'+\
                                             os.getenv('PBS_RESOURCE_LIST_QLIST')
+                        elif hasattr(self,'pbs_resource_list'):
+                            resource_list = self.pbs_resource_list
                         else:
                             resource_list = None
 

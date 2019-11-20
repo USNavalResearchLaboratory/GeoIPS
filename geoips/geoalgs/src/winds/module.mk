@@ -15,15 +15,17 @@
 # relating to geoalgs)
 
 .PHONY: winds winds_plot winds_coverage
-winds: init $(LIB)/winds.py $(LIB)/winds_plot.py $(LIB)/winds_coverage.py
+# NOTE $(LIB)/motion.py MUST be last so _coverage and _plot get linked first
+winds: init $(LIB)/winds_plot.py $(LIB)/winds_coverage.py $(LIB)/winds.py
 winds_plot: $(LIB)/winds_plot.py
 winds_coverage: $(LIB)/winds_coverage.py
 
-$(LIB)/winds.py: $(SRC)/winds/winds.py init $(SRC)/winds/__init__.py
+$(LIB)/winds.py: $(SRC)/winds/winds.py init
 	@echo ""
 	@echo "----------------------------------"
 	@echo Making library: $@
 	-ln -s $< $@
+	-ln -s $(SRC)/winds/*.py $(LIB)
 	$(ADDIMPORT) "from .$(notdir $(LIB)).winds import winds"
 	@echo "----------------------------------"
 	@echo ""
@@ -56,6 +58,7 @@ clean_winds:
 	-rm $(LIB)/winds.py
 	-rm $(LIB)/winds_plot.py
 	-rm $(LIB)/winds_coverage.py
+	-rm $(LIB)/winds_utils.py
 	$(DELIMPORT) "from .$(notdir $(LIB)).winds import winds"
 	$(DELIMPORT) "from .$(notdir $(LIB)).winds_coverage import winds_coverage"
 	$(DELIMPORT) "from .$(notdir $(LIB)).winds_plot import winds_plot "

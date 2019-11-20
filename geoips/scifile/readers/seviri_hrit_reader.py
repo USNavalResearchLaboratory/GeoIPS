@@ -222,10 +222,11 @@ def countsToRad(counts, slope, offset):
 def radToRef(rad, sun_zen, platform, band):
     irrad = VIS_CALIB[platform][band]
     ref = np.full_like(rad, -999.0)
-    ref[rad > 0] = rad[rad > 0] * 100.0 / irrad
+    # 0 to 1 rather than 0 to 100
+    ref[rad > 0] = rad[rad > 0] / irrad
     ref[rad > 0] = np.pi * rad[rad > 0] / (irrad * np.cos((np.pi / 180) * sun_zen[rad > 0]))
     ref[ref < 0] = 0
-    ref[ref > 100] = 100
+    ref[ref > 1] = 1
     ref[sun_zen > 90] = -999.0
     ref[sun_zen <= -999] = -999.0
     return ref
@@ -396,8 +397,14 @@ class SEVIRI_HRIT_Reader(Reader):
         sdt = None
         imgf = None
         all_segs = set()
+        from struct import error as structerror
         for fname in fnames:
-            df = HritFile(fname)
+            try:
+                df = HritFile(fname)
+            except structerror:
+                # Don't fail altogether if there is one bad file
+                log.exception('FAILED reader %s, skipping', fname)
+                continue
             # Ensure all files have same start datetime
             if not sdt:
                 sdt = df.start_datetime
@@ -474,6 +481,10 @@ class SEVIRI_HRIT_Reader(Reader):
             else:
                 #dfs[band] = {seg: df.decompress(outdir) for seg, df in dfs[band].items()}
                 for seg, df in dfs[band].items():
+                    if df is None:
+                        log.error('FAILED READ ABOVE, SKIPPING TRYING TO DECOMPRESS FILE %s %s', band, seg)
+                        dfs[band].pop(seg)
+                        continue
                     try:
                         dfs[band][seg] = df.decompress(outdir)
                     except HritError:
@@ -533,7 +544,27 @@ class SEVIRI_HRIT_Reader(Reader):
 
             metadata['datavars'][adname][chan.name]['wavelength'] = float(annotation_metadata[chan.band]['band'][3:5]+'.'+annotation_metadata[chan.band]['band'][5:])
 
-        for var in datavars[adname].keys():
-            datavars[adname][var] = np.ma.masked_less_equal(np.flipud(datavars[adname][var]), -999)
+        gvars[adname]['Latitude'] = np.ma.masked_less_equal(gvars[adname]['Latitude'], -999)
+        toplat = gvars[adname]['Latitude'][np.ma.where(gvars[adname]['Latitude'])][0]
+        bottomlat = gvars[adname]['Latitude'][np.ma.where(gvars[adname]['Latitude'])][-1]
+
         for var in gvars[adname].keys():
-            gvars[adname][var] = np.ma.masked_less_equal(np.flipud(gvars[adname][var]), -999)
+
+            if toplat < bottomlat:
+                gvars[adname][var] = np.ma.masked_less_equal(np.flipud(gvars[adname][var]), -999)
+            else:    
+                gvars[adname][var] = np.ma.masked_less_equal(gvars[adname][var], -999)
+
+            if 'SatZenith' in gvars[adname].keys():
+                gvars[adname][var] = np.ma.masked_where(gvars[adname]['SatZenith'] > 75, gvars[adname][var])
+
+        for var in datavars[adname].keys():
+
+            if toplat < bottomlat:
+                datavars[adname][var] = np.ma.masked_less_equal(np.flipud(datavars[adname][var]), -999)
+            else:    
+                datavars[adname][var] = np.ma.masked_less_equal(datavars[adname][var], -999)
+
+            if 'SatZenith' in gvars[adname].keys():
+                datavars[adname][var] = np.ma.masked_where(gvars[adname]['SatZenith'] > 75, datavars[adname][var])
+        

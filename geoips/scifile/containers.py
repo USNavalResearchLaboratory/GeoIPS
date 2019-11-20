@@ -557,7 +557,7 @@ class DataSet(object):
             self.variables._force_append(var.get_with_data())
 
         for gvar in self.geolocation_variables.values():
-            self.variables._force_append(var.get_with_data())
+            self.variables._force_append(gvar.get_with_data())
 
     def create_subset(self, variables=[], geolocation_variables=[]):
         '''
@@ -1346,8 +1346,8 @@ class DataSet(object):
 
         if hasattr(ad, 'pixel_size_x') and hasattr(ad, 'pixel_size_y'):
             if ad.pixel_size_x > roi or ad.pixel_size_y > roi:
-                log.info('        Using sector radius of influence: '+str(ad.pixel_size_x)+' or '+str(ad.pixel_size_y)+', not sensor/product: '+str(roi))
-                roi = ad.pixel_size_x if ad.pixel_size_x > ad.pixel_size_y else ad.pixel_size_y
+                log.info('        Using sector radius of influence: '+str(ad.pixel_size_x*1.5)+' or '+str(ad.pixel_size_y*1.5)+', not sensor/product: '+str(roi))
+                roi = ad.pixel_size_x * 1.5 if ad.pixel_size_x > ad.pixel_size_y else ad.pixel_size_y * 1.5
         # print_mem_usage('cont2beforeresample',True)
         # MLS 20160203 huge memory usage during resample, but comes back down
         #       to pre-dstack levels immediately after (can be >2x during)
@@ -1365,6 +1365,11 @@ class DataSet(object):
             joined = kd_tree.resample_gauss(self.data_box_definition,
                                             joined, ad, radius_of_influence=roi,
                                             sigmas=[4000]*len(arrays))#, fill_value=None)
+
+        elif interp_method == 'gauss_imerg':
+            joined = kd_tree.resample_gauss(self.data_box_definition,
+                                            joined, ad, radius_of_influence=roi,
+                                            sigmas=[10000]*len(arrays))#, fill_value=None)
 
         elif interp_method == 'rectbivariatespline':
             lati = self.geolocation_variables['Latitude']
@@ -1557,6 +1562,18 @@ class DataSet(object):
             self.geolocation_variables._force_append(self.geolocation_variables['SunZenith'].read())
         # Determine where day and create DataSet level mask
         self._set_mask_inplace(np.ma.make_mask(self.geolocation_variables['SunZenith'] < max_zenith))
+
+    def mask_edge_of_scan(self, max_sat_zenith=90):
+        '''Mask all variables in the DataSet where SatZenith is greater than max_sat_zenith.'''
+        # Read SatZenith without reading the rest of the variables to save time here
+        # Replace SatZenith variable in self.geolocation_variables
+        if 'SatZenith' in self.geolocation_variables.keys():
+            if self.geolocation_variables['SatZenith'].empty:
+                self.geolocation_variables._force_append(self.geolocation_variables['SatZenith'].read())
+            # Determine where day and create DataSet level mask
+            self._set_mask_inplace(np.ma.make_mask(self.geolocation_variables['SatZenith'] > max_sat_zenith))
+        else:
+            log.warning('SatZenith not defined, not masking edge of scan!!')
 
     @property
     def scifile(self):

@@ -21,7 +21,6 @@ import logging
 
 
 # Installed Libraries
-from IPython import embed as shell
 import numpy as np
 from lxml import etree, objectify
 from pyresample.geometry import AreaDefinition
@@ -992,6 +991,16 @@ class Sector(object):
                 right = Coordinate(lon=float(self.max_lon_float),
                                    lat=float(latval))
                 lon_dist = left.distance(right)*earth_radius_km 
+                # Currently sectors that are >180 degrees across can have incoorect width calculations (goes the
+                # short way around the globe) - Need to calculate from left to middle, then middle to right.
+                # Not implementing this until we know which sectors this will affect - geolocation will have to 
+                # be recalculated
+                # if self.max_lon_float - self.min_lon_float > 180:
+                #     center = Coordinate(lon=float(self.center_lon_float),
+                #                      lat=float(latval))
+                #     lon_dist = left.distance(center)*earth_radius_km  + center.distance(right)*earth_radius_km
+                # else:
+                #     lon_dist = left.distance(right)*earth_radius_km 
                 self._width = lon_dist*1000
                 return self._width
             else:
@@ -1324,6 +1333,13 @@ class Sector(object):
                 # Default to scifile platform_name_display - always set, defaults to platform name if not 
                 # specified in reader
                 return self.scifile.platform_name_display
+	@property
+	def allowed_satellites(self):
+	    if self.eval_att('@allowed_platforms'):
+		# rcj20190129 added ability to specify which satellite's data source to process in sector files
+		# to actually do the check during processing need to add this property to this object
+		return self.eval_att('@allowed_platforms')
+	    	
             
 
     class TCInfoNode(XMLNode):

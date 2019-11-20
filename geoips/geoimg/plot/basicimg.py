@@ -11,10 +11,12 @@
 # included license for more details.
 
 # Python Standard Libraries
+import matplotlib
 import logging
 import os
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 
 # Installed Libraries
 import numpy as np
@@ -67,22 +69,31 @@ class BasicImg(GeoImgBase):
             #   for multiple data resolutions
 
             gun = self.product.images['img']
-
             img_dts['start_clrgunsingle'+sname+pname] = datetime.utcnow()
             self._image = np.flipud(create_color_gun(self.registered_data, gun))
             img_dts['end_clrgunsingle'+sname+pname] = datetime.utcnow()
-            colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap(self.product.cmap))
+            
+            # add flexibility:  if Boundary is added in the productfile.mxl
+            #     the discrete colorbar is selected.  
+            if len(self.product.colorbars) > 0 and self.product.colorbars[0].norm == 'Boundary':
+		#ticks = [float(i) for i in self.product.colorbars[0].bounds.split(' ')]
+		#bounds = [ticks[0]-1] + ticks + [ticks[-1]+1]
+		colormapper = cm.ScalarMappable(norm=None, cmap=get_cmap(self.product.cmap))
+            else:
+		colormapper = cm.ScalarMappable(norm=colors.NoNorm(), cmap=get_cmap(self.product.cmap))
+
             img_dts['start_torgbasingle'+sname+pname] = datetime.utcnow()
             self._image = colormapper.to_rgba(self.image)
             img_dts['end_torgbasingle'+sname+pname] = datetime.utcnow()
             log.info(sname+pname+' Done Creating single channel image.')
             img_dts['end_fullsingleimg'+sname+pname] = datetime.utcnow()
 
+
             for sttag in sorted(img_dts.keys()):
                 if 'start_' in sttag:
                     tag = sttag.replace('start_','')
                     try:
-                        log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag])+' '+socket.gethostname())
+                        log.info('process image time %-40s: '%tag+str(img_dts['end_'+tag]-img_dts['start_'+tag]))
                     except:
                         log.info('WARNING! No end time for '+sttag)
         return self._image
@@ -93,8 +104,20 @@ class BasicImg(GeoImgBase):
         self._figure, self._axes = self._create_fig_and_ax()
         #self.axes.legend(loc=4,fontsize='small')
 
-        #self.basemap.imshow(self.image, ax=self.axes, interpolation='none')
-        self.basemap.imshow(self.image, ax=self.axes, interpolation='nearest')
+        #colorlist=['fuchsia','lightcyan','turquoise','lightseagreen','springgreen',
+        #           'limegreen','green','yellow','tan','orange','chocolate','red','maroon','black']
+        #cmap = matplotlib.colors.ListedColormap(colorlist,N=len(colorlist))
+
+        if len(self.product.colorbars) > 0 and self.product.colorbars[0].norm == 'Boundary':
+	    cmap=self.product.cmap
+	    ticks = [float(i) for i in self.product.colorbars[0].bounds.split(' ')]
+	    bounds = [ticks[0]-1] + ticks + [ticks[-1]+1]
+	    norm = colors.BoundaryNorm(bounds, get_cmap(self.product.cmap).N)
+    
+	    self.basemap.imshow(self.image, ax=self.axes, interpolation='nearest', cmap=cmap, norm=norm)
+        else:
+	    self.basemap.imshow(self.image, ax=self.axes, interpolation='nearest')
+
         if self.is_final:
             self.finalize()
 

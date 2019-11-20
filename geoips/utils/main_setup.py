@@ -159,6 +159,12 @@ class ArgParse(argparse.ArgumentParser):
                         help='''If write_registered_datafile is included command line, write out the sectored
                                 datafile to plugin_paths.paths['PREREGISTERED_DATA_PATH'] before processing''')
 
+        if 'product_options' in arglist:
+            self.add_argument('--product_options', default=None,
+                              help='''Keyword specifying a desired set of parameters
+                              for processing (can be used in geoalgs)'''
+                              )
+
         if 'sectorlist' in arglist: self.add_argument('-s', '--sectorlist', nargs='?', default=None,
                         help='''A list of short sector names over which the data file should be processed.
                              Short sector names are available in the "name" attribute of the "sector"
@@ -246,7 +252,7 @@ class ArgParse(argparse.ArgumentParser):
                                 'will be included, only products from the provided path.\n\n'
                                 )
 
-        if set(['queue','next','max_total_jobs','max_wait_seconds','max_connections']).intersection(set(arglist)):
+        if set(['queue', 'next', 'max_total_jobs', 'max_user_jobs', 'max_wait_seconds', 'max_connections']).intersection(set(arglist)):
             pbs_opts = self.add_argument_group(title='PBS Queue Options')
             if 'queue' in arglist: pbs_opts.add_argument('-q', '--queue', 
                             default=os.getenv('DEFAULT_QUEUE'), metavar='queue@hostname',
@@ -257,6 +263,10 @@ class ArgParse(argparse.ArgumentParser):
             if 'max_total_jobs' in arglist: pbs_opts.add_argument('--max_total_jobs', default=1500,
                                 help='Specify the maximum number of jobs that can be in the queue for downloads to run\n'+\
                                         'Default: 1500 jobs\n\n'
+                               )
+            if 'max_user_jobs' in arglist: pbs_opts.add_argument('--max_user_jobs', default=10,
+                                help='Specify the maximum number of user jobs that can be in the queue for downloads to run\n'+\
+                                        'Default: 10 jobs\n\n'
                                )
             if 'max_wait_seconds' in arglist: pbs_opts.add_argument('--max_wait_seconds', default=90,
                                 help='Specify the maximum amount of time we will wait for the queue to clear before giving up and moving on to the next file\n'+\

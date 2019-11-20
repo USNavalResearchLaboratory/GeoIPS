@@ -27,8 +27,8 @@ from IPython import embed as shell
 
 
 # GeoIPS Libraries
-import geoips.sectorfile
-import geoips.productfile
+import geoips.sectorfile as sectorfile
+import geoips.productfile as productfile
 from geoips.pass_prediction.pass_prediction import time_range_defaults
 from geoips.utils.path.datafilename import DataFileName
 from geoips.utils.path.productfilename import ProductFileName

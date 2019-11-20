@@ -16,9 +16,9 @@
             <equation>B01Ref</equation>
             <range>
                 <min_value>0.0</min_value>
-                <max_value>100.0</max_value>
+                <max_value>1.0</max_value>
                 <outbounds>crop</outbounds>
-                <units>reflectance</units>
+                <units>albedo</units>
             </range>
             <gamma1>1.5</gamma1>
         </img>

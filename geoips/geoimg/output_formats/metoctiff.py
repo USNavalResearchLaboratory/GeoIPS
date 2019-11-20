@@ -21,17 +21,24 @@
 
 # Standard Python Libraries
 from datetime import datetime
-import re
 import logging
+import os
 
 
 # Installed Libraries
 import numpy
-import matplotlib
 try:
-    from tifffile import imsave
-except: 
-    print 'Failed import tifffile in geoimg/plot/metoctiff.py. If you need it, install it.'
+    #import our custom color maps
+    from geoips.geoimg.output_formats.colormap import color_map_greyScale,color_map_color
+except Exception as err:
+    print('error importing color_map',str(err.message))
+try:
+    #use these packages to create and destroy metoctiffs
+    from skimage.external import tifffile as tf
+    import gzip
+    import shutil
+except Exception as err:
+    print('error importing tiff related packages',str(err.message))
 
 try: 
     from IPython import embed as shell
@@ -41,8 +48,8 @@ except:
 
 # GeoIPS Libraries
 from geoips.utils.log_setup import interactive_log_setup
-from geoips.utils.path.productfilename import ProductFileName
 
+#This is a display of info from the ATCF app
 #*** pSatStuff->                                 ***
 #***       Satellite name =                      ***
 #***       nChannelNumber = 0                    ***
@@ -89,42 +96,36 @@ def metoctiff(self, sector, output_filename):
     rsURLat = int(numpy.rad2deg(corners[2].lat) * 100000)
     rsURLon = int(numpy.rad2deg(corners[2].lon) * 100000)
 
-    rsLLLat = int(numpy.rad2deg(corners[1].lat) * 100000)
-    rsLLLon = int(numpy.rad2deg(corners[1].lon) * 100000)
+    rsLLLat = int(numpy.rad2deg(corners[0].lat) * 100000)
+    rsLLLon = int(numpy.rad2deg(corners[0].lon) * 100000)
 
-    rsLRLat = int(numpy.rad2deg(corners[0].lat) * 100000)
-    rsLRLon = int(numpy.rad2deg(corners[0].lon) * 100000)
+    rsLRLat = int(numpy.rad2deg(corners[1].lat) * 100000)
+    rsLRLon = int(numpy.rad2deg(corners[1].lon) * 100000)
 
 #
 #  Get the center lat lon values of image for the metoctiff tags
 #
-
-    rsUCLat = (rsULLat - rsURLat) / 2 + rsULLat
-    rsUCLon = (rsULLon - rsURLon) / 2 + rsULLon
-
-    rsBCLat = (rsLLLat - rsLRLat) /2 + rsLLLat
-    rsBCLon = (rsLLLon - rsLRLon) /2 + rsLLLon
-
-#
-#  Tiff tags still have to figure out how to get these from the self.
-#
     
-    nChannelNumber = 0
-    nWidth = self.image.shape[0]
-    nHeight = self.image.shape[1]
-    nBitsPerPixel = 8
+    rsUCLat = (rsULLat + rsURLat) / 2
+    rsUCLon = (rsULLon + rsURLon) / 2 
+
+    rsBCLat = (rsLLLat + rsLRLat) /2 
+    rsBCLon = (rsLLLon + rsLRLon) /2     
 
 #
-#  Extra tags set in imsave
+#  Info for extra tags required for metocTiff
 #
 
-    nProjection = 4
-    rsStandard1 = 0
-    rsStandard2 = 0
-    nHemisphere = 1
+    nProjection = 4 # 1 = Polar Stereographic 2 = Lambert Conformal 4 = Mercator 8 = Normal.  It's likely that mercator is analogous to 'cyl' in pyproj
+    rsStandard1 = 0 #only used if lamber conformal projection is specified
+    rsStandard2 = 0 #only used if lamber conformal projection is specified
+    if rsBCLat >= 0:
+        Hemisphere = 1 #northern
+    else:
+        Hemisphere = 2 #southern
 
 #
-#  Setup the szDescription varaibles
+#  The ATCF app relies heavily upon tag 270 (description) to ingest metoctiffs.  Setup the szDescription variables
 #
 
     platform = self.title.satellite
@@ -135,7 +136,10 @@ def metoctiff(self, sector, output_filename):
         return None
     data_max = int(self.product.images['img'].max)
     data_min = int(self.product.images['img'].min)
-    data_units = self.product.images['img'].units
+    if self.product.images['img'].units:
+        data_units = self.product.images['img'].units
+    else:
+        data_units = 'unknown'
 
 #
 #  The image is normalized data 0-1 and the imagey needs to be 0-255
@@ -145,8 +149,8 @@ def metoctiff(self, sector, output_filename):
     image_min = int(self.image.min() * 255)
 
 #
-#  Setup the start and end time strings and convert them to metoctiff format
-#
+    #  Setup the start and end time strings and convert them to metoctiff format
+    #
 
     geoips_start_time = self.start_datetime
     data_start_time = geoips_start_time.strftime('%a, %d %b %Y %H:%M:%S GMT')
@@ -154,7 +158,8 @@ def metoctiff(self, sector, output_filename):
     data_end_time = geoips_end_time.strftime('%a, %d %b %Y %H:%M:%S GMT')
 
 #
-#  The item discription string is written to tiff tag 270 and is needed by ATCF
+#
+#The item discription string is written to tiff tag 270 and is needed by ATCF
 #
 
     szDescription = 'DATA_PLATFORM='+'"'+platform+'"'+';'+'DATA_NAME='+'"'+data_name+'"'+';'+'DATA_START_TIME='+'"'+data_start_time+'"'+';'+'DATA_END_TIME='+'"'+data_end_time+'"'+';'+'DATA_UNITS='+'"'+data_units+'"'+';'+'DATA_RANGE='+'"'+str(image_min)+','+str(image_max)+','+str(data_min)+','+str(data_max)+',None'+'"'+';'
@@ -163,19 +168,49 @@ def metoctiff(self, sector, output_filename):
 #  Create the 8 bit image to pass to the tiff writer.
 #
 
-    data_tbs = {}
-
     data_tbs = self.image[:,:,0:3] * 255
 
     data_tbsint = numpy.flipud(data_tbs.astype(numpy.uint8))
+    
+    #TODO
+    #set the color map based on the product in data_name = self.title.product
+    if data_name in ['Visible']:
+        colorMap = color_map_greyScale
+    else:
+        colorMap = color_map_color
+        
+    #colorMap = color_map_color
 
-    ctvalue = 1
-    color_map = [ctvalue for i in range(768)] 
-
-
-#   shell()
-
-#
-#  Use imsave to write the metoctiff file
-#
-    imsave(output_filename,data_tbsint,extratags=[(33000,'i',1,nProjection,True),(33001,'i',1,rsStandard1,True),(33002,'i',1,rsStandard2,True),(33003,'i',1,nHemisphere,True),(33004,'i',1,rsULLat,True),(33005,'i',1,rsULLon,True),(33006,'i',1,rsLLLat,True),(33007,'i',1,rsLLLon,True),(33008,'i',1,rsURLat,True),(33009,'i',1,rsURLon,True),(33010,'i',1,rsLRLat,True),(33011,'i',1,rsLRLon,True),(33012,'i',1,rsBCLat,True),(33013,'i',1,rsBCLon,True),(33014,'i',1,rsUCLat,True),(33015,'i',1,rsUCLon,True),(270,'s',1,szDescription,True),(320,'H',768,color_map,True)])
+    # if passing in tag 320 as an extratag, TiffWriter expects a 1d array with all red values, then green values, then blue values of length 2**(data.itemsize*8)
+    # if using TiffWriter.save colormap parameter, the object passed must be shape (3, 2**(data.itemsize*8)) and dtype uint16
+    # not sure why reversing the color map is appropriate here, but it is
+    r = colorMap[0:256]
+    r.reverse()
+    g = colorMap[256:512]
+    g.reverse()
+    b = colorMap[512:]
+    b.reverse()
+    #create the object to pass into the colormap parameter of TiffWriter.save
+    clrmap = numpy.array([r,g,b],dtype=numpy.uint16)    
+    
+    try:
+        # write out the file
+        with tf.TiffWriter(output_filename) as mtif:
+            # data shape should be image depth, height (length), width
+            # after transposing just take one dimension so that a single page mtif pops out the other side
+            # have only successfully loaded into ATCF mtif's with photometric (tag 262) as palette.  This setting is inferred from the data shape and the value of the colormap.
+            # setting metadata=None prevents some double writing of tags that can occur during the mtif.save process that the user (me or you) may not expect to be written
+            mtif.save(data_tbsint.transpose(2,0,1)[0,:,:],colormap=clrmap,description=szDescription,metadata=None,extratags=[(284,'H',1,1,True),(33000,'i',1,nProjection,True),(33001,'i',1,rsStandard1,True),(33002,'i',1,rsStandard2,True),(33003,'i',1,Hemisphere,True),(33004,'i',1,rsULLat,True),(33005,'i',1,rsULLon,True),(33006,'i',1,rsLLLat,True),(33007,'i',1,rsLLLon,True),(33008,'i',1,rsURLat,True),(33009,'i',1,rsURLon,True),(33010,'i',1,rsLRLat,True),(33011,'i',1,rsLRLon,True),(33012,'i',1,rsBCLat,True),(33013,'i',1,rsBCLon,True),(33014,'i',1,rsUCLat,True),(33015,'i',1,rsUCLon,True)])  
+    except Exception as err:
+        log.info('{0}: {1} >> {2}'.format(type(err).__name__,str(err.__doc__),str(err.args)))
+    
+    #Uncomment this to send gzipped files to /SATPRODUCTS/TC/... and remove the uncompressed files from that same directory
+    #try:
+        ##gzip the file and remove original
+        #with open(output_filename, 'rb') as uncompressedFile, gzip.open(output_filename + '.gz', 'wb') as compressedFile:
+            #shutil.copyfileobj(uncompressedFile, compressedFile)    
+        #if os.path.isfile(output_filename):
+            #os.remove(output_filename)
+    #except Exception as err:
+        #log.info('{0}: {1} >> {2}'.format(type(err).__name__,str(err.__doc__),str(err.args)))
+  

@@ -17,17 +17,13 @@
             <equation>B03Ref</equation> <!-- 1.6um  B05 ABI   IR_016  1.6um MSG Snow/Ice band, near-IR	                                  -->
             <range>
                 <min_value>0</min_value>
-                <max_value>60</max_value>
+                <max_value>0.6</max_value>
                 <outbounds>crop</outbounds>
-                <units>kelvin</units>
+                <units>albedo</units>
             </range>
         </img>
         <day_night>both</day_night>
         <cmap>Greys</cmap>
-        <colorbar>
-            <cmap>Greys</cmap>
-            <ticks>-90 -80 -70 -60 -50 -40 -30 -20 -10 0 10 20 30</ticks>
-        </colorbar>
         <coastcolor>0 0 0</coastcolor>
         <gridcolor>0 0 0</gridcolor>
     </basic_args>

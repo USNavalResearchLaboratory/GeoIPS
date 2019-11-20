@@ -112,7 +112,8 @@ class HTTPSite(Site):
             # then something is wrong
             print 'The authentication header is badly formed.'
             print authline
-            sys.exit(1)
+            #sys.exit(1)
+            raise
 
         scheme = matchobj.group(1)
         realm = matchobj.group(2)

@@ -145,6 +145,7 @@ class MSG_XRIT_Reader(Reader):
 
         si = SatSensorInfo(metadata['top']['platform_name'],metadata['top']['source_name'])
         if not si:
+            from ..scifileexceptions import SciFileError
             raise SciFileError('Unrecognized platform and source name combination: '+metadata['top']['platform_name']+' '+metadata['top']['source_name'])
 
         # chans == [] specifies we don't want to read ANY data, just metadata.

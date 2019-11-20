@@ -66,6 +66,7 @@ def downloader(data_type,
                noprocess=False,
                queue=None,
                max_total_jobs=500,
+               max_user_jobs=10,
                max_connections=None,
                max_wait_seconds=90,
                max_num_geoips_jobs=39,
@@ -144,6 +145,12 @@ def downloader(data_type,
     |                         |                         |                                                            |
     |                         |                         | **Default:** 1500                                          |
     +-------------------------+-------------------------+------------------------------------------------------------+
+    | max_user_jobs           | :docnote:`Undocumented` | Maximum total number of user jobs allowed before proceeding|
+    |                         |                         | with download.  This includes all queued and running jobs  |
+    |                         |                         | in current active queue                                    |
+    |                         |                         |                                                            |
+    |                         |                         | **Default:** 10                                            |
+    +-------------------------+-------------------------+------------------------------------------------------------+
     | max_connections         | :docnote:`Undocumented` | Maximum number of connections allowed to current host      |
     |                         |                         |                                                            |
     |                         |                         | **Default:** None                                          |
@@ -164,7 +171,10 @@ def downloader(data_type,
 
     '''
 
+    max_total_jobs = int(max_total_jobs)
+    max_user_jobs = int(max_user_jobs)
     log.interactive('Running git version of downloader: max_total_jobs: '+str(max_total_jobs)+
+                    ' max_user_jobs: '+str(max_user_jobs) +
                     ' max_connections on "'+host_type+'": '+str(max_connections)+
                     ' max_num_geoips_jobs of "'+data_type+'": '+str(max_num_geoips_jobs)+
                     ' max_wait_seconds: '+str(max_wait_seconds))
@@ -198,9 +208,9 @@ def downloader(data_type,
     log.info('Hostname: ' + socket.gethostname())
     log.info('Current date time '+timestamp)
     if (nodownload):
-        log.info('Not ftping files...')
+        log.info('Not getting files...')
     else:
-        log.info('Going to ftp files...')
+        log.info('Going to get files...')
     log.info('\n\n')
 
     # Top level downloaders are GD<host_type>_<data_type>, 
@@ -216,16 +226,18 @@ def downloader(data_type,
     job_limits_Ronly = {gd_qsubname:max_connections}
     job_limits_RandQ = {gw_qsubname:max_num_geoips_jobs}
 
-    queue_ready = wait_for_queue(sleeptime=30,
+    if noprocess is not True:
+        queue_ready = wait_for_queue(sleeptime=30,
                                  queue=queue,
                                  job_limits_Ronly=job_limits_Ronly,
                                  job_limits_RandQ=job_limits_RandQ,
                                  give_up_time=max_wait_seconds,
                                  max_total_jobs=max_total_jobs,
+                                 max_user_jobs=max_user_jobs,
                                 )
 
-    if queue_ready == False:
-        raise DownloaderGiveup('Queue is not ready, giving up')
+        if queue_ready == False:
+            raise DownloaderGiveup('Queue is not ready, giving up')
     try:
         # Found in Sites/[host_type]_[data_type].py. 
         # getfilelist uses getsinglefilelist, which can be found 
@@ -294,6 +306,7 @@ def downloader(data_type,
         # have to connect - this way we don't need to reserve a 
         # connection for the wrappers...
         log.info('      *** download from '+site.host)
+        #check if the remote location requires authentication
         site.con = site.login(timeout=20)
         for ff in files:
             log.info(ff)
@@ -314,13 +327,14 @@ def downloader(data_type,
             if retval != False:
                 log.interactive('        *** SKIPPING '+str(file)+' already downloaded')
                 continue
-            if (numfiles % 20 ) == 0:
+            if (numfiles % 20 ) == 0 and noprocess is not True:
                 queue_ready = wait_for_queue(sleeptime=30,
                                  queue=queue,
                                  job_limits_Ronly=job_limits_Ronly,
                                  job_limits_RandQ=job_limits_RandQ,
                                  give_up_time=max_wait_seconds,
                                  max_total_jobs=max_total_jobs,
+                                 max_user_jobs=max_user_jobs,
                                 )
 
                 if queue_ready == False:
@@ -424,6 +438,7 @@ def _get_argument_parser():
             'loglevel',
             'queue',
             'max_total_jobs',
+            'max_user_jobs',
             'max_wait_seconds',
             ])
 

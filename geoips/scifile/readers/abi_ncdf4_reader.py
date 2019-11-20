@@ -4,12 +4,15 @@ import os
 from glob import glob
 from datetime import datetime, timedelta
 from collections import Hashable
+import numpy as np
 
 from scipy.ndimage.interpolation import zoom
 from pyresample.geometry import SwathDefinition
 from pyresample.kd_tree import get_neighbour_info
 
 from IPython import embed as shell
+
+# np.seterr(all='raise')
 
 # Installed Libraries
 try:
@@ -922,9 +925,9 @@ class ABI_NCDF4_Reader(Reader):
                 self_register, adname))
             gvars[adname] = get_geolocation(sdt, res_md[self_register], sector_definition)
             if not gvars[adname]:
-                log.error('GEOLOCATION FAILED for {} resolution {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
-                    adname, res, DONT_AUTOGEN_GEOLOCATION))
-                gvars[res] = {}
+                log.error('GEOLOCATION FAILED for adname {} DONT_AUTOGEN_GEOLOCATION is: {}'.format(
+                    adname, DONT_AUTOGEN_GEOLOCATION))
+                gvars[adname] = {}
         else:
             for res in ['HIGH', 'MED', 'LOW']:
                 try:
@@ -1043,8 +1046,9 @@ class ABI_NCDF4_Reader(Reader):
             try:
                 gvars[res].pop('Lines')
                 gvars[res].pop('Samples')
-                for varname, var in gvars.items():
-                    gvars[varname] = np.ma.array(var, mask=gvars['SatZenith'].mask)
+                for varname, var in gvars[res].items():
+                    gvars[res][varname] = np.ma.array(var, mask=gvars[res]['SatZenith'].mask)
+                    gvars[res][varname] = np.ma.masked_where(gvars[res]['SatZenith'] > 75, gvars[res][varname])
             except KeyError:
                 pass
         for ds in datavars.keys():
@@ -1237,6 +1241,14 @@ class ABI_NCDF4_Reader(Reader):
             # Get the radiance data
             # Have to do this when using numexpr
             rad_data = data['Rad'][~bad_data_mask]
+
+            # Sometimes negative values occur due to oddities in calibration
+            # These break the conversion to BT
+            # Since these values are likely caused by very dark (cold) scenes
+            #   that are below the sensor's sensitivity and we are not interested in
+            #   having bad data scattered throughout the imager, we will set this
+            #   to a very small value
+            rad_data[rad_data <= 0] = 0.001
 
             # If we don't need radiances, then reuse the memory
             if not rad:
