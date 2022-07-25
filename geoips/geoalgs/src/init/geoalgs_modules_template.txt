@@ -1,6 +1,0 @@
-Available algorithms
---------------------
-
-.. toctree::
-    :maxdepth: 1
-
